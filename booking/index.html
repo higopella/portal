@@ -5,11 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>練習場所 予約</title>
   <style>
-    /* UI改善：はみ出し防止の徹底 */
     * { box-sizing: border-box; }
     body { font-family: sans-serif; background: #f4f6f9; padding: 15px; margin: 0; color: #333; }
     
-    /* PC対応：全体を中央に寄せ、最大幅を800pxに制限（カレンダーを見やすくするため広めに） */
     .app-container { max-width: 800px; margin: 0 auto; }
     
     .nav-bar { background-color: #0056b3; color: white; padding: 12px; font-weight: bold; display: flex; justify-content: space-between; border-radius: 8px; margin-bottom: 15px; align-items: center; }
@@ -20,14 +18,9 @@
     .form-group { margin-bottom: 15px; width: 100%; }
     label { display: block; margin-bottom: 5px; font-weight: bold; font-size: 14px; }
     
-    /* ★修正：スマホではみ出さないように外観をリセット */
-    input, select { 
-        display: block; width: 100%; max-width: 100%; height: 44px; padding: 10px; 
-        border: 1px solid #ccc; border-radius: 4px; font-size: 16px; background-color: #ffffff; 
-    }
-    input[type="date"], input[type="time"], input[type="number"] {
-        -webkit-appearance: none; appearance: none; /* iPhoneのはみ出しバグを強制リセット */
-    }
+    /* はみ出し防止リセット */
+    input, select { display: block; width: 100%; max-width: 100%; height: 44px; padding: 10px; border: 1px solid #ccc; border-radius: 4px; font-size: 16px; background-color: #ffffff; }
+    input[type="date"], input[type="time"], input[type="number"] { -webkit-appearance: none; appearance: none; }
     
     .preset-container { display: flex; gap: 8px; margin-top: 8px; }
     .btn-preset { flex: 1; padding: 8px; background-color: #e9ecef; border: 1px solid #ccc; border-radius: 4px; font-size: 14px; font-weight: bold; color: #495057; cursor: pointer; }
@@ -41,10 +34,17 @@
     .delete-item { display: flex; justify-content: space-between; align-items: center; padding: 12px; background-color: #fff0f1; border: 1px solid #fbc4c8; border-radius: 4px; margin-bottom: 8px; }
     .btn-delete-item { padding: 6px 12px; background-color: #dc3545; color: white; border: none; border-radius: 4px; font-weight: bold; font-size: 12px; cursor: pointer; flex-shrink: 0; }
 
-    /* ★追加：カレンダーのレスポンシブ枠 */
-    .calendar-container { position: relative; height: 400px; overflow: hidden; border: 1px solid #ddd; border-radius: 4px; margin-bottom: 10px; }
-    .calendar-container iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: 0; }
-    @media (min-width: 768px) { .calendar-container { height: 600px; } }
+    /* ★復元：カレンダーのタブボタン */
+    .calendar-tabs { display: flex; gap: 5px; margin-bottom: 15px; align-items: center; }
+    .tab-btn { padding: 8px 16px; background-color: #e9ecef; border: 1px solid #ccc; border-radius: 4px; font-size: 14px; cursor: pointer; font-weight: bold; color: #495057; }
+    .tab-btn.active { background-color: #0056b3; color: white; border-color: #0056b3; }
+    .refresh-btn { margin-left: auto; background-color: #6c757d; color: white; border-color: #6c757d; }
+
+    /* ★復元：スマホ横スクロール対応のカレンダー枠 */
+    .calendar-container { position: relative; height: 550px; overflow-x: auto; overflow-y: hidden; border: 1px solid #ddd; border-radius: 4px; -webkit-overflow-scrolling: touch; }
+    @media (min-width: 768px) { .calendar-container { height: 600px; overflow: hidden; } }
+    .calendar-container iframe { position: absolute; top:0; left: 0; width: 100%; min-width: 750px; height: 100%; border: 0; }
+    @media (min-width: 768px) { .calendar-container iframe { min-width: 100%; } }
   </style>
 </head>
 <body>
@@ -55,12 +55,17 @@
       <a href="../" class="nav-link">🏠 ホームへ戻る</a>
     </div>
 
-    <!-- ★追加：カレンダー表示エリア -->
+    <!-- カレンダーセクション -->
     <div class="card">
       <h3>現在の予約状況</h3>
-      <!-- 3つの部屋のカレンダーを統合して表示 -->
-      <div class="calendar-container">
-        <iframe src="https://calendar.google.com/calendar/embed?src=a18eeaccc3fb519de5b4b3492df6b26232f7967ab4582a2cd4d314600aa03186%40group.calendar.google.com&color=%23039BE5&src=aade55a25aef3abb1ab00c832c44b660df1336a113dc29c6fff776f046df3dd3%40group.calendar.google.com&color=%23F6BF26&src=fdb34873e469d812b70c3e1f79978398d9a3c0a793287551c3a77ae84f7ed079%40group.calendar.google.com&color=%2333B679&ctz=Asia%2FTokyo&mode=AGENDA&showTitle=0&showPrint=0&showTabs=1&showCalendars=0"></iframe>
+      <div class="calendar-tabs">
+          <button type="button" class="tab-btn" id="btn-agenda" onclick="switchMode('agenda')">スケジュール</button>
+          <button type="button" class="tab-btn active" id="btn-week" onclick="switchMode('week')">週</button>
+          <button type="button" class="tab-btn" id="btn-month" onclick="switchMode('month')">月</button>
+          <button type="button" class="tab-btn refresh-btn" onclick="refreshCalendar()">🔄 更新</button>
+      </div>
+      <div class="calendar-container" id="calendarContainer">
+          <!-- ここにJavaScriptでiframeが生成されます -->
       </div>
     </div>
 
@@ -137,6 +142,43 @@
     // ★★★ ここに生成したGAS（ウェブアプリ）のURLを貼り付けます ★★★
     const GAS_API_URL = "https://script.google.com/macros/s/AKfycbweLz3FJkyLrvrBLXQhYr2QOyYV8hMWeBloQsKEaWtUjqxZ_n9uKEV9JtEEQw0qShov-g/exec";
 
+    let currentMode = 'week';
+
+    // 画面読み込み時にカレンダーを描画
+    window.onload = function() {
+      refreshCalendar();
+    };
+
+    // カレンダーの表示形式切り替え
+    function switchMode(mode) { 
+      currentMode = mode; 
+      document.querySelectorAll('.tab-btn:not(.refresh-btn)').forEach(btn => btn.classList.remove('active')); 
+      document.getElementById('btn-' + mode).classList.add('active'); 
+      refreshCalendar(); 
+    }
+
+    // カレンダーのiframeを生成・更新（キャッシュ回避）
+    function refreshCalendar() {
+      const container = document.getElementById('calendarContainer'); 
+      const timestamp = new Date().getTime(); // iframeのキャッシュを破棄するためのランダム値
+      const todayWkst = new Date().getDay() + 1; // 週の開始日を今日に合わせる
+      
+      // カレンダーIDと色の設定
+      const calBushitsu = encodeURIComponent('a18eeaccc3fb519de5b4b3492df6b26232f7967ab4582a2cd4d314600aa03186@group.calendar.google.com');
+      const colBushitsu = '%23039BE5'; 
+
+      const calKizai = encodeURIComponent('aade55a25aef3abb1ab00c832c44b660df1336a113dc29c6fff776f046df3dd3@group.calendar.google.com');
+      const colKizai = '%23F6BF26'; 
+
+      const calKyoshitsu = encodeURIComponent('fdb34873e469d812b70c3e1f79978398d9a3c0a793287551c3a77ae84f7ed079@group.calendar.google.com');
+      const colKyoshitsu = '%2333B679'; 
+
+      const calSrc = `src=${calBushitsu}&color=${colBushitsu}&src=${calKizai}&color=${colKizai}&src=${calKyoshitsu}&color=${colKyoshitsu}`;
+
+      // iframeを再生成
+      container.innerHTML = '<iframe id="calendarFrame" src="https://calendar.google.com/calendar/embed?' + calSrc + '&ctz=Asia%2FTokyo&mode=' + currentMode + '&wkst=' + todayWkst + '&showTitle=0&showPrint=0&showTabs=0&t=' + timestamp + '" style="border: 0" width="800" height="600" frameborder="0" scrolling="no"></iframe>';
+    }
+
     function switchPage(page) {
       if (page === 'reserve') {
         document.getElementById('reservationPage').style.display = 'block';
@@ -183,7 +225,9 @@
         const res = await callGasApi("addEventToCalendar", data);
         if (res.success) {
           alert('予約が完了しました！');
-          window.location.reload(); 
+          // フォームをリセットしてカレンダーを更新
+          ['date', 'startTime', 'bandName', 'room', 'repName', 'transferStatus', 'duration'].forEach(id => document.getElementById(id).value = '');
+          refreshCalendar();
         } else {
           alert('エラー: ' + res.error);
         }
@@ -251,6 +295,7 @@
         if (res.success) {
           alert('削除しました。');
           searchForDelete(); 
+          refreshCalendar(); // 削除後もカレンダーを更新
         } else {
           alert('エラー: ' + res.error);
         }
