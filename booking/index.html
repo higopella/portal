@@ -160,10 +160,14 @@
     // カレンダーのiframeを生成・更新（キャッシュ回避）
     function refreshCalendar() {
       const container = document.getElementById('calendarContainer'); 
-      const timestamp = new Date().getTime(); // iframeのキャッシュを破棄するためのランダム値
-      const todayWkst = new Date().getDay() + 1; // 週の開始日を今日に合わせる
+      const timestamp = new Date().getTime(); 
+      const todayWkst = new Date().getDay() + 1; 
       
-      // カレンダーIDと色の設定
+      // メインカレンダー（これらが抜けていました！）
+      const calMain = encodeURIComponent('pellapella.calendar@gmail.com');
+      const colMain = '%23D50000'; 
+
+      // 部屋ごとのカレンダー
       const calBushitsu = encodeURIComponent('a18eeaccc3fb519de5b4b3492df6b26232f7967ab4582a2cd4d314600aa03186@group.calendar.google.com');
       const colBushitsu = '%23039BE5'; 
 
@@ -173,10 +177,11 @@
       const calKyoshitsu = encodeURIComponent('fdb34873e469d812b70c3e1f79978398d9a3c0a793287551c3a77ae84f7ed079@group.calendar.google.com');
       const colKyoshitsu = '%2333B679'; 
 
-      const calSrc = `src=${calBushitsu}&color=${colBushitsu}&src=${calKizai}&color=${colKizai}&src=${calKyoshitsu}&color=${colKyoshitsu}`;
+      // 4つすべてのカレンダーを結合
+      const calSrc = `src=${calMain}&color=${colMain}&src=${calBushitsu}&color=${colBushitsu}&src=${calKizai}&color=${colKizai}&src=${calKyoshitsu}&color=${colKyoshitsu}`;
 
       // iframeを再生成
-      container.innerHTML = '<iframe id="calendarFrame" src="https://calendar.google.com/calendar/embed?' + calSrc + '&ctz=Asia%2FTokyo&mode=' + currentMode + '&wkst=' + todayWkst + '&showTitle=0&showPrint=0&showTabs=0&t=' + timestamp + '" style="border: 0" width="800" height="600" frameborder="0" scrolling="no"></iframe>';
+      container.innerHTML = '<iframe id="calendarFrame" src="https://calendar.google.com/calendar/embed?' + calSrc + '&ctz=Asia%2FTokyo&mode=' + currentMode + '&wkst=' + todayWkst + '&showTitle=0&showPrint=0&showTabs=0&t=' + timestamp + '" style="border: 0" width="100%" height="100%" frameborder="0" scrolling="no"></iframe>';
     }
 
     function switchPage(page) {
