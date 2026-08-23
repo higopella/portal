@@ -4,12 +4,9 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>Higo-Pella Portal</title>
-  
-  <!-- アプリアイコン化 (PWA) の設定 -->
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="Higo-Pella">
-  <!-- TODO: ここにサークルのアイコン画像を base64 などで設定するとスマホのホーム画面にアイコンが付きます -->
   
   <style>
     body { font-family: sans-serif; background-color: #f4f6f9; color: #333; margin: 0; padding: 20px; text-align: center; }
@@ -36,18 +33,27 @@
   <div class="container menu" id="menu-screen">
     <h2>ポータルメニュー</h2>
     <p style="font-size: 13px; color: #666;">利用するシステムを選択してください</p>
-    <!-- それぞれのフォルダへのリンク -->
-    <a href="./booking/" class="menu-btn">📅 バンド練習 予約システム</a>
-    <a href="./searchYT/" class="menu-btn yt">▶️ ライブ映像 (YouTube) 検索</a>
+    <a href="./booking/" class="menu-btn">バンド練習 予約システム</a>
+    <a href="./searchYT/" class="menu-btn yt">ライブ映像 (YouTube) 検索</a>
   </div>
 
   <script>
+    // 画面が開かれたときに、すでにログイン済みかチェックする
+    window.onload = function() {
+      if (sessionStorage.getItem("isLoggedIn") === "true") {
+        document.getElementById("login-screen").style.display = "none";
+        document.getElementById("menu-screen").style.display = "block";
+      }
+    };
+
     function checkPassword() {
       const input = document.getElementById("password").value;
-      // ▼▼▼ パスワードはここで設定します（現在は higo2026） ▼▼▼
       const secret = "higo0314"; 
 
       if(input === secret) {
+        // パスワードが合っていれば、ブラウザの記憶領域に「ログイン済み」を保存する
+        sessionStorage.setItem("isLoggedIn", "true");
+        
         document.getElementById("login-screen").style.display = "none";
         document.getElementById("menu-screen").style.display = "block";
       } else {
