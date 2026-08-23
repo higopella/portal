@@ -4,39 +4,47 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>Higo-Pella Portal</title>
+  
+  <!-- アプリアイコン化 (PWA) の設定 -->
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Higo-Pella">
+  <!-- TODO: ここにサークルのアイコン画像を base64 などで設定するとスマホのホーム画面にアイコンが付きます -->
+  
   <style>
     body { font-family: sans-serif; background-color: #f4f6f9; color: #333; margin: 0; padding: 20px; text-align: center; }
     .container { max-width: 400px; margin: 50px auto; background: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
-    input { width: 90%; padding: 12px; margin: 10px 0; border: 1px solid #ccc; border-radius: 6px; font-size: 16px; }
-    button { width: 100%; padding: 14px; background: #007bff; color: white; border: none; border-radius: 6px; font-size: 16px; font-weight: bold; cursor: pointer; }
+    h2 { color: #0056b3; margin-top: 0; }
+    input { width: 90%; padding: 12px; margin: 10px 0; border: 1px solid #ccc; border-radius: 6px; font-size: 16px; box-sizing: border-box; }
+    button { width: 100%; padding: 14px; background: #007bff; color: white; border: none; border-radius: 6px; font-size: 16px; font-weight: bold; cursor: pointer; margin-top: 10px; }
     .menu { display: none; margin-top: 20px; }
-    .menu-btn { display: block; padding: 15px; margin: 10px 0; background: #e9ecef; color: #333; text-decoration: none; border-radius: 8px; font-weight: bold; }
-    .menu-btn:hover { background: #d3d9df; }
-    #error-msg { color: red; font-size: 14px; display: none; }
+    .menu-btn { display: block; padding: 20px; margin: 15px 0; background: linear-gradient(135deg, #0056b3, #007bff); color: white; text-decoration: none; border-radius: 8px; font-weight: bold; font-size: 18px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+    .menu-btn.yt { background: linear-gradient(135deg, #d32f2f, #f44336); }
+    #error-msg { color: red; font-size: 14px; display: none; font-weight: bold; margin-top: 10px; }
   </style>
 </head>
 <body>
 
   <div class="container" id="login-screen">
-    <h2>Higo-Pella Portal</h2>
-    <p>パスワードを入力してください</p>
-    <input type="password" id="password" placeholder="パスワード">
+    <h2>🎤 Higo-Pella Portal</h2>
+    <p style="font-size: 14px; color: #666;">サークル専用システムです</p>
+    <input type="password" id="password" placeholder="パスワードを入力">
     <button onclick="checkPassword()">ログイン</button>
     <p id="error-msg">パスワードが間違っています</p>
   </div>
 
   <div class="container menu" id="menu-screen">
-    <h2>📝 Portal Menu</h2>
-    <!-- ここに各フォルダへのリンクを置きます -->
-    <a href="./booking/" class="menu-btn">練習場所 予約システム</a>
-    <a href="./searchYT/" class="menu-btn">YouTube 検索システム</a>
-    <a href="./forms/" class="menu-btn">各種申請フォーム</a>
+    <h2>ポータルメニュー</h2>
+    <p style="font-size: 13px; color: #666;">利用するシステムを選択してください</p>
+    <!-- それぞれのフォルダへのリンク -->
+    <a href="./booking/" class="menu-btn">📅 バンド練習 予約システム</a>
+    <a href="./searchYT/" class="menu-btn yt">▶️ ライブ映像 (YouTube) 検索</a>
   </div>
 
   <script>
     function checkPassword() {
       const input = document.getElementById("password").value;
-      // ▼ ここに設定したいパスワードを入力します ▼
+      // ▼▼▼ パスワードはここで設定します（現在は higo2026） ▼▼▼
       const secret = "higo0314"; 
 
       if(input === secret) {
