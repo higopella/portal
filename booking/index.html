@@ -99,8 +99,9 @@
   </div>
 
   <script>
-    if (sessionStorage.getItem("isLoggedIn") !== "true") {
-      window.location.href = "../"; // ログインしていなければホーム画面に強制送還
+    // ▼▼▼ パスワード回避防止ガード ▼▼▼
+    if (localStorage.getItem("isLoggedIn") !== "true") { // ★ここを変更
+      window.location.href = "../"; 
     }
     
     // ★★★ ここに生成したGAS（ウェブアプリ）のURLを貼り付けます ★★★
