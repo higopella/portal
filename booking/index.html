@@ -99,8 +99,12 @@
   </div>
 
   <script>
+    if (sessionStorage.getItem("isLoggedIn") !== "true") {
+      window.location.href = "../"; // ログインしていなければホーム画面に強制送還
+    }
+    
     // ★★★ ここに生成したGAS（ウェブアプリ）のURLを貼り付けます ★★★
-    const GAS_API_URL = "https://script.google.com/macros/s/AKfycbymU_0Jqi-fVLn-Ih0hrzLcHtRBeGnEprvWy6Z7u6Bvks_89k6TG4GbyUwOGIg6HObY8A/exec";
+    const GAS_API_URL = "https://script.google.com/macros/s/AKfycbweLz3FJkyLrvrBLXQhYr2QOyYV8hMWeBloQsKEaWtUjqxZ_n9uKEV9JtEEQw0qShov-g/exec";
 
     function switchPage(page) {
       if (page === 'reserve') {
