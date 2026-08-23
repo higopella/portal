@@ -5,15 +5,22 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>練習場所 予約</title>
   <style>
-    /* 元のCSSの主要部分を継承 */
+    /* UIを大幅改善：全体的に box-sizing を適用してはみ出しを防止 */
+    * { box-sizing: border-box; }
     body { font-family: sans-serif; background: #f4f6f9; padding: 15px; margin: 0; color: #333; }
+    
+    /* PC対応：全体を中央に寄せ、最大幅を600pxに制限 */
+    .app-container { max-width: 600px; margin: 0 auto; }
+    
     .nav-bar { background-color: #0056b3; color: white; padding: 12px; font-weight: bold; display: flex; justify-content: space-between; border-radius: 8px; margin-bottom: 15px; align-items: center; }
     .nav-link { color: white; text-decoration: none; font-size: 14px; }
-    .card { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); margin-bottom: 20px; }
+    .card { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); margin-bottom: 20px; width: 100%; }
+    
     h3 { margin-top: 0; border-bottom: 2px solid #f4f6f9; padding-bottom: 10px; margin-bottom: 15px; font-size: 18px; color: #0056b3; }
-    .form-group { margin-bottom: 15px; }
+    .form-group { margin-bottom: 15px; width: 100%; }
     label { display: block; margin-bottom: 5px; font-weight: bold; font-size: 14px; }
-    input, select { display: block; width: 100%; height: 44px; padding: 10px; box-sizing: border-box; border: 1px solid #ccc; border-radius: 4px; font-size: 16px; background-color: #ffffff; }
+    input, select { display: block; width: 100%; height: 44px; padding: 10px; border: 1px solid #ccc; border-radius: 4px; font-size: 16px; background-color: #ffffff; }
+    
     .preset-container { display: flex; gap: 8px; margin-top: 8px; }
     .btn-preset { flex: 1; padding: 8px; background-color: #e9ecef; border: 1px solid #ccc; border-radius: 4px; font-size: 14px; font-weight: bold; color: #495057; cursor: pointer; }
     .btn { display: block; width: 100%; padding: 14px; border: none; border-radius: 4px; cursor: pointer; font-size: 16px; font-weight: bold; color: white; margin-top: 15px; }
@@ -23,87 +30,88 @@
     .page-switch-link { display: inline-block; margin-bottom: 15px; color: #0056b3; text-decoration: none; font-weight: bold; font-size: 14px; cursor: pointer; }
     .loading { display: none; text-align: center; font-weight: bold; color: #0056b3; margin-top: 10px; }
     
-    /* 削除リスト用 */
     .delete-item { display: flex; justify-content: space-between; align-items: center; padding: 12px; background-color: #fff0f1; border: 1px solid #fbc4c8; border-radius: 4px; margin-bottom: 8px; }
-    .btn-delete-item { padding: 6px 12px; background-color: #dc3545; color: white; border: none; border-radius: 4px; font-weight: bold; font-size: 12px; cursor: pointer; }
+    .btn-delete-item { padding: 6px 12px; background-color: #dc3545; color: white; border: none; border-radius: 4px; font-weight: bold; font-size: 12px; cursor: pointer; flex-shrink: 0; }
   </style>
 </head>
 <body>
 
-  <div class="nav-bar">
-    <span>📅 練習場所 予約</span>
-    <a href="../" class="nav-link">🏠 ホームへ戻る</a>
-  </div>
+  <div class="app-container">
+    <div class="nav-bar">
+      <span>練習場所 予約</span>
+      <a href="../" class="nav-link">🏠 ホーム</a>
+    </div>
 
-  <!-- 新規予約画面 -->
-  <div class="card" id="reservationPage">
-    <a class="page-switch-link" onclick="switchPage('delete')">➔ 予約の削除・検索はこちら</a>
-    <h3>新規予約</h3>
-    <div class="form-group"><label>日付</label><input type="date" id="date" required></div>
-    <div class="form-group"><label>開始時刻（7:00 〜 21:00）</label><input type="time" id="startTime" min="07:00" max="21:00" required></div>
-    <div class="form-group"><label>バンド名</label><input type="text" id="bandName" placeholder="例: バンドA" required></div>
-    
-    <div class="form-group">
-        <label>練習場所</label>
-        <select id="room" required>
-            <option value="" disabled selected>-- 選択してください --</option>
-            <option value="①">1 : 部室</option>
-            <option value="②">2 : 機材庫</option>
-            <option value="③">3 : 教室</option>
-        </select>
+    <!-- 新規予約画面 -->
+    <div class="card" id="reservationPage">
+      <a class="page-switch-link" onclick="switchPage('delete')">➔ 予約の削除・検索はこちら</a>
+      <h3>新規予約</h3>
+      <div class="form-group"><label>日付</label><input type="date" id="date" required></div>
+      <div class="form-group"><label>開始時刻（7:00 〜 21:00）</label><input type="time" id="startTime" min="07:00" max="21:00" required></div>
+      <div class="form-group"><label>バンド名</label><input type="text" id="bandName" placeholder="例: バンドA" required></div>
+      
+      <div class="form-group">
+          <label>練習場所</label>
+          <select id="room" required>
+              <option value="" disabled selected>-- 選択してください --</option>
+              <option value="①">1 : 部室</option>
+              <option value="②">2 : 機材庫</option>
+              <option value="③">3 : 教室</option>
+          </select>
+      </div>
+      <div class="form-group"><label>代表者</label><input type="text" id="repName" placeholder="例: 山田" required></div>
+      
+      <div class="form-group">
+          <label>譲ります情報</label>
+          <select id="transferStatus" required>
+              <option value="" disabled selected>-- 選択してください --</option>
+              <option value="いつでも譲ります">いつでも譲ります</option>
+              <option value="前半譲ります">前半譲ります</option>
+              <option value="後半譲ります">後半譲ります</option>
+          </select>
+      </div>
+      
+      <div class="form-group">
+          <label>時間（分）</label>
+          <input type="number" id="duration" min="1" max="120" placeholder="例: 90" required>
+          <div class="preset-container">
+              <button type="button" class="btn-preset" onclick="setDuration(30)">30分</button>
+              <button type="button" class="btn-preset" onclick="setDuration(60)">60分</button>
+              <button type="button" class="btn-preset" onclick="setDuration(90)">90分</button>
+              <button type="button" class="btn-preset" onclick="setDuration(120)">120分</button>
+          </div>
+      </div>
+      
+      <button id="submitBtn" class="btn btn-primary" onclick="submitBooking()">この内容で予約を確定する</button>
+      <div id="loadingText" class="loading">書き込み中...</div>
     </div>
-    <div class="form-group"><label>代表者</label><input type="text" id="repName" placeholder="例: 山田" required></div>
-    
-    <div class="form-group">
-        <label>譲ります情報</label>
-        <select id="transferStatus" required>
-            <option value="" disabled selected>-- 選択してください --</option>
-            <option value="いつでも譲ります">いつでも譲ります</option>
-            <option value="前半譲ります">前半譲ります</option>
-            <option value="後半譲ります">後半譲ります</option>
-        </select>
-    </div>
-    
-    <div class="form-group">
-        <label>時間（分）</label>
-        <input type="number" id="duration" min="1" max="120" placeholder="例: 90" required>
-        <div class="preset-container">
-            <button type="button" class="btn-preset" onclick="setDuration(30)">30分</button>
-            <button type="button" class="btn-preset" onclick="setDuration(60)">60分</button>
-            <button type="button" class="btn-preset" onclick="setDuration(90)">90分</button>
-            <button type="button" class="btn-preset" onclick="setDuration(120)">120分</button>
-        </div>
-    </div>
-    
-    <button id="submitBtn" class="btn btn-primary" onclick="submitBooking()">この内容で予約を確定する</button>
-    <div id="loadingText" class="loading">書き込み中...</div>
-  </div>
 
-  <!-- 削除画面 -->
-  <div class="card" id="deletePage" style="display: none;">
-    <a class="page-switch-link" onclick="switchPage('reserve')">➔ 新規予約はこちら</a>
-    <h3 style="color: #dc3545;">予約の削除・検索</h3>
-    <p style="font-size: 12px; color: #dc3545; font-weight: bold;">※ 日付、時刻、バンド名のいずれかを入力</p>
-    
-    <div class="form-group"><label>日付</label><input type="date" id="deleteDate"></div>
-    <div class="form-group"><label>開始時刻</label><input type="time" id="deleteStartTime"></div>
-    <div class="form-group"><label>バンド名</label><input type="text" id="deleteBandName" placeholder="例: バンドA"></div>
-    
-    <button id="searchDeleteBtn" class="btn btn-danger" onclick="searchForDelete()">対象を検索する</button>
-    
-    <div id="deleteEventListContainer" style="margin-top: 20px; display: none;">
-        <label style="color: #dc3545; font-weight: bold; font-size: 14px;">該当する予約</label>
-        <div id="deleteEventList" style="margin-top: 10px;"></div>
+    <!-- 削除画面 -->
+    <div class="card" id="deletePage" style="display: none;">
+      <a class="page-switch-link" onclick="switchPage('reserve')">➔ 新規予約はこちら</a>
+      <h3 style="color: #dc3545;">予約の削除・検索</h3>
+      <p style="font-size: 12px; color: #dc3545; font-weight: bold;">※ 日付、時刻、バンド名のいずれかを入力</p>
+      
+      <div class="form-group"><label>日付</label><input type="date" id="deleteDate"></div>
+      <div class="form-group"><label>開始時刻</label><input type="time" id="deleteStartTime"></div>
+      <div class="form-group"><label>バンド名</label><input type="text" id="deleteBandName" placeholder="例: バンドA"></div>
+      
+      <button id="searchDeleteBtn" class="btn btn-danger" onclick="searchForDelete()">対象を検索する</button>
+      
+      <div id="deleteEventListContainer" style="margin-top: 20px; display: none;">
+          <label style="color: #dc3545; font-weight: bold; font-size: 14px;">該当する予約</label>
+          <div id="deleteEventList" style="margin-top: 10px;"></div>
+      </div>
+      <div id="deleteLoadingText" class="loading" style="color: #dc3545;">検索中...</div>
     </div>
-    <div id="deleteLoadingText" class="loading" style="color: #dc3545;">検索中...</div>
   </div>
 
   <script>
     // ▼▼▼ パスワード回避防止ガード ▼▼▼
-    if (localStorage.getItem("isLoggedIn") !== "true") { // ★ここを変更
+    if (localStorage.getItem("isLoggedIn") !== "true") {
       window.location.href = "../"; 
     }
-    
+
     // ★★★ ここに生成したGAS（ウェブアプリ）のURLを貼り付けます ★★★
     const GAS_API_URL = "https://script.google.com/macros/s/AKfycbweLz3FJkyLrvrBLXQhYr2QOyYV8hMWeBloQsKEaWtUjqxZ_n9uKEV9JtEEQw0qShov-g/exec";
 
@@ -125,7 +133,7 @@
       const payload = { action: action, data: dataObj };
       const response = await fetch(GAS_API_URL, {
         method: "POST",
-        headers: { "Content-Type": "text/plain" }, // CORS回避
+        headers: { "Content-Type": "text/plain" },
         body: JSON.stringify(payload)
       });
       return await response.json();
@@ -153,7 +161,7 @@
         const res = await callGasApi("addEventToCalendar", data);
         if (res.success) {
           alert('予約が完了しました！');
-          window.location.reload(); // 成功したら画面をリセット
+          window.location.reload(); 
         } else {
           alert('エラー: ' + res.error);
         }
@@ -220,7 +228,7 @@
         const res = await callGasApi("deleteEventById", { eventId: eventId });
         if (res.success) {
           alert('削除しました。');
-          searchForDelete(); // リストを更新
+          searchForDelete(); 
         } else {
           alert('エラー: ' + res.error);
         }
