@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>練習場所 予約</title>
+  <style>
+    body { font-family: sans-serif; background: #f4f6f9; padding: 20px; margin: 0; }
+    .form-box { background: white; padding: 20px; border-radius: 12px; max-width: 400px; margin: 0 auto; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+    label { display: block; margin-top: 15px; font-weight: bold; font-size: 14px; }
+    select, input, button { width: 100%; padding: 12px; margin-top: 5px; border-radius: 6px; border: 1px solid #ccc; font-size: 16px; box-sizing: border-box; }
+    button { background: #28a745; color: white; border: none; font-weight: bold; margin-top: 20px; cursor: pointer; }
+    button:disabled { background: #999; }
+    .back-btn { display: block; text-align: center; margin-top: 20px; color: #007bff; text-decoration: none; }
+  </style>
+</head>
+<body>
+
+  <div class="form-box">
+    <h2 style="text-align: center; margin-top:0;">📅 場所の予約</h2>
+    
+    <label>📍 予約場所</label>
+    <select id="place">
+      <option value="部室">部室</option>
+      <option value="機材庫">機材庫</option>
+      <option value="教室">教室</option>
+    </select>
+
+    <label>👤 予約者（バンド名など）</label>
+    <input type="text" id="name" placeholder="例：Aバンド / 松永">
+
+    <label>🗓 日付</label>
+    <input type="date" id="date">
+
+    <label>⏰ 開始時間</label>
+    <input type="time" id="startTime" value="18:00">
+
+    <label>⌛ 終了時間</label>
+    <input type="time" id="endTime" value="20:00">
+
+    <button id="submitBtn" onclick="submitBooking()">予約を確定する</button>
+    <p id="statusMsg" style="text-align:center; font-size:14px;"></p>
+  </div>
+
+  <a href="../" class="back-btn">← ポータルメニューに戻る</a>
+
+  <script>
+    // ▼ ここにGASでデプロイしたURLを貼り付けます ▼
+    const GAS_URL = "YOUR_GAS_URL_HERE";
+
+    async function submitBooking() {
+      const place = document.getElementById("place").value;
+      const name = document.getElementById("name").value;
+      const date = document.getElementById("date").value;
+      const startTime = document.getElementById("startTime").value;
+      const endTime = document.getElementById("endTime").value;
+      const btn = document.getElementById("submitBtn");
+      const msg = document.getElementById("statusMsg");
+
+      if(!name || !date || !startTime || !endTime) {
+        msg.innerText = "❌ 全ての項目を入力してください";
+        msg.style.color = "red";
+        return;
+      }
+
+      btn.disabled = true;
+      btn.innerText = "送信中...";
+      msg.innerText = "";
+
+      const payload = { place, name, date, startTime, endTime };
+
+      try {
+        const response = await fetch(GAS_URL, {
+          method: "POST",
+          headers: { "Content-Type": "text/plain" }, // CORS回避の重要ポイント
+          body: JSON.stringify(payload)
+        });
+        
+        const result = await response.json();
+        if(result.status === "success") {
+          msg.innerText = "✅ カレンダーに登録されました！";
+          msg.style.color = "green";
+          // フォームをリセット
+          document.getElementById("name").value = "";
+        } else {
+          msg.innerText = "❌ エラー: " + result.message;
+          msg.style.color = "red";
+        }
+      } catch (e) {
+        msg.innerText = "❌ 通信エラーが発生しました";
+        msg.style.color = "red";
+      }
+      
+      btn.disabled = false;
+      btn.innerText = "予約を確定する";
+    }
+  </script>
+</body>
+</html>
