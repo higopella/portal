@@ -40,7 +40,7 @@
   <script>
     // 画面が開かれたときに、すでにログイン済みかチェックする
     window.onload = function() {
-      if (sessionStorage.getItem("isLoggedIn") === "true") {
+      if (localStorage.getItem("isLoggedIn") === "true") { // ★ここを変更
         document.getElementById("login-screen").style.display = "none";
         document.getElementById("menu-screen").style.display = "block";
       }
@@ -51,8 +51,8 @@
       const secret = "higo0314"; 
 
       if(input === secret) {
-        // パスワードが合っていれば、ブラウザの記憶領域に「ログイン済み」を保存する
-        sessionStorage.setItem("isLoggedIn", "true");
+        // パスワードが合っていれば、より強力な記憶領域に保存する
+        localStorage.setItem("isLoggedIn", "true"); // ★ここを変更
         
         document.getElementById("login-screen").style.display = "none";
         document.getElementById("menu-screen").style.display = "block";
