@@ -1,0 +1,15 @@
+{
+  "name": "Higo-Pella Portal",
+  "short_name": "Higo-Pella",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#0056b3",
+  "icons": [
+    {
+      "src": "./src/icon.png",
+      "sizes": "192x192 512x512",
+      "type": "image/png"
+    }
+  ]
+}
