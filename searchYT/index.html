@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>YouTube 検索</title>
+  <style>
+    body { font-family: sans-serif; background: #f4f6f9; padding: 15px; margin: 0; color: #333; }
+    .nav-bar { background-color: #d32f2f; color: white; padding: 12px; font-weight: bold; display: flex; justify-content: space-between; border-radius: 8px; margin-bottom: 15px; align-items: center; }
+    .nav-link { color: white; text-decoration: none; font-size: 14px; }
+    .card { background: white; padding: 15px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); margin-bottom: 20px; }
+    .form-group { margin-bottom: 12px; }
+    label { display: block; font-size: 12px; font-weight: bold; margin-bottom: 4px; }
+    select, input { width: 100%; height: 38px; padding: 8px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; font-size: 14px; }
+    
+    .tab-container { display: flex; gap: 5px; margin-bottom: 15px; }
+    .tab-btn { flex: 1; padding: 8px; background: #e9ecef; border: 1px solid #ccc; border-radius: 4px; font-size: 12px; font-weight: bold; cursor: pointer; color: #555; }
+    .tab-btn.active { background: #d32f2f; color: white; border-color: #d32f2f; }
+    
+    .video-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 10px; }
+    .video-card { background: white; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 5px rgba(0,0,0,0.1); text-decoration: none; color: inherit; display: block; }
+    .video-thumb { width: 100%; aspect-ratio: 16/9; object-fit: cover; background: #ddd; }
+    .video-info { padding: 8px; }
+    .video-title { font-size: 12px; font-weight: bold; margin: 0 0 4px 0; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+    .video-date { font-size: 10px; color: #777; margin: 0; }
+    #loading { text-align: center; color: #d32f2f; font-weight: bold; padding: 20px; font-size: 14px; }
+  </style>
+</head>
+<body>
+
+  <div class="nav-bar">
+    <span>YouTube 検索</span>
+    <a href="../" class="nav-link">ホーム</a>
+  </div>
+
+  <div class="card">
+    <div class="form-group">
+      <label>検索対象プレイリスト</label>
+      <select id="playlistSelect" onchange="loadVideos()">
+        <option value="ALL">全ての動画</option>
+      </select>
+    </div>
+
+    <div class="tab-container">
+      <button class="tab-btn active" id="btn-all" onclick="switchType('all')">全て</button>
+      <button class="tab-btn" id="btn-normal" onclick="switchType('normal')">通常</button>
+      <button class="tab-btn" id="btn-shorts" onclick="switchType('shorts')">Shorts</button>
+    </div>
+
+    <div class="form-group">
+      <label>キーワード検索</label>
+      <input type="text" id="searchInput" placeholder="バンド名、曲名など" oninput="filterVideos()">
+    </div>
+  </div>
+
+  <div id="loading">YouTubeのデータを読み込み中...</div>
+  <div id="videoList" class="video-grid"></div>
+
+  <script>
+    // ★★★ ここに生成したGAS（ウェブアプリ）のURLを貼り付けます ★★★
+    const GAS_API_URL = "https://script.google.com/macros/s/AKfycbymU_0Jqi-fVLn-Ih0hrzLcHtRBeGnEprvWy6Z7u6Bvks_89k6TG4GbyUwOGIg6HObY8A/exec";
+
+    let allVideos = [];
+    let currentType = 'all';
+
+    async function callGasApi(action, dataObj) {
+      const payload = { action: action, data: dataObj };
+      const response = await fetch(GAS_API_URL, {
+        method: "POST",
+        headers: { "Content-Type": "text/plain" },
+        body: JSON.stringify(payload)
+      });
+      return await response.json();
+    }
+
+    // 初回読み込み時にプレイリストと動画を取得
+    window.onload = async function() {
+      try {
+        const res = await callGasApi("getPlaylists", {});
+        if(res.success) {
+          const select = document.getElementById('playlistSelect');
+          res.playlists.forEach(pl => {
+            const opt = document.createElement('option');
+            opt.value = pl.id;
+            opt.textContent = pl.title;
+            select.appendChild(opt);
+          });
+          loadVideos(); // そのまま全ての動画を読み込む
+        }
+      } catch (e) {
+        document.getElementById('loading').textContent = "プレイリストの読み込みに失敗しました";
+      }
+    };
+
+    async function loadVideos() {
+      document.getElementById('videoList').innerHTML = '';
+      document.getElementById('loading').style.display = 'block';
+      const pid = document.getElementById('playlistSelect').value;
+
+      try {
+        const res = await callGasApi("getPlaylistVideos", { playlistId: pid });
+        if(res.success) {
+          allVideos = res.videos;
+          filterVideos();
+        } else {
+          document.getElementById('loading').textContent = "エラー: " + res.error;
+        }
+      } catch (e) {
+        document.getElementById('loading').textContent = "通信エラーが発生しました";
+      }
+    }
+
+    function switchType(type) {
+      currentType = type;
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      document.getElementById('btn-' + type).classList.add('active');
+      filterVideos();
+    }
+
+    function filterVideos() {
+      document.getElementById('loading').style.display = 'none';
+      const keyword = document.getElementById('searchInput').value.toLowerCase();
+      
+      const filtered = allVideos.filter(v => {
+        const matchKey = v.title.toLowerCase().includes(keyword);
+        const matchType = (currentType === 'all') || 
+                          (currentType === 'normal' && !v.isShort) || 
+                          (currentType === 'shorts' && v.isShort);
+        return matchKey && matchType;
+      });
+
+      render(filtered);
+    }
+
+    function render(videos) {
+      const container = document.getElementById('videoList');
+      container.innerHTML = '';
+      
+      if(videos.length === 0) {
+        container.innerHTML = '<p style="grid-column: 1/-1; text-align:center;">該当する動画がありません</p>';
+        return;
+      }
+
+      videos.forEach(v => {
+        const a = document.createElement('a');
+        a.href = v.isShort ? 'https://www.youtube.com/shorts/' + v.videoId : 'https://www.youtube.com/watch?v=' + v.videoId;
+        a.target = '_blank';
+        a.className = 'video-card';
+        
+        const dateObj = new Date(v.publishedAt);
+        const dateStr = `${dateObj.getFullYear()}/${String(dateObj.getMonth()+1).padStart(2,'0')}/${String(dateObj.getDate()).padStart(2,'0')}`;
+        
+        let badge = v.isShort ? '<div style="position:absolute; top:4px; right:4px; background:red; color:white; font-size:10px; padding:2px 4px; border-radius:3px;">Shorts</div>' : '';
+
+        a.innerHTML = `
+          <div style="position:relative;">
+            <img src="${v.thumbnail}" class="video-thumb">
+            ${badge}
+          </div>
+          <div class="video-info">
+            <p class="video-title">${v.title}</p>
+            <p class="video-date">${dateStr}</p>
+          </div>
+        `;
+        container.appendChild(a);
+      });
+    }
+  </script>
+</body>
+</html>
