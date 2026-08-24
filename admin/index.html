@@ -3,214 +3,132 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Admin Dashboard | Higo-Pella</title>
-  
-  <link rel="icon" href="../src/icon.png" type="image/png">
-  <link rel="apple-touch-icon" href="../src/icon.png">
-  <link rel="manifest" href="../manifest.json">
-  
+  <title>Admin | Higo-Pella</title>
   <style>
     * { box-sizing: border-box; }
-    body { font-family: 'Helvetica Neue', Arial, sans-serif; background: #f5f5f7; margin: 0; color: #333; }
+    :root { --primary-dark: #0288d1; --bg: #f7fbff; --card: #fff; --border: #e1e8ed; --text: #333; }
+    body { font-family: Arial, sans-serif; background: var(--bg); color: var(--text); margin: 0; }
     
-    .header { background: #d93025; color: white; padding: 16px 20px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; }
-    .header-title { font-size: 16px; font-weight: 600; }
-    .nav-link { color: white; text-decoration: none; font-size: 13px; font-weight: 500; }
+    .header { background: var(--primary-dark); padding: 10px 20px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 100; }
+    .menu-toggle { font-size: 24px; color: #fff; cursor: pointer; background: none; border: none; padding: 0; }
+    .header-logo { height: 28px; cursor: pointer; }
     
-    .app-container { max-width: 800px; margin: 20px auto; padding: 0 15px; }
-    .card { background: #fff; padding: 25px; border-radius: 12px; box-shadow: 0 2px 12px rgba(0,0,0,0.03); margin-bottom: 20px; border: 1px solid #f0f0f0; }
+    .drawer { position: fixed; top: 0; left: -260px; width: 250px; height: 100vh; background: var(--card); border-right: 1px solid var(--border); z-index: 200; transition: left 0.3s; padding-top: 60px; display: flex; flex-direction: column; }
+    .drawer.open { left: 0; }
+    .drawer-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.3); z-index: 150; display: none; opacity: 0; transition: opacity 0.3s; }
+    .drawer-overlay.open { display: block; opacity: 1; }
+    .drawer-item { display: block; padding: 16px 20px; color: var(--text); text-decoration: none; font-size: 14px; font-weight: bold; border-bottom: 1px solid #f0f4f8; }
+    .drawer-close { position: absolute; top: 15px; right: 20px; font-size: 24px; color: #999; cursor: pointer; background: none; border: none; }
+
+    .content { max-width: 800px; margin: 20px auto; padding: 0 15px; }
+    .card { background: var(--card); padding: 25px; border-radius: 8px; border: 1px solid var(--border); margin-bottom: 20px; }
+    h3 { margin: 0 0 15px; font-size: 15px; color: var(--primary-dark); border-bottom: 1px solid var(--border); padding-bottom: 10px; }
     
-    h3 { margin-top: 0; border-bottom: 1px solid #eee; padding-bottom: 12px; font-size: 16px; font-weight: 600; color: #d93025; }
+    input[type="text"], input[type="password"] { width: 100%; padding: 12px; margin-bottom: 15px; border: 1px solid var(--border); border-radius: 4px; font-size: 14px; outline: none; }
+    button { width: 100%; padding: 14px; background: var(--primary-dark); color: #fff; border: none; border-radius: 6px; font-size: 14px; font-weight: bold; cursor: pointer; }
     
-    /* ログイン画面用 */
-    #login-box { max-width: 400px; margin: 50px auto; text-align: center; }
-    input[type="text"], input[type="password"] { width: 100%; padding: 14px; margin-bottom: 15px; border: 1px solid #d1d1d6; border-radius: 6px; font-size: 15px; outline: none; transition: border 0.3s; }
-    input:focus { border-color: #888; }
+    textarea { width: 100%; height: 80px; padding: 10px; border: 1px solid var(--border); border-radius: 4px; font-size: 14px; margin-bottom: 5px; outline: none; }
+    .checkbox-label { font-size: 13px; font-weight: bold; color: var(--text); display: flex; align-items: center; gap: 5px; margin-bottom: 10px; }
     
-    .btn { display: block; width: 100%; padding: 14px; border: none; border-radius: 6px; font-size: 15px; font-weight: 600; color: white; cursor: pointer; transition: background 0.3s; }
-    .btn-red { background: #d93025; }
-    .btn-red:hover { background: #b3261d; }
-    .btn-red:disabled { background: #ccc; cursor: not-allowed; }
+    table { width: 100%; border-collapse: collapse; font-size: 12px; min-width: 600px; }
+    th, td { padding: 10px; border-bottom: 1px solid var(--border); text-align: left; }
+    th { background: #f9f9f9; }
+    .col-op { white-space: nowrap; font-weight: bold; }
     
-    /* ダッシュボード用 */
-    #dashboard { display: none; }
-    textarea { width: 100%; padding: 12px; border: 1px solid #d1d1d6; border-radius: 6px; font-size: 14px; min-height: 100px; margin-bottom: 10px; resize: vertical; outline: none; }
-    textarea:focus { border-color: #888; }
-    
-    /* ログのテーブル表示 */
-    .log-container { overflow-x: auto; }
-    table { width: 100%; border-collapse: collapse; min-width: 600px; font-size: 13px; }
-    th, td { text-align: left; padding: 10px; border-bottom: 1px solid #eee; }
-    th { background: #f9f9f9; color: #555; }
-    .status-msg { font-size: 13px; font-weight: bold; margin-top: 10px; display: block; }
+    .scroll-top { position: fixed; bottom: 20px; right: 20px; background: var(--primary-dark); color: #fff; border: none; border-radius: 50%; width: 45px; height: 45px; font-size: 20px; cursor: pointer; display: none; z-index: 99; box-shadow: 0 2px 10px rgba(0,0,0,0.2); }
   </style>
 </head>
 <body>
 
   <div class="header">
-    <div class="header-title">Admin Console</div>
-    <a href="../" class="nav-link">Homeへ戻る</a>
+    <button class="menu-toggle" onclick="toggleDrawer()" style="color:#fff;">☰</button>
+    <a href="../"><img src="../src/home.png" alt="Home" class="header-logo" style="filter: brightness(0) invert(1);"></a>
+    <div style="width: 24px;"></div>
   </div>
 
-  <div class="app-container">
-    <!-- 管理者ログイン -->
+  <div class="drawer-overlay" id="drawer-overlay" onclick="toggleDrawer()"></div>
+  <div class="drawer" id="drawer">
+    <button class="drawer-close" onclick="toggleDrawer()">×</button>
+    <div>
+      <a href="../booking/" class="drawer-item">予約</a>
+      <a href="../searchYT/" class="drawer-item">映像</a>
+    </div>
+    <a href="../admin/" class="drawer-item" style="margin-top: auto; color: var(--primary-dark); border-top: 1px solid var(--border);">Admin</a>
+  </div>
+
+  <div class="content">
     <div class="card" id="login-box">
-      <h3 style="border:none; text-align:center; margin-bottom: 20px;">管理者ログイン</h3>
-      
-      <!-- ★追加：ユーザー名入力欄 -->
-      <input type="text" id="adminUsername" placeholder="User Name (例: kanbu)">
-      <input type="password" id="adminPassword" placeholder="Password">
-      
-      <button class="btn btn-red" id="loginBtn" onclick="checkAdminLogin()">ログイン</button>
-      <span id="login-msg" class="status-msg" style="color: #d93025; display: none;"></span>
+      <h3 style="border:none; text-align:center;">Admin Login</h3>
+      <input type="text" id="user" placeholder="User">
+      <input type="password" id="pass" placeholder="Password">
+      <button id="btn" onclick="auth()">ログイン</button>
     </div>
 
-    <!-- 幹部用ダッシュボード（targetPageが "dashboard" の場合表示） -->
-    <div id="dashboard">
+    <div id="dash" style="display:none;">
       <div class="card">
-        <h3>📢 全体お知らせの更新</h3>
-        <p style="font-size: 12px; color: #666; margin-top:-5px;">※ここで保存した内容が、ホーム画面の「お知らせ」に全員に表示されます。</p>
-        <textarea id="noticeInput" placeholder="新しいお知らせを入力してください..."></textarea>
-        <button class="btn btn-red" style="width: auto; padding: 10px 30px;" onclick="updateNotice()" id="updateBtn">更新を反映する</button>
-        <span id="update-msg" class="status-msg" style="display: inline-block; margin-left: 15px;"></span>
+        <h3>お知らせ更新</h3>
+        <textarea id="notice"></textarea>
+        <label class="checkbox-label"><input type="checkbox" id="isPinned"> [固定] チェックを入れると優先表示されます</label>
+        <button style="width: auto; padding: 8px 20px;" onclick="upd()">追加</button>
       </div>
-
-      <div class="card">
-        <h3>📝 最近の予約システム利用ログ (最新50件)</h3>
-        <div class="log-container">
-          <table>
-            <thead>
-              <tr>
-                <th>操作日時</th><th>操作</th><th>練習日</th><th>時間</th><th>内容</th>
-              </tr>
-            </thead>
-            <tbody id="logTableBody">
-              <tr><td colspan="5" style="text-align:center; padding: 20px;">読み込み中...</td></tr>
-            </tbody>
-          </table>
-        </div>
+      <div class="card" style="overflow-x: auto;">
+        <h3>予約ログ (最新50件)</h3>
+        <table>
+          <thead><tr><th>日時</th><th class="col-op">操作</th><th>日付</th><th>時間</th><th>内容</th></tr></thead>
+          <tbody id="logs"><tr><td colspan="5">読込中...</td></tr></tbody>
+        </table>
       </div>
     </div>
   </div>
+  
+  <button class="scroll-top" onclick="window.scrollTo({top:0, behavior:'smooth'})" id="scrollTopBtn">↑</button>
 
   <script>
-    // ★★★ GASのURLを貼り付けてください ★★★
-    const GAS_API_URL = "https://script.google.com/macros/s/AKfycbwF_t2MZTpa2p0Jb8QF_upAmLfdBDLP9_8ciRWyqSpFRga9NU1INj-M9b4Qp8YMsxMJbA/exec";
+    if (localStorage.getItem("isLoggedIn") !== "true") window.location.href = "../";
+    const GAS_API_URL = "https://script.google.com/macros/s/AKfycbySwjY5zm_XL2qQ84KcRin8nb1RW_74qD_yo_-i55iOzUdItzfNjodZ5gSFozDjpcToNA/exec";
 
-    window.onload = function() {
-      // 便宜上、一般ユーザーとしてのログインも必須とする
-      if (localStorage.getItem("isLoggedIn") !== "true") {
-        window.location.href = "../"; 
-      }
-      // すでに管理者としてログイン済みの場合
-      if (localStorage.getItem("isAdminLoggedIn") === "true") {
-        routeUser(localStorage.getItem("adminTargetPage"));
-      }
+    window.onload = () => { if(localStorage.getItem("isAdmin")==="true") show(); };
+    window.onscroll = function() {
+      document.getElementById("scrollTopBtn").style.display = (document.body.scrollTop > 100 || document.documentElement.scrollTop > 100) ? "block" : "none";
     };
 
-    async function checkAdminLogin() {
-      const usernameInput = document.getElementById("adminUsername").value;
-      const passwordInput = document.getElementById("adminPassword").value;
-      const btn = document.getElementById("loginBtn");
-      const msg = document.getElementById("login-msg");
-      
-      if (!usernameInput || !passwordInput) {
-        msg.innerText = "ユーザー名とパスワードを入力してください";
-        msg.style.display = "block";
-        return;
-      }
+    function toggleDrawer() { document.getElementById('drawer').classList.toggle('open'); document.getElementById('drawer-overlay').classList.toggle('open'); }
 
-      btn.disabled = true; btn.textContent = "認証中..."; msg.style.display = "none";
-
+    async function auth() {
+      const u = document.getElementById('user').value, p = document.getElementById('pass').value;
+      if(!u || !p) return;
       try {
-        // ★ ユーザー名とパスワードの両方を送信
-        const payload = { action: "verifyAdminLogin", data: { username: usernameInput, password: passwordInput } };
-        const response = await fetch(GAS_API_URL, { method: "POST", headers: { "Content-Type": "text/plain" }, body: JSON.stringify(payload) });
-        const result = await response.json();
-
-        if (result.success) {
-          // ログイン情報を記憶
-          localStorage.setItem("isAdminLoggedIn", "true");
-          localStorage.setItem("adminRole", result.role);
-          localStorage.setItem("adminTargetPage", result.targetPage);
-          
-          // GASから指定されたページ（表示）に振り分け
-          routeUser(result.targetPage);
-        } else {
-          msg.innerText = result.error; msg.style.display = "block";
-        }
-      } catch (e) {
-        msg.innerText = "通信エラーが発生しました"; msg.style.display = "block";
-      }
-      btn.disabled = false; btn.textContent = "ログイン";
+        const res = await fetch(GAS_API_URL, { method:"POST", body: JSON.stringify({action:"verifyAdminLogin", data:{username:u, password:p}}) });
+        const json = await res.json();
+        if(json.success) { localStorage.setItem("isAdmin", "true"); show(); } else alert("エラー");
+      } catch(e){}
     }
 
-    // ★ 将来の拡張用ルーティング関数
-    function routeUser(targetPage) {
-      if (targetPage === "dashboard") {
-        // 幹部用ダッシュボードを表示
-        document.getElementById('login-box').style.display = 'none';
-        document.getElementById('dashboard').style.display = 'block';
-        fetchAdminData();
-      } else {
-        // 将来新しいページを作った時は、ここにリダイレクト処理を書けます
-        // 例: window.location.href = targetPage;
-        alert("指定されたページへ遷移します: " + targetPage + "\n（※将来拡張用）");
-      }
+    function show() {
+      document.getElementById('login-box').style.display = 'none';
+      document.getElementById('dash').style.display = 'block';
+      fetchData();
     }
 
-    async function fetchAdminData() {
+    async function fetchData() {
       try {
-        const noticeRes = await fetch(GAS_API_URL, { method: "POST", headers: { "Content-Type": "text/plain" }, body: JSON.stringify({ action: "getNotice" }) });
-        const noticeData = await noticeRes.json();
-        if(noticeData.success) document.getElementById("noticeInput").value = noticeData.text;
-
-        const logRes = await fetch(GAS_API_URL, { method: "POST", headers: { "Content-Type": "text/plain" }, body: JSON.stringify({ action: "getLogs" }) });
-        const logData = await logRes.json();
-        
-        const tbody = document.getElementById("logTableBody");
-        tbody.innerHTML = "";
-        if (logData.success && logData.logs.length > 0) {
-          logData.logs.forEach(row => {
-            const tr = document.createElement("tr");
-            tr.innerHTML = `
-              <td><span style="color:#777;">${row[0].split(" ")[0].substring(5)}</span> <br>${row[0].split(" ")[1].substring(0,5)}</td>
-              <td><span style="color:${row[1]==='予約'?'#0066cc':'#d93025'}; font-weight:600; font-size:11px; padding:3px 6px; border:1px solid ${row[1]==='予約'?'#0066cc':'#d93025'}; border-radius:4px;">${row[1]}</span></td>
-              <td>${row[2].substring(5)}</td>
-              <td>${row[3]}</td>
-              <td>${row[4]}<br><span style="color:#777; font-size:11px;">[${row[5]}]</span></td>
-            `;
-            tbody.appendChild(tr);
-          });
-        } else {
-          tbody.innerHTML = `<tr><td colspan="5" style="text-align:center;">ログがありません</td></tr>`;
-        }
-      } catch (e) {}
+        const lr = await fetch(GAS_API_URL, { method:"POST", body: JSON.stringify({action:"getLogs"}) });
+        const lj = await lr.json();
+        const tb = document.getElementById('logs'); tb.innerHTML = "";
+        if(lj.success && lj.logs.length>0) {
+          lj.logs.forEach(r => tb.innerHTML += `<tr><td>${r[0].substring(5,16)}</td><td class="col-op" style="color:${r[1]==='予約'?'#0288d1':'#d93025'};">${r[1]}</td><td>${r[2].substring(5)}</td><td>${r[3]}</td><td>${r[4]}</td></tr>`);
+        } else tb.innerHTML = `<tr><td colspan="5">なし</td></tr>`;
+      } catch(e){}
     }
 
-    async function updateNotice() {
-      const text = document.getElementById("noticeInput").value;
-      const btn = document.getElementById("updateBtn");
-      const msg = document.getElementById("update-msg");
-      
-      btn.disabled = true; msg.style.color = "#333"; msg.innerText = "更新中...";
-      
+    async function upd() {
+      const t = document.getElementById('notice').value;
+      const p = document.getElementById('isPinned').checked;
+      if(!t) return;
       try {
-        const payload = { action: "updateNotice", data: { text: text } };
-        const response = await fetch(GAS_API_URL, { method: "POST", headers: { "Content-Type": "text/plain" }, body: JSON.stringify(payload) });
-        const result = await response.json();
-        
-        if (result.success) {
-          msg.style.color = "green"; msg.innerText = "お知らせを更新しました";
-        } else {
-          msg.style.color = "#d93025"; msg.innerText = "エラー: " + result.error;
-        }
-      } catch (e) {
-        msg.style.color = "#d93025"; msg.innerText = "通信エラーが発生しました";
-      }
-      
-      btn.disabled = false;
-      setTimeout(() => { msg.innerText = ""; }, 3000);
+        const res = await fetch(GAS_API_URL, { method:"POST", body: JSON.stringify({action:"updateNotice", data:{text:t, isPinned:p}}) });
+        if((await res.json()).success) { alert("完了"); document.getElementById('notice').value = ""; }
+      } catch(e){}
     }
   </script>
 </body>
