@@ -2,17 +2,24 @@
 <html lang="ja">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Booking | Higo-Pella</title>
   <style>
     * { box-sizing: border-box; }
-    :root { --primary: #4fc3f7; --bg: #f7fbff; --card: #fff; --border: #e1e8ed; --text: #333; }
-    body { font-family: 'Helvetica Neue', Arial, sans-serif; background: var(--bg); color: var(--text); margin: 0; }
+    :root { --primary: #4fc3f7; --primary-dark: #0288d1; --bg: #f7fbff; --card: #fff; --border: #e1e8ed; --text: #333; }
+    body { font-family: Arial, sans-serif; background: var(--bg); color: var(--text); margin: 0; }
     
-    .header { background: var(--card); padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 100; }
-    .header-title { font-size: 16px; font-weight: 600; }
-    .nav-link { color: var(--primary); text-decoration: none; font-size: 13px; font-weight: 600; }
+    .header { background: var(--card); padding: 10px 20px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 100; }
+    .menu-toggle { font-size: 24px; color: var(--primary-dark); cursor: pointer; background: none; border: none; padding: 0; }
+    .header-logo { height: 28px; cursor: pointer; }
     
+    .drawer { position: fixed; top: 0; left: -260px; width: 250px; height: 100vh; background: var(--card); border-right: 1px solid var(--border); z-index: 200; transition: left 0.3s; padding-top: 60px; display: flex; flex-direction: column; }
+    .drawer.open { left: 0; }
+    .drawer-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.3); z-index: 150; display: none; opacity: 0; transition: opacity 0.3s; }
+    .drawer-overlay.open { display: block; opacity: 1; }
+    .drawer-item { display: block; padding: 16px 20px; color: var(--text); text-decoration: none; font-size: 14px; font-weight: bold; border-bottom: 1px solid #f0f4f8; }
+    .drawer-close { position: absolute; top: 15px; right: 20px; font-size: 24px; color: #999; cursor: pointer; background: none; border: none; }
+
     .content { max-width: 800px; margin: 20px auto; padding: 0 15px; }
     .card { background: var(--card); padding: 20px; border-radius: 8px; border: 1px solid var(--border); margin-bottom: 20px; }
     h3 { font-size: 15px; margin: 0 0 15px 0; padding-bottom: 10px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: baseline; }
@@ -20,8 +27,17 @@
     .tabs { display: flex; gap: 5px; margin-bottom: 15px; }
     .tab-btn { flex: 1; padding: 8px; background: var(--card); border: 1px solid var(--border); border-radius: 4px; font-size: 13px; cursor: pointer; color: var(--text); }
     .tab-btn.active { background: #333; color: #fff; border-color: #333; }
-    .cal-container { height: 500px; overflow-x: auto; overflow-y: hidden; border: 1px solid var(--border); -webkit-overflow-scrolling: touch; position: relative; }
-    .cal-container iframe { position: absolute; top:0; left:0; width: 100%; min-width: 750px; height: 100%; border: 0; }
+    .btn-update-small { flex: 0 0 60px; padding: 8px; font-size: 12px; background: #f0f4f8; border: 1px solid var(--border); border-radius: 4px; cursor: pointer; }
+    
+    .cal-container { height: 500px; border: 1px solid var(--border); position: relative; }
+    @media (max-width: 767px) {
+      .cal-container { overflow-x: auto; overflow-y: hidden; -webkit-overflow-scrolling: touch; }
+      .cal-container iframe { position: absolute; top:0; left:0; width: 100%; min-width: 750px; height: 100%; border: 0; }
+    }
+    @media (min-width: 768px) {
+      .cal-container { overflow: hidden; }
+      .cal-container iframe { width: 100%; height: 100%; border: 0; }
+    }
     
     .form-group { margin-bottom: 15px; }
     label { display: block; font-size: 12px; margin-bottom: 5px; color: #666; }
@@ -31,37 +47,50 @@
     .presets { display: flex; gap: 5px; margin-top: 5px; }
     .preset-btn { flex: 1; padding: 8px; background: #f0f4f8; border: 1px solid var(--border); border-radius: 4px; font-size: 12px; cursor: pointer; }
     
-    .btn { width: 100%; padding: 14px; border: none; border-radius: 6px; font-size: 14px; font-weight: 600; color: #fff; cursor: pointer; margin-top: 10px; }
+    .btn { width: 100%; padding: 14px; border: none; border-radius: 6px; font-size: 14px; font-weight: bold; color: #fff; cursor: pointer; margin-top: 10px; }
     .btn-blue { background: var(--primary); }
-    .btn-red { background: #d93025; }
+    .btn-red { background: var(--primary-dark); }
     .btn:disabled { background: #ccc; }
-    .link-text { font-size: 12px; color: var(--primary); cursor: pointer; text-decoration: underline; }
+    .link-text { font-size: 16px; font-weight: bold; color: var(--primary-dark); cursor: pointer; text-decoration: underline; }
     
     .del-item { display: flex; justify-content: space-between; align-items: center; padding: 10px; border: 1px solid var(--border); margin-bottom: 8px; border-radius: 4px; font-size: 13px; }
-    .del-btn { padding: 6px 12px; background: #fff; color: #d93025; border: 1px solid #d93025; border-radius: 4px; font-size: 12px; cursor: pointer; }
+    .del-btn { flex-shrink: 0; min-width: 60px; padding: 8px; background: #fff; color: #d93025; border: 1px solid #d93025; border-radius: 4px; font-size: 12px; cursor: pointer; margin-left: 10px; }
+    
+    .scroll-top { position: fixed; bottom: 20px; right: 20px; background: var(--primary); color: #fff; border: none; border-radius: 50%; width: 45px; height: 45px; font-size: 20px; cursor: pointer; display: none; z-index: 99; box-shadow: 0 2px 10px rgba(0,0,0,0.2); }
   </style>
 </head>
 <body>
 
   <div class="header">
-    <div class="header-title">Booking</div>
-    <a href="../" class="nav-link">Home</a>
+    <button class="menu-toggle" onclick="toggleDrawer()">☰</button>
+    <a href="../"><img src="../src/home.png" alt="Home" class="header-logo"></a>
+    <div style="width: 24px;"></div>
+  </div>
+
+  <div class="drawer-overlay" id="drawer-overlay" onclick="toggleDrawer()"></div>
+  <div class="drawer" id="drawer">
+    <button class="drawer-close" onclick="toggleDrawer()">×</button>
+    <div>
+      <a href="../booking/" class="drawer-item">予約</a>
+      <a href="../searchYT/" class="drawer-item">映像</a>
+    </div>
+    <a href="../admin/" class="drawer-item" style="margin-top: auto; color: var(--primary-dark); border-top: 1px solid var(--border);">Admin</a>
   </div>
 
   <div class="content">
     <div class="card">
-      <h3>Schedule</h3>
+      <h3>スケジュール</h3>
       <div class="tabs">
         <button class="tab-btn" id="btn-agenda" onclick="mode('agenda')">リスト</button>
         <button class="tab-btn active" id="btn-week" onclick="mode('week')">週</button>
         <button class="tab-btn" id="btn-month" onclick="mode('month')">月</button>
-        <button class="tab-btn" onclick="refresh()">更新</button>
+        <button class="btn-update-small" onclick="refresh()">更新</button>
       </div>
       <div class="cal-container" id="cal"></div>
     </div>
 
     <div class="card" id="page-reserve">
-      <h3>新規予約 <span class="link-text" onclick="switchPage('delete')">削除へ</span></h3>
+      <h3>新規予約 <span class="link-text" onclick="switchPage('delete')">予約削除</span></h3>
       <div class="form-group"><label>日付</label><input type="date" id="date"></div>
       <div class="form-group"><label>開始時刻 (7:00-21:00)</label><input type="time" id="startTime" min="07:00" max="21:00"></div>
       <div class="form-group"><label>バンド名</label><input type="text" id="bandName"></div>
@@ -85,7 +114,7 @@
     </div>
 
     <div class="card" id="page-delete" style="display:none;">
-      <h3>削除・検索 <span class="link-text" onclick="switchPage('reserve')">予約へ</span></h3>
+      <h3>削除・検索 <span class="link-text" onclick="switchPage('reserve')">新規予約</span></h3>
       <div class="form-group"><label>日付</label><input type="date" id="delDate"></div>
       <div class="form-group"><label>開始時刻</label><input type="time" id="delTime"></div>
       <div class="form-group"><label>バンド名</label><input type="text" id="delBand"></div>
@@ -94,41 +123,32 @@
     </div>
   </div>
 
+  <button class="scroll-top" onclick="window.scrollTo({top:0, behavior:'smooth'})" id="scrollTopBtn">↑</button>
+
   <script>
     if (localStorage.getItem("isLoggedIn") !== "true") window.location.href = "../";
-    const GAS_API_URL = "https://script.google.com/macros/s/AKfycbwF_t2MZTpa2p0Jb8QF_upAmLfdBDLP9_8ciRWyqSpFRga9NU1INj-M9b4Qp8YMsxMJbA/exec";
+    const GAS_API_URL = "https://script.google.com/macros/s/AKfycbySwjY5zm_XL2qQ84KcRin8nb1RW_74qD_yo_-i55iOzUdItzfNjodZ5gSFozDjpcToNA/exec";
     let curMode = 'week';
 
     window.onload = refresh;
+    window.onscroll = function() {
+      document.getElementById("scrollTopBtn").style.display = (document.body.scrollTop > 100 || document.documentElement.scrollTop > 100) ? "block" : "none";
+    };
 
-    function mode(m) {
-      curMode = m;
-      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-      document.getElementById('btn-'+m).classList.add('active');
-      refresh();
-    }
+    function toggleDrawer() { document.getElementById('drawer').classList.toggle('open'); document.getElementById('drawer-overlay').classList.toggle('open'); }
+    function mode(m) { curMode = m; document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active')); document.getElementById('btn-'+m).classList.add('active'); refresh(); }
 
     function refresh() {
-      const ts = new Date().getTime();
-      const wkst = new Date().getDay() + 1;
+      const ts = new Date().getTime(); const wkst = new Date().getDay() + 1;
       const src = `src=pellapella.calendar@gmail.com&color=%23D50000&src=a18eeaccc3fb519de5b4b3492df6b26232f7967ab4582a2cd4d314600aa03186@group.calendar.google.com&color=%23039BE5&src=aade55a25aef3abb1ab00c832c44b660df1336a113dc29c6fff776f046df3dd3@group.calendar.google.com&color=%23F6BF26&src=fdb34873e469d812b70c3e1f79978398d9a3c0a793287551c3a77ae84f7ed079@group.calendar.google.com&color=%2333B679`;
       document.getElementById('cal').innerHTML = `<iframe src="https://calendar.google.com/calendar/embed?${src}&ctz=Asia%2FTokyo&mode=${curMode}&wkst=${wkst}&showTitle=0&showPrint=0&showTabs=0&t=${ts}"></iframe>`;
     }
 
-    function switchPage(p) {
-      document.getElementById('page-reserve').style.display = p==='reserve' ? 'block' : 'none';
-      document.getElementById('page-delete').style.display = p==='delete' ? 'block' : 'none';
-    }
+    function switchPage(p) { document.getElementById('page-reserve').style.display = p==='reserve' ? 'block' : 'none'; document.getElementById('page-delete').style.display = p==='delete' ? 'block' : 'none'; }
 
     async function submitBooking() {
-      const d = {
-        date: document.getElementById('date').value, startTime: document.getElementById('startTime').value,
-        bandName: document.getElementById('bandName').value, room: document.getElementById('room').value,
-        repName: document.getElementById('repName').value, transferStatus: document.getElementById('transferStatus').value,
-        duration: document.getElementById('duration').value
-      };
+      const d = { date: document.getElementById('date').value, startTime: document.getElementById('startTime').value, bandName: document.getElementById('bandName').value, room: document.getElementById('room').value, repName: document.getElementById('repName').value, transferStatus: document.getElementById('transferStatus').value, duration: document.getElementById('duration').value };
       if(!d.date || !d.startTime || !d.bandName || !d.room || !d.repName || !d.duration) { alert("入力不足"); return; }
-      
       document.getElementById('submitBtn').disabled = true;
       try {
         const res = await fetch(GAS_API_URL, { method:"POST", body: JSON.stringify({action:"addEventToCalendar", data:d}) });
@@ -141,17 +161,16 @@
     async function search() {
       const d = { date: document.getElementById('delDate').value, startTime: document.getElementById('delTime').value, bandName: document.getElementById('delBand').value };
       if(!d.date && !d.startTime && !d.bandName) { alert("条件不足"); return; }
-      
       document.getElementById('searchBtn').disabled = true;
       try {
         const res = await fetch(GAS_API_URL, { method:"POST", body: JSON.stringify({action:"findEvents", data:d}) });
         const json = await res.json();
         const div = document.getElementById('delList'); div.innerHTML = "";
         if(json.success) {
-          json.events.forEach(ev => {
-            div.innerHTML += `<div class="del-item"><div>${ev.startStr}<br><b>${ev.title}</b> [${ev.duration}分]</div><button class="del-btn" onclick="execDel('${ev.id}')">削除</button></div>`;
-          });
-        } else { div.innerHTML = json.error; }
+          let h = '';
+          json.events.forEach(ev => { h += `<div class="del-item"><div>${ev.startStr}<br><b>${ev.title}</b> [${ev.duration}分]</div><button class="del-btn" onclick="execDel('${ev.id}')">削除</button></div>`; });
+          div.innerHTML = h;
+        } else { div.innerHTML = `<p style="font-size:12px;">${json.error}</p>`; }
       } catch(e) { alert("エラー"); }
       document.getElementById('searchBtn').disabled = false;
     }
