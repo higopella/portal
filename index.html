@@ -10,60 +10,54 @@
   <style>
     * { box-sizing: border-box; }
     :root { --primary: #4fc3f7; --primary-dark: #0288d1; --bg: #f7fbff; --card: #ffffff; --text: #333; --border: #e1e8ed; }
-    body { font-family: Arial, sans-serif; background: var(--bg); color: var(--text); margin: 0; min-height: 100vh; overflow-x: hidden; }
+    body { font-family: Arial, sans-serif; font-size: 15px; background: var(--bg); color: var(--text); margin: 0; min-height: 100vh; overflow-x: hidden; }
     
     .auth-container { display: flex; justify-content: center; align-items: center; min-height: 100vh; padding: 20px; }
     .auth-box { width: 100%; max-width: 400px; background: var(--card); padding: 40px 30px; border-radius: 12px; box-shadow: 0 4px 20px rgba(79, 195, 247, 0.15); text-align: center; }
-    .auth-box input { width: 100%; padding: 14px; margin-bottom: 15px; border: 1px solid var(--border); border-radius: 6px; font-size: 15px; outline: none; }
+    .auth-box input { width: 100%; padding: 15px; margin-bottom: 15px; border: 1px solid var(--border); border-radius: 6px; font-size: 16px; outline: none; }
     .auth-box input:focus { border-color: var(--primary); }
-    .btn { width: 100%; padding: 14px; background: var(--primary); color: #fff; border: none; border-radius: 6px; font-size: 15px; font-weight: bold; cursor: pointer; }
-    .msg { font-size: 13px; color: #d93025; margin-top: 15px; display: none; }
+    .btn { width: 100%; padding: 15px; background: var(--primary); color: #fff; border: none; border-radius: 6px; font-size: 16px; font-weight: bold; cursor: pointer; }
+    .msg { font-size: 14px; color: #d93025; margin-top: 15px; display: none; }
 
     #portal-screen { display: none; }
     
     .header { background: var(--card); padding: 10px 20px; display: flex; align-items: center; justify-content: flex-start; border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 100; }
-    .menu-toggle { font-size: 24px; color: var(--primary-dark); cursor: pointer; background: none; border: none; padding: 0; margin-right: 15px; }
-    .header-logo { height: 28px; cursor: pointer; }
+    .menu-toggle { font-size: 26px; color: var(--primary-dark); cursor: pointer; background: none; border: none; padding: 0; margin-right: 15px; }
+    .header-logo { height: 30px; cursor: pointer; }
     
     .drawer { position: fixed; top: 0; left: -260px; width: 250px; height: 100vh; background: var(--card); border-right: 1px solid var(--border); z-index: 200; transition: left 0.3s; padding-top: 60px; display: flex; flex-direction: column; }
     .drawer.open { left: 0; }
     .drawer-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.3); z-index: 150; display: none; opacity: 0; transition: opacity 0.3s; }
     .drawer-overlay.open { display: block; opacity: 1; }
-    .drawer-item { display: block; padding: 16px 20px; color: var(--text); text-decoration: none; font-size: 14px; font-weight: bold; border-bottom: 1px solid #f0f4f8; }
-    .drawer-close { position: absolute; top: 15px; right: 20px; font-size: 24px; color: #999; cursor: pointer; background: none; border: none; }
+    .drawer-item { display: block; padding: 18px 20px; color: var(--text); text-decoration: none; font-size: 16px; font-weight: bold; border-bottom: 1px solid #f0f4f8; }
+    .drawer-close { position: absolute; top: 15px; right: 20px; font-size: 28px; color: #999; cursor: pointer; background: none; border: none; }
 
     .layout-grid { display: grid; gap: 20px; max-width: 1000px; margin: 20px auto; padding: 0 15px; }
-    .card { background: var(--card); padding: 20px; border-radius: 10px; border: 1px solid var(--border); display: flex; flex-direction: column; }
-    .card-title { font-size: 14px; font-weight: bold; color: var(--primary-dark); margin: 0 0 10px 0; border-bottom: 1px solid var(--border); padding-bottom: 8px; }
+    .card { background: var(--card); padding: 25px; border-radius: 10px; border: 1px solid var(--border); display: flex; flex-direction: column; }
+    .card-title { font-size: 16px; font-weight: bold; color: var(--primary-dark); margin: 0 0 15px 0; border-bottom: 1px solid var(--border); padding-bottom: 10px; }
 
-    /* ★PCで画面いっぱいに広げる設定 */
     @media (min-width: 768px) {
-      .layout-grid { grid-template-columns: 1fr 2fr 1fr; min-height: calc(100vh - 100px); align-items: stretch; }
-      .order-notice { order: 1; } .order-sch { order: 2; } .order-btn { order: 3; }
-      .btn-wrapper { display: flex; flex-direction: column; gap: 15px; height: 100%; }
-      .main-btn { flex-grow: 1; display: flex; align-items: center; justify-content: center; font-size: 18px; }
-      #miniCalendar { flex-grow: 1; min-height: 500px; }
+      .layout-grid { grid-template-columns: 1fr 2fr; height: calc(100vh - 80px); align-items: stretch; margin-top: 15px; margin-bottom: 15px; }
+      .card { height: 100%; overflow: hidden; }
+      #notice-list { flex-grow: 1; overflow-y: auto; }
+      #miniCalendar { flex-grow: 1; height: 100%; min-height: 0; }
     }
     @media (max-width: 767px) {
       .layout-grid { grid-template-columns: 1fr; }
-      .order-btn { order: 1; } .order-notice { order: 2; } .order-sch { order: 3; }
-      #miniCalendar { height: 400px; }
+      #miniCalendar { height: 450px; }
     }
     
-    .btn-wrapper { display: flex; flex-direction: column; gap: 15px; }
-    .main-btn { background: #fff; border: 2px solid var(--primary); color: var(--primary-dark); padding: 18px; border-radius: 8px; font-size: 16px; font-weight: bold; text-align: center; text-decoration: none; box-shadow: 0 4px 12px rgba(79, 195, 247, 0.2); transition: transform 0.2s; }
-    
-    .notice-item { font-size: 13px; line-height: 1.5; margin-bottom: 12px; padding-bottom: 12px; border-bottom: 1px dashed var(--border); }
+    .notice-item { font-size: 14px; line-height: 1.6; margin-bottom: 15px; padding-bottom: 15px; border-bottom: 1px dashed var(--border); }
     .notice-item:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
-    .tag-pinned { color: var(--primary-dark); font-weight: bold; font-size: 11px; border: 1px solid var(--primary-dark); padding: 2px 4px; border-radius: 3px; margin-right: 5px; }
-    .notice-time { color: #888; font-size: 11px; display: block; margin-bottom: 4px; }
+    .tag-pinned { color: var(--primary-dark); font-weight: bold; font-size: 12px; border: 1px solid var(--primary-dark); padding: 2px 6px; border-radius: 3px; margin-right: 6px; }
+    .notice-time { color: #888; font-size: 12px; display: block; margin-bottom: 6px; }
   </style>
 </head>
 <body>
 
   <div class="auth-container" id="login-screen">
     <div class="auth-box">
-      <img src="./src/home.png" alt="Logo" style="height:40px; margin-bottom: 15px;">
+      <img src="./src/home.png" alt="Logo" style="height:45px; margin-bottom: 20px;">
       <input type="password" id="password" placeholder="Password">
       <button class="btn" id="loginBtn" onclick="checkPassword()">ログイン</button>
       <div id="msg-area" class="msg"></div>
@@ -71,51 +65,33 @@
   </div>
 
   <div id="portal-screen">
-    <!-- ★ヘッダー修正：ハンバーガーとロゴを左に並べる -->
     <div class="header">
       <button class="menu-toggle" onclick="toggleDrawer()">☰</button>
       <a href="./" style="display: flex; align-items: center;"><img src="./src/home.png" alt="Home" class="header-logo" onclick="window.scrollTo(0,0)"></a>
     </div>
 
-    <div class="drawer-overlay" id="drawer-overlay" onclick="toggleDrawer()"></div>
-    <div class="drawer" id="drawer">
-      <button class="drawer-close" onclick="toggleDrawer()">×</button>
-      <div>
-        <!-- ★メニュー名統一 -->
-        <a href="./booking/" class="drawer-item">予約</a>
-        <a href="./searchYT/" class="drawer-item">映像</a>
-        <a href="./forms/" class="drawer-item">Forms</a>
-      </div>
-      <!-- ★管理者ボタンを下部に配置 -->
-      <a href="./admin/" class="drawer-item" style="margin-top: auto; color: var(--primary-dark); border-top: 1px solid var(--border);">管理者</a>
-    </div>
+    <div id="global-menu-container"></div>
 
     <div class="layout-grid">
-      <!-- お知らせ -->
-      <div class="card order-notice">
+      <div class="card">
         <h3 class="card-title">お知らせ</h3>
-        <p style="font-size: 13px; margin-bottom: 15px;">次回の部会: <strong id="next-meeting"></strong></p>
-        <div id="notice-list"><p style="font-size:12px; color:#888;">読込中...</p></div>
+        <p style="font-size: 14px; margin-bottom: 15px; font-weight: bold;">次回の部会: <span id="next-meeting" style="color:var(--primary-dark);"></span></p>
+        <div id="notice-list"><p style="font-size:13px; color:#888;">読込中...</p></div>
       </div>
       
-      <!-- スケジュール -->
-      <div class="card order-sch">
+      <div class="card">
         <h3 class="card-title">スケジュール</h3>
         <iframe id="miniCalendar" style="width: 100%; border: none; border-radius: 6px;" scrolling="no"></iframe>
-      </div>
-
-      <!-- ボタン -->
-      <div class="card order-btn btn-wrapper" style="background: none; border: none; padding: 0;">
-        <a href="./booking/" class="main-btn">予約</a>
-        <a href="./searchYT/" class="main-btn">映像</a>
       </div>
     </div>
   </div>
 
+  <script src="./src/menu.js"></script>
   <script>
     const GAS_API_URL = "https://script.google.com/macros/s/AKfycbySwjY5zm_XL2qQ84KcRin8nb1RW_74qD_yo_-i55iOzUdItzfNjodZ5gSFozDjpcToNA/exec";
 
     window.onload = function() {
+      injectMenu('./');
       if (localStorage.getItem("isLoggedIn") === "true") showPortal();
     };
 
@@ -123,11 +99,6 @@
       document.getElementById("login-screen").style.display = "none";
       document.getElementById("portal-screen").style.display = "block";
       calcMeeting(); loadCal(); fetchNotice();
-    }
-
-    function toggleDrawer() {
-      document.getElementById('drawer').classList.toggle('open');
-      document.getElementById('drawer-overlay').classList.toggle('open');
     }
 
     async function checkPassword() {
@@ -172,7 +143,7 @@
             let date = n.time.split(" ")[0].substring(5);
             list.innerHTML += `<div class="notice-item"><span class="notice-time">${date}</span>${tag}${n.text.replace(/\n/g, '<br>')}</div>`;
           });
-        } else { list.innerHTML = `<p style="font-size:12px; color:#888;">お知らせはありません</p>`; }
+        } else { list.innerHTML = `<p style="font-size:13px; color:#888;">お知らせはありません</p>`; }
       } catch (e) {}
     }
   </script>
