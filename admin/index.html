@@ -12,9 +12,10 @@
     :root { --primary-dark: #0288d1; --bg: #f7fbff; --card: #fff; --border: #e1e8ed; --text: #333; }
     body { font-family: Arial, sans-serif; font-size: 15px; background: var(--bg); color: var(--text); margin: 0; }
     
-    .header { background: var(--primary-dark); padding: 10px 20px; display: flex; align-items: center; justify-content: flex-start; position: sticky; top: 0; z-index: 100; border-bottom: 1px solid var(--border); }
-    .menu-toggle { font-size: 26px; color: #fff; cursor: pointer; background: none; border: none; padding: 0; margin-right: 15px; }
-    .header-logo { height: 30px; cursor: pointer; filter: brightness(0) invert(1); }
+    /* ★修正：ヘッダーの左寄せを強制 */
+    .header { background: var(--primary-dark); padding: 10px 20px; display: flex; align-items: center; justify-content: flex-start !important; position: sticky; top: 0; z-index: 100; border-bottom: 1px solid var(--border); }
+    .menu-toggle { font-size: 26px; color: #fff; cursor: pointer; background: none; border: none; padding: 0; margin: 0 15px 0 0 !important; width: auto !important; }
+    .header-logo { height: 30px; cursor: pointer; filter: brightness(0) invert(1); display: block; }
     
     .drawer { position: fixed; top: 0; left: -260px; width: 250px; height: 100vh; background: var(--card); border-right: 1px solid var(--border); z-index: 200; transition: left 0.3s; padding-top: 60px; display: flex; flex-direction: column; }
     .drawer.open { left: 0; }
@@ -28,15 +29,18 @@
     h3 { margin: 0 0 15px; font-size: 16px; color: var(--primary-dark); border-bottom: 1px solid var(--border); padding-bottom: 10px; }
     
     input[type="text"], input[type="password"] { width: 100%; padding: 14px; margin-bottom: 15px; border: 1px solid var(--border); border-radius: 4px; font-size: 15px; outline: none; }
-    button { width: 100%; padding: 15px; background: var(--primary-dark); color: #fff; border: none; border-radius: 6px; font-size: 15px; font-weight: bold; cursor: pointer; }
+    /* ログインボタンなどの基本ボタン */
+    .btn-main { width: 100%; padding: 15px; background: var(--primary-dark); color: #fff; border: none; border-radius: 6px; font-size: 15px; font-weight: bold; cursor: pointer; }
     
     textarea { width: 100%; height: 80px; padding: 12px; border: 1px solid var(--border); border-radius: 4px; font-size: 15px; margin-bottom: 5px; outline: none; }
     .checkbox-label { font-size: 14px; font-weight: bold; color: var(--text); display: flex; align-items: center; gap: 5px; margin-bottom: 15px; }
     
-    .admin-notice-item { display: flex; justify-content: space-between; align-items: center; padding: 15px; border: 1px solid var(--border); margin-bottom: 10px; border-radius: 4px; background: #fafcfd; }
-    .admin-notice-content { flex-grow: 1; padding: 0 10px; font-size: 14px; line-height: 1.6; }
-    .tag-pinned { color: var(--primary-dark); font-weight: bold; font-size: 12px; border: 1px solid var(--primary-dark); padding: 2px 6px; border-radius: 3px; display: inline-block; margin-bottom: 5px; }
-    .btn-delete { flex-shrink: 0; padding: 10px 15px; background: #fff; color: #d93025; border: 1px solid #d93025; border-radius: 4px; font-size: 13px; font-weight: bold; cursor: pointer; }
+    /* ★修正：お知らせリストのUI（削除ボタンの暴走を防止） */
+    .admin-notice-item { display: flex; justify-content: space-between; align-items: stretch; padding: 12px; border: 1px solid var(--border); margin-bottom: 10px; border-radius: 4px; background: #fafcfd; }
+    .admin-notice-content { flex-grow: 1; padding-right: 15px; font-size: 14px; line-height: 1.6; word-break: break-word; }
+    .tag-pinned { color: var(--primary-dark); font-weight: bold; font-size: 11px; border: 1px solid var(--primary-dark); padding: 2px 4px; border-radius: 3px; display: inline-block; margin-bottom: 5px; }
+    /* 削除ボタンは小さく、右側に固定 */
+    .btn-delete { width: auto !important; flex-shrink: 0; align-self: center; padding: 8px 12px; background: #fff; color: #d93025; border: 1px solid #d93025; border-radius: 4px; font-size: 12px; font-weight: bold; cursor: pointer; }
     
     table { width: 100%; border-collapse: collapse; font-size: 13px; min-width: 600px; }
     th, td { padding: 12px; border-bottom: 1px solid var(--border); text-align: left; }
@@ -50,7 +54,7 @@
 
   <div class="header">
     <button class="menu-toggle" onclick="toggleDrawer()">☰</button>
-    <a href="../" style="display: flex; align-items: center;"><img src="../src/home.png" alt="Home" class="header-logo"></a>
+    <a href="../" style="display: flex; align-items: center; text-decoration: none;"><img src="../src/home.png" alt="Home" class="header-logo"></a>
   </div>
 
   <div id="global-menu-container"></div>
@@ -60,7 +64,7 @@
       <h3 style="border:none; text-align:center;">Admin Login</h3>
       <input type="text" id="user" placeholder="User">
       <input type="password" id="pass" placeholder="Password">
-      <button id="btn" onclick="auth()">ログイン</button>
+      <button id="btn" class="btn-main" onclick="auth()">ログイン</button>
     </div>
 
     <div id="dash" style="display:none;">
@@ -68,7 +72,7 @@
         <h3>お知らせ更新</h3>
         <textarea id="notice"></textarea>
         <label class="checkbox-label"><input type="checkbox" id="isPinned"> [固定] 優先表示</label>
-        <button style="width: auto; padding: 10px 25px;" onclick="upd()">追加</button>
+        <button class="btn-main" style="width: auto; padding: 10px 25px;" onclick="upd()">追加</button>
         
         <h4 style="font-size: 15px; margin-top: 30px; border-bottom: 1px solid var(--border); padding-bottom: 8px;">現在のお知らせ</h4>
         <div id="admin-notice-list">
@@ -91,6 +95,7 @@
   <script src="../src/menu.js"></script>
   <script>
     if (localStorage.getItem("isLoggedIn") !== "true") window.location.href = "../";
+    // ★GASのURLを貼り付けてください
     const GAS_API_URL = "https://script.google.com/macros/s/AKfycbySwjY5zm_XL2qQ84KcRin8nb1RW_74qD_yo_-i55iOzUdItzfNjodZ5gSFozDjpcToNA/exec";
 
     window.onload = () => { 
