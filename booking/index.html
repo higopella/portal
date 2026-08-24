@@ -4,13 +4,16 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Booking | Higo-Pella</title>
+  <link rel="icon" href="../src/icon.png" type="image/png">
+  <link rel="apple-touch-icon" href="../src/icon.png">
+  <link rel="manifest" href="../manifest.json">
   <style>
     * { box-sizing: border-box; }
     :root { --primary: #4fc3f7; --primary-dark: #0288d1; --bg: #f7fbff; --card: #fff; --border: #e1e8ed; --text: #333; }
     body { font-family: Arial, sans-serif; background: var(--bg); color: var(--text); margin: 0; }
     
-    .header { background: var(--card); padding: 10px 20px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 100; }
-    .menu-toggle { font-size: 24px; color: var(--primary-dark); cursor: pointer; background: none; border: none; padding: 0; }
+    .header { background: var(--card); padding: 10px 20px; display: flex; align-items: center; justify-content: flex-start; border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 100; }
+    .menu-toggle { font-size: 24px; color: var(--primary-dark); cursor: pointer; background: none; border: none; padding: 0; margin-right: 15px; }
     .header-logo { height: 28px; cursor: pointer; }
     
     .drawer { position: fixed; top: 0; left: -260px; width: 250px; height: 100vh; background: var(--card); border-right: 1px solid var(--border); z-index: 200; transition: left 0.3s; padding-top: 60px; display: flex; flex-direction: column; }
@@ -63,8 +66,7 @@
 
   <div class="header">
     <button class="menu-toggle" onclick="toggleDrawer()">☰</button>
-    <a href="../"><img src="../src/home.png" alt="Home" class="header-logo"></a>
-    <div style="width: 24px;"></div>
+    <a href="../" style="display: flex; align-items: center;"><img src="../src/home.png" alt="Home" class="header-logo"></a>
   </div>
 
   <div class="drawer-overlay" id="drawer-overlay" onclick="toggleDrawer()"></div>
@@ -73,8 +75,9 @@
     <div>
       <a href="../booking/" class="drawer-item">予約</a>
       <a href="../searchYT/" class="drawer-item">映像</a>
+      <a href="../forms/" class="drawer-item">Forms</a>
     </div>
-    <a href="../admin/" class="drawer-item" style="margin-top: auto; color: var(--primary-dark); border-top: 1px solid var(--border);">Admin</a>
+    <a href="../admin/" class="drawer-item" style="margin-top: auto; color: var(--primary-dark); border-top: 1px solid var(--border);">管理者</a>
   </div>
 
   <div class="content">
