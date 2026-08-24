@@ -6,20 +6,27 @@
   <title>YouTube | Higo-Pella</title>
   <style>
     * { box-sizing: border-box; }
-    :root { --primary: #4fc3f7; --bg: #f7fbff; --card: #fff; --border: #e1e8ed; --text: #333; }
-    body { font-family: 'Helvetica Neue', Arial, sans-serif; background: var(--bg); color: var(--text); margin: 0; }
+    :root { --primary: #4fc3f7; --primary-dark: #0288d1; --bg: #f7fbff; --card: #fff; --border: #e1e8ed; --text: #333; }
+    body { font-family: Arial, sans-serif; background: var(--bg); color: var(--text); margin: 0; }
     
-    .header { background: var(--card); padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 100; }
-    .header-title { font-size: 16px; font-weight: 600; }
-    .nav-link { color: var(--primary); text-decoration: none; font-size: 13px; font-weight: 600; }
+    .header { background: var(--card); padding: 10px 20px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 100; }
+    .menu-toggle { font-size: 24px; color: var(--primary-dark); cursor: pointer; background: none; border: none; padding: 0; }
+    .header-logo { height: 28px; cursor: pointer; }
     
+    .drawer { position: fixed; top: 0; left: -260px; width: 250px; height: 100vh; background: var(--card); border-right: 1px solid var(--border); z-index: 200; transition: left 0.3s; padding-top: 60px; display: flex; flex-direction: column; }
+    .drawer.open { left: 0; }
+    .drawer-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.3); z-index: 150; display: none; opacity: 0; transition: opacity 0.3s; }
+    .drawer-overlay.open { display: block; opacity: 1; }
+    .drawer-item { display: block; padding: 16px 20px; color: var(--text); text-decoration: none; font-size: 14px; font-weight: bold; border-bottom: 1px solid #f0f4f8; }
+    .drawer-close { position: absolute; top: 15px; right: 20px; font-size: 24px; color: #999; cursor: pointer; background: none; border: none; }
+
     .content { max-width: 800px; margin: 20px auto; padding: 0 15px; }
     .card { background: var(--card); padding: 20px; border-radius: 8px; border: 1px solid var(--border); margin-bottom: 20px; }
     
-    .row { display: flex; gap: 5px; margin-bottom: 15px; }
+    .row { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 15px; }
     select, input, button { height: 40px; border: 1px solid var(--border); border-radius: 4px; font-size: 14px; background: #fff; outline: none; }
-    select { flex: 2; padding: 0 10px; }
-    .btn-update { flex: 1; background: #f0f4f8; cursor: pointer; }
+    select { flex: 1; min-width: 200px; padding: 0 10px; }
+    .btn-update { width: 80px; flex: 0 0 80px; background: #f0f4f8; cursor: pointer; }
     
     .tabs { display: flex; gap: 5px; margin-bottom: 15px; }
     .tab-btn { flex: 1; background: var(--card); cursor: pointer; border: 1px solid var(--border); }
@@ -27,19 +34,32 @@
     input[type="text"] { width: 100%; padding: 0 10px; }
     
     .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; }
-    .v-card { background: var(--card); border: 1px solid var(--border); border-radius: 6px; overflow: hidden; text-decoration: none; color: inherit; display: block; }
+    .v-card { background: var(--card); border: 1px solid var(--border); border-radius: 6px; overflow: hidden; text-decoration: none; color: inherit; display: block; position: relative; }
     .v-thumb { width: 100%; aspect-ratio: 16/9; object-fit: cover; background: #eee; }
     .v-info { padding: 10px; }
     .v-title { font-size: 12px; font-weight: 600; margin: 0 0 5px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
     .v-date { font-size: 10px; color: #777; margin: 0; }
     .badge { position: absolute; top: 5px; right: 5px; background: #000; color: #fff; font-size: 9px; padding: 2px 4px; border-radius: 2px; }
+    
+    .scroll-top { position: fixed; bottom: 20px; right: 20px; background: var(--primary); color: #fff; border: none; border-radius: 50%; width: 45px; height: 45px; font-size: 20px; cursor: pointer; display: none; z-index: 99; box-shadow: 0 2px 10px rgba(0,0,0,0.2); }
   </style>
 </head>
 <body>
 
   <div class="header">
-    <div class="header-title">YouTube</div>
-    <a href="../" class="nav-link">Home</a>
+    <button class="menu-toggle" onclick="toggleDrawer()">☰</button>
+    <a href="../"><img src="../src/home.png" alt="Home" class="header-logo"></a>
+    <div style="width: 24px;"></div>
+  </div>
+
+  <div class="drawer-overlay" id="drawer-overlay" onclick="toggleDrawer()"></div>
+  <div class="drawer" id="drawer">
+    <button class="drawer-close" onclick="toggleDrawer()">×</button>
+    <div>
+      <a href="../booking/" class="drawer-item">予約</a>
+      <a href="../searchYT/" class="drawer-item">映像</a>
+    </div>
+    <a href="../admin/" class="drawer-item" style="margin-top: auto; color: var(--primary-dark); border-top: 1px solid var(--border);">Admin</a>
   </div>
 
   <div class="content">
@@ -55,18 +75,25 @@
       </div>
       <input type="text" id="search" placeholder="Search..." oninput="filter()">
     </div>
-    <div id="grid" class="grid"></div>
+    <div id="grid" class="grid"><p style="font-size:12px; color:#888;">読込中...</p></div>
   </div>
+
+  <button class="scroll-top" onclick="window.scrollTo({top:0, behavior:'smooth'})" id="scrollTopBtn">↑</button>
 
   <script>
     if (localStorage.getItem("isLoggedIn") !== "true") window.location.href = "../";
-    const GAS_API_URL = "https://script.google.com/macros/s/AKfycbwF_t2MZTpa2p0Jb8QF_upAmLfdBDLP9_8ciRWyqSpFRga9NU1INj-M9b4Qp8YMsxMJbA/exec";
+    const GAS_API_URL = "https://script.google.com/macros/s/AKfycbySwjY5zm_XL2qQ84KcRin8nb1RW_74qD_yo_-i55iOzUdItzfNjodZ5gSFozDjpcToNA/exec";
     let vids = [], cur = 'all';
 
     window.onload = async () => {
       const c = localStorage.getItem("yt_pl");
       if (c) { setupPl(JSON.parse(c)); load(false); } else force();
     };
+    window.onscroll = function() {
+      document.getElementById("scrollTopBtn").style.display = (document.body.scrollTop > 100 || document.documentElement.scrollTop > 100) ? "block" : "none";
+    };
+
+    function toggleDrawer() { document.getElementById('drawer').classList.toggle('open'); document.getElementById('drawer-overlay').classList.toggle('open'); }
 
     function setupPl(pls) {
       const s = document.getElementById('pl'); s.innerHTML = '<option value="ALL">ALL</option>';
@@ -74,7 +101,8 @@
     }
 
     async function force() {
-      document.getElementById('refBtn').disabled = true;
+      const btn = document.getElementById('refBtn');
+      btn.disabled = true; btn.innerText = "更新中";
       localStorage.removeItem("yt_pl");
       Object.keys(localStorage).forEach(k => { if(k.startsWith("yt_v_")) localStorage.removeItem(k); });
       try {
@@ -82,7 +110,7 @@
         const json = await res.json();
         if(json.success) { localStorage.setItem("yt_pl", JSON.stringify(json.playlists)); setupPl(json.playlists); load(true); }
       } catch(e){}
-      document.getElementById('refBtn').disabled = false;
+      btn.disabled = false; btn.innerText = "更新";
     }
 
     async function load(f) {
@@ -98,19 +126,25 @@
 
     function mode(m) {
       cur = m; document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-      document.getElementById('btn-'+m).classList.add('active'); filter();
+      document.getElementById('btn-'+m).classList.add('active'); 
+      // フリーズを防ぐためsetTimeoutで非同期処理化
+      setTimeout(() => { filter(); }, 10);
     }
 
     function filter() {
       const k = document.getElementById('search').value.toLowerCase();
       const f = vids.filter(v => v.title.toLowerCase().includes(k) && (cur==='all' || (cur==='normal' && !v.isShort) || (cur==='shorts' && v.isShort)));
-      const g = document.getElementById('grid'); g.innerHTML = '';
-      f.forEach(v => {
-        const d = new Date(v.publishedAt);
-        g.innerHTML += `<a href="https://youtube.com/watch?v=${v.videoId}" target="_blank" class="v-card">
-          <div style="position:relative;"><img src="${v.thumbnail}" class="v-thumb">${v.isShort?'<span class="badge">SHORTS</span>':''}</div>
-          <div class="v-info"><p class="v-title">${v.title}</p><p class="v-date">${d.getFullYear()}/${d.getMonth()+1}/${d.getDate()}</p></div></a>`;
-      });
+      let htmlStr = "";
+      if(f.length === 0) { htmlStr = `<p style="font-size:12px; color:#888;">該当なし</p>`; }
+      else {
+        f.forEach(v => {
+          const d = new Date(v.publishedAt);
+          htmlStr += `<a href="https://youtube.com/watch?v=${v.videoId}" target="_blank" class="v-card">
+            <div style="position:relative;"><img src="${v.thumbnail}" class="v-thumb">${v.isShort?'<span class="badge">SHORTS</span>':''}</div>
+            <div class="v-info"><p class="v-title">${v.title}</p><p class="v-date">${d.getFullYear()}/${d.getMonth()+1}/${d.getDate()}</p></div></a>`;
+        });
+      }
+      document.getElementById('grid').innerHTML = htmlStr;
     }
   </script>
 </body>
