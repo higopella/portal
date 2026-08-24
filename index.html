@@ -2,114 +2,110 @@
 <html lang="ja">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Portal | Higo-Pella</title>
-  
   <link rel="icon" href="./src/icon.png" type="image/png">
   <link rel="apple-touch-icon" href="./src/icon.png">
   <link rel="manifest" href="./manifest.json">
-  
   <style>
     * { box-sizing: border-box; }
-    :root {
-      --primary: #4fc3f7;
-      --primary-dark: #0288d1;
-      --bg: #f7fbff;
-      --card-bg: #ffffff;
-      --text: #333333;
-      --text-sub: #777777;
-      --border: #e1e8ed;
-    }
-    body { font-family: 'Helvetica Neue', Arial, sans-serif; background-color: var(--bg); color: var(--text); margin: 0; min-height: 100vh; overflow-x: hidden; }
+    :root { --primary: #4fc3f7; --primary-dark: #0288d1; --bg: #f7fbff; --card: #ffffff; --text: #333; --border: #e1e8ed; }
+    body { font-family: Arial, sans-serif; background: var(--bg); color: var(--text); margin: 0; min-height: 100vh; overflow-x: hidden; }
     
     .auth-container { display: flex; justify-content: center; align-items: center; min-height: 100vh; padding: 20px; }
-    .auth-box { width: 100%; max-width: 400px; background: var(--card-bg); padding: 40px 30px; border-radius: 12px; box-shadow: 0 4px 20px rgba(79, 195, 247, 0.1); text-align: center; }
-    .auth-box h2 { color: var(--primary-dark); margin: 0 0 8px; font-weight: 600; font-size: 20px; }
-    .auth-box p { color: var(--text-sub); font-size: 13px; margin-bottom: 25px; }
-    input { width: 100%; padding: 14px; margin-bottom: 15px; border: 1px solid var(--border); border-radius: 6px; font-size: 15px; outline: none; transition: border 0.3s; }
-    input:focus { border-color: var(--primary); }
-    button { width: 100%; padding: 14px; background: var(--primary); color: #fff; border: none; border-radius: 6px; font-size: 15px; font-weight: 600; cursor: pointer; transition: background 0.3s; }
-    button:hover { background: #29b6f6; }
-    .msg-area { font-size: 13px; font-weight: 500; margin-top: 15px; display: none; color: #d93025; }
+    .auth-box { width: 100%; max-width: 400px; background: var(--card); padding: 40px 30px; border-radius: 12px; box-shadow: 0 4px 20px rgba(79, 195, 247, 0.15); text-align: center; }
+    .auth-box input { width: 100%; padding: 14px; margin-bottom: 15px; border: 1px solid var(--border); border-radius: 6px; font-size: 15px; outline: none; }
+    .auth-box input:focus { border-color: var(--primary); }
+    .btn { width: 100%; padding: 14px; background: var(--primary); color: #fff; border: none; border-radius: 6px; font-size: 15px; font-weight: bold; cursor: pointer; }
+    .msg { font-size: 13px; color: #d93025; margin-top: 15px; display: none; }
 
     #portal-screen { display: none; }
     
-    .header { background: var(--card-bg); padding: 15px 20px; display: flex; align-items: center; border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 100; }
-    .menu-toggle { font-size: 22px; color: var(--primary-dark); cursor: pointer; margin-right: 15px; background: none; border: none; padding: 0; width: auto; }
-    .header-title { font-size: 16px; font-weight: 600; color: var(--primary-dark); }
-
-    .drawer { position: fixed; top: 0; left: -260px; width: 250px; height: 100vh; background: var(--card-bg); border-right: 1px solid var(--border); z-index: 200; transition: left 0.3s; padding-top: 60px; }
+    .header { background: var(--card); padding: 10px 20px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 100; }
+    .menu-toggle { font-size: 24px; color: var(--primary-dark); cursor: pointer; background: none; border: none; padding: 0; }
+    .header-logo { height: 28px; cursor: pointer; }
+    
+    .drawer { position: fixed; top: 0; left: -260px; width: 250px; height: 100vh; background: var(--card); border-right: 1px solid var(--border); z-index: 200; transition: left 0.3s; padding-top: 60px; display: flex; flex-direction: column; }
     .drawer.open { left: 0; }
     .drawer-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.3); z-index: 150; display: none; opacity: 0; transition: opacity 0.3s; }
     .drawer-overlay.open { display: block; opacity: 1; }
-    .drawer-item { display: block; padding: 16px 20px; color: var(--text); text-decoration: none; font-size: 14px; font-weight: 500; border-bottom: 1px solid #f0f4f8; }
-    .drawer-item:hover { background: var(--bg); color: var(--primary-dark); }
-    .drawer-close { position: absolute; top: 15px; right: 20px; font-size: 24px; color: #999; cursor: pointer; background: none; border: none; width: auto; padding: 0; }
+    .drawer-item { display: block; padding: 16px 20px; color: var(--text); text-decoration: none; font-size: 14px; font-weight: bold; border-bottom: 1px solid #f0f4f8; }
+    .drawer-close { position: absolute; top: 15px; right: 20px; font-size: 24px; color: #999; cursor: pointer; background: none; border: none; }
 
-    .content { max-width: 800px; margin: 20px auto; padding: 0 15px; }
-    .card { background: var(--card-bg); padding: 20px; border-radius: 10px; border: 1px solid var(--border); margin-bottom: 20px; position: relative; overflow: hidden; }
-    .card::before { content: ""; position: absolute; bottom: -20px; right: -20px; width: 120px; height: 120px; background-image: url('./src/icon.png'); background-size: contain; background-repeat: no-repeat; opacity: 0.02; pointer-events: none; }
+    .layout-grid { display: grid; gap: 20px; max-width: 1000px; margin: 20px auto; padding: 0 15px; }
+    @media (min-width: 768px) {
+      .layout-grid { grid-template-columns: 1fr 2fr 1fr; }
+      .order-notice { order: 1; } .order-sch { order: 2; } .order-btn { order: 3; }
+    }
+    @media (max-width: 767px) {
+      .layout-grid { grid-template-columns: 1fr; }
+      .order-btn { order: 1; } .order-notice { order: 2; } .order-sch { order: 3; }
+    }
+
+    .card { background: var(--card); padding: 20px; border-radius: 10px; border: 1px solid var(--border); }
+    .card-title { font-size: 14px; font-weight: bold; color: var(--primary-dark); margin: 0 0 10px 0; border-bottom: 1px solid var(--border); padding-bottom: 8px; }
     
-    .card-title { font-size: 14px; font-weight: 600; color: var(--primary-dark); margin: 0 0 10px 0; border-bottom: 1px solid #f0f4f8; padding-bottom: 8px; }
-    .text-main { font-size: 14px; line-height: 1.6; margin: 0 0 10px 0; }
-    .text-sub { font-size: 13px; color: var(--text-sub); margin: 0; }
+    .btn-wrapper { display: flex; flex-direction: column; gap: 15px; }
+    .main-btn { background: #fff; border: 2px solid var(--primary); color: var(--primary-dark); padding: 18px; border-radius: 8px; font-size: 16px; font-weight: bold; text-align: center; text-decoration: none; box-shadow: 0 4px 12px rgba(79, 195, 247, 0.2); transition: transform 0.2s; }
     
-    .mini-cal { width: 100%; height: 300px; border: 1px solid var(--border); border-radius: 6px; }
-    
-    .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
-    .grid-btn { background: var(--card-bg); padding: 15px 10px; border: 1px solid var(--border); border-radius: 8px; text-align: center; text-decoration: none; color: var(--text); font-size: 13px; font-weight: 600; transition: border 0.2s; }
-    .grid-btn:hover { border-color: var(--primary); color: var(--primary-dark); }
+    .notice-item { font-size: 13px; line-height: 1.5; margin-bottom: 12px; padding-bottom: 12px; border-bottom: 1px dashed var(--border); }
+    .notice-item:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
+    .tag-pinned { color: var(--primary-dark); font-weight: bold; font-size: 11px; border: 1px solid var(--primary-dark); padding: 2px 4px; border-radius: 3px; margin-right: 5px; }
+    .notice-time { color: #888; font-size: 11px; display: block; margin-bottom: 4px; }
   </style>
 </head>
 <body>
 
   <div class="auth-container" id="login-screen">
     <div class="auth-box">
-      <h2>Higo-Pella</h2>
-      <p>Portal System</p>
+      <img src="./src/home.png" alt="Logo" style="height:40px; margin-bottom: 15px;">
       <input type="password" id="password" placeholder="Password">
-      <button id="loginBtn" onclick="checkPassword()">ログイン</button>
-      <div id="msg-area" class="msg-area"></div>
+      <button class="btn" id="loginBtn" onclick="checkPassword()">ログイン</button>
+      <div id="msg-area" class="msg"></div>
     </div>
   </div>
 
   <div id="portal-screen">
     <div class="header">
       <button class="menu-toggle" onclick="toggleDrawer()">☰</button>
-      <div class="header-title">Portal</div>
+      <img src="./src/home.png" alt="Home" class="header-logo" onclick="window.scrollTo(0,0)">
+      <div style="width: 24px;"></div>
     </div>
 
     <div class="drawer-overlay" id="drawer-overlay" onclick="toggleDrawer()"></div>
     <div class="drawer" id="drawer">
       <button class="drawer-close" onclick="toggleDrawer()">×</button>
-      <a href="./booking/" class="drawer-item">予約</a>
-      <a href="./searchYT/" class="drawer-item">映像</a>
-      <a href="./forms/" class="drawer-item">要望</a>
-      <a href="./admin/" class="drawer-item" style="margin-top: 30px; color: var(--primary-dark);">Admin</a>
+      <div>
+        <a href="./booking/" class="drawer-item">予約</a>
+        <a href="./searchYT/" class="drawer-item">映像</a>
+      </div>
+      <a href="./admin/" class="drawer-item" style="margin-top: auto; color: var(--primary-dark); border-top: 1px solid var(--border);">Admin</a>
     </div>
 
-    <div class="content">
-      <div class="card">
-        <h3 class="card-title">Notice</h3>
-        <p class="text-main">次回部会: <strong id="next-meeting"></strong></p>
-        <p class="text-sub" id="admin-notice">読込中...</p>
+    <div class="layout-grid">
+      <!-- お知らせ -->
+      <div class="card order-notice">
+        <h3 class="card-title">お知らせ</h3>
+        <p style="font-size: 13px; margin-bottom: 15px;">次回の部会: <strong id="next-meeting"></strong></p>
+        <div id="notice-list"><p style="font-size:12px; color:#888;">読込中...</p></div>
+      </div>
+      
+      <!-- スケジュール -->
+      <div class="card order-sch">
+        <h3 class="card-title">スケジュール</h3>
+        <iframe id="miniCalendar" style="width: 100%; height: 350px; border: none; border-radius: 6px;" scrolling="no"></iframe>
       </div>
 
-      <div class="card">
-        <h3 class="card-title">Schedule</h3>
-        <iframe class="mini-cal" id="miniCalendar" scrolling="no"></iframe>
-      </div>
-
-      <div class="grid">
-        <a href="./booking/" class="grid-btn">予約</a>
-        <a href="./searchYT/" class="grid-btn">映像</a>
-        <a href="./forms/" class="grid-btn">要望</a>
+      <!-- ボタン -->
+      <div class="order-btn btn-wrapper">
+        <a href="./booking/" class="main-btn">予約</a>
+        <a href="./searchYT/" class="main-btn">映像</a>
       </div>
     </div>
   </div>
 
   <script>
-    const GAS_API_URL = "YOUR_GAS_API_URL_HERE";
+    const GAS_API_URL = "https://script.google.com/macros/s/AKfycbySwjY5zm_XL2qQ84KcRin8nb1RW_74qD_yo_-i55iOzUdItzfNjodZ5gSFozDjpcToNA/exec";
 
     window.onload = function() {
       if (localStorage.getItem("isLoggedIn") === "true") showPortal();
@@ -118,9 +114,7 @@
     function showPortal() {
       document.getElementById("login-screen").style.display = "none";
       document.getElementById("portal-screen").style.display = "block";
-      calcMeeting();
-      loadCal();
-      fetchNotice();
+      calcMeeting(); loadCal(); fetchNotice();
     }
 
     function toggleDrawer() {
@@ -133,10 +127,9 @@
       const btn = document.getElementById("loginBtn");
       const msg = document.getElementById("msg-area");
       if (!pwd) return;
-      
       btn.disabled = true; btn.innerText = "通信中..."; msg.style.display = "none";
       try {
-        const res = await fetch(GAS_API_URL, { method: "POST", headers: { "Content-Type": "text/plain" }, body: JSON.stringify({ action: "verifyPassword", data: { password: pwd } }) });
+        const res = await fetch(GAS_API_URL, { method: "POST", body: JSON.stringify({ action: "verifyPassword", data: { password: pwd } }) });
         const data = await res.json();
         if (data.success) { localStorage.setItem("isLoggedIn", "true"); showPortal(); } 
         else { msg.innerText = data.error; msg.style.display = "block"; }
@@ -145,20 +138,13 @@
     }
 
     function calcMeeting() {
-      const today = new Date();
-      let y = today.getFullYear(), m = today.getMonth();
+      const today = new Date(); let y = today.getFullYear(), m = today.getMonth();
       let d = getSecTue(y, m);
-      if (today.getDate() > d.getDate()) {
-        m++; if (m > 11) { m = 0; y++; }
-        d = getSecTue(y, m);
-      }
+      if (today.getDate() > d.getDate()) { m++; if (m > 11) { m = 0; y++; } d = getSecTue(y, m); }
       document.getElementById('next-meeting').innerText = `${d.getMonth() + 1}/${d.getDate()}`;
     }
-
     function getSecTue(y, m) {
-      let d = new Date(y, m, 1);
-      d.setDate(1 + ((2 - d.getDay() + 7) % 7) + 7);
-      return d;
+      let d = new Date(y, m, 1); d.setDate(1 + ((2 - d.getDay() + 7) % 7) + 7); return d;
     }
 
     function loadCal() {
@@ -168,9 +154,17 @@
 
     async function fetchNotice() {
       try {
-        const res = await fetch(GAS_API_URL, { method: "POST", headers: { "Content-Type": "text/plain" }, body: JSON.stringify({ action: "getNotice" }) });
+        const res = await fetch(GAS_API_URL, { method: "POST", body: JSON.stringify({ action: "getNotice" }) });
         const data = await res.json();
-        if(data.success) document.getElementById('admin-notice').innerText = data.text;
+        const list = document.getElementById('notice-list');
+        list.innerHTML = "";
+        if(data.success && data.notices.length > 0) {
+          data.notices.forEach(n => {
+            let tag = n.isPinned ? `<span class="tag-pinned">[固定]</span>` : '';
+            let date = n.time.split(" ")[0].substring(5); // MM/DD
+            list.innerHTML += `<div class="notice-item"><span class="notice-time">${date}</span>${tag}${n.text.replace(/\n/g, '<br>')}</div>`;
+          });
+        } else { list.innerHTML = `<p style="font-size:12px; color:#888;">お知らせはありません</p>`; }
       } catch (e) {}
     }
   </script>
