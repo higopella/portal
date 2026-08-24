@@ -3,70 +3,176 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Higo-Pella Portal</title>
-  <!-- ファビコン（PCタブ用） -->
+  <title>Portal | Higo-Pella</title>
+  
   <link rel="icon" href="./src/icon.png" type="image/png">
-  <!-- iPhone (Safari) 用アプリアイコン -->
   <link rel="apple-touch-icon" href="./src/icon.png">
-  <!-- Android (Chrome) 用アプリ設定 -->
   <link rel="manifest" href="./manifest.json">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="apple-mobile-web-app-title" content="Higo-Pella">
   
   <style>
-    body { font-family: sans-serif; background-color: #f4f6f9; color: #333; margin: 0; padding: 20px; text-align: center; }
-    .container { max-width: 400px; margin: 50px auto; background: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
-    h2 { color: #0056b3; margin-top: 0; }
-    input { width: 90%; padding: 12px; margin: 10px 0; border: 1px solid #ccc; border-radius: 6px; font-size: 16px; box-sizing: border-box; }
-    button { width: 100%; padding: 14px; background: #007bff; color: white; border: none; border-radius: 6px; font-size: 16px; font-weight: bold; cursor: pointer; margin-top: 10px; }
-    .menu { display: none; margin-top: 20px; }
-    .menu-btn { display: block; padding: 20px; margin: 15px 0; background: linear-gradient(135deg, #0056b3, #007bff); color: white; text-decoration: none; border-radius: 8px; font-weight: bold; font-size: 18px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
-    .menu-btn.yt { background: linear-gradient(135deg, #d32f2f, #f44336); }
-    #error-msg { color: red; font-size: 14px; display: none; font-weight: bold; margin-top: 10px; }
+    * { box-sizing: border-box; }
+    :root {
+      --primary: #4fc3f7;
+      --primary-dark: #0288d1;
+      --bg: #f7fbff;
+      --card-bg: #ffffff;
+      --text: #333333;
+      --text-sub: #777777;
+      --border: #e1e8ed;
+    }
+    body { font-family: 'Helvetica Neue', Arial, sans-serif; background-color: var(--bg); color: var(--text); margin: 0; min-height: 100vh; overflow-x: hidden; }
+    
+    .auth-container { display: flex; justify-content: center; align-items: center; min-height: 100vh; padding: 20px; }
+    .auth-box { width: 100%; max-width: 400px; background: var(--card-bg); padding: 40px 30px; border-radius: 12px; box-shadow: 0 4px 20px rgba(79, 195, 247, 0.1); text-align: center; }
+    .auth-box h2 { color: var(--primary-dark); margin: 0 0 8px; font-weight: 600; font-size: 20px; }
+    .auth-box p { color: var(--text-sub); font-size: 13px; margin-bottom: 25px; }
+    input { width: 100%; padding: 14px; margin-bottom: 15px; border: 1px solid var(--border); border-radius: 6px; font-size: 15px; outline: none; transition: border 0.3s; }
+    input:focus { border-color: var(--primary); }
+    button { width: 100%; padding: 14px; background: var(--primary); color: #fff; border: none; border-radius: 6px; font-size: 15px; font-weight: 600; cursor: pointer; transition: background 0.3s; }
+    button:hover { background: #29b6f6; }
+    .msg-area { font-size: 13px; font-weight: 500; margin-top: 15px; display: none; color: #d93025; }
+
+    #portal-screen { display: none; }
+    
+    .header { background: var(--card-bg); padding: 15px 20px; display: flex; align-items: center; border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 100; }
+    .menu-toggle { font-size: 22px; color: var(--primary-dark); cursor: pointer; margin-right: 15px; background: none; border: none; padding: 0; width: auto; }
+    .header-title { font-size: 16px; font-weight: 600; color: var(--primary-dark); }
+
+    .drawer { position: fixed; top: 0; left: -260px; width: 250px; height: 100vh; background: var(--card-bg); border-right: 1px solid var(--border); z-index: 200; transition: left 0.3s; padding-top: 60px; }
+    .drawer.open { left: 0; }
+    .drawer-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.3); z-index: 150; display: none; opacity: 0; transition: opacity 0.3s; }
+    .drawer-overlay.open { display: block; opacity: 1; }
+    .drawer-item { display: block; padding: 16px 20px; color: var(--text); text-decoration: none; font-size: 14px; font-weight: 500; border-bottom: 1px solid #f0f4f8; }
+    .drawer-item:hover { background: var(--bg); color: var(--primary-dark); }
+    .drawer-close { position: absolute; top: 15px; right: 20px; font-size: 24px; color: #999; cursor: pointer; background: none; border: none; width: auto; padding: 0; }
+
+    .content { max-width: 800px; margin: 20px auto; padding: 0 15px; }
+    .card { background: var(--card-bg); padding: 20px; border-radius: 10px; border: 1px solid var(--border); margin-bottom: 20px; position: relative; overflow: hidden; }
+    .card::before { content: ""; position: absolute; bottom: -20px; right: -20px; width: 120px; height: 120px; background-image: url('./src/icon.png'); background-size: contain; background-repeat: no-repeat; opacity: 0.02; pointer-events: none; }
+    
+    .card-title { font-size: 14px; font-weight: 600; color: var(--primary-dark); margin: 0 0 10px 0; border-bottom: 1px solid #f0f4f8; padding-bottom: 8px; }
+    .text-main { font-size: 14px; line-height: 1.6; margin: 0 0 10px 0; }
+    .text-sub { font-size: 13px; color: var(--text-sub); margin: 0; }
+    
+    .mini-cal { width: 100%; height: 300px; border: 1px solid var(--border); border-radius: 6px; }
+    
+    .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+    .grid-btn { background: var(--card-bg); padding: 15px 10px; border: 1px solid var(--border); border-radius: 8px; text-align: center; text-decoration: none; color: var(--text); font-size: 13px; font-weight: 600; transition: border 0.2s; }
+    .grid-btn:hover { border-color: var(--primary); color: var(--primary-dark); }
   </style>
 </head>
 <body>
 
-  <div class="container" id="login-screen">
-    <h2>🎤 Higo-Pella Portal</h2>
-    <p style="font-size: 14px; color: #666;">サークル専用システムです</p>
-    <input type="password" id="password" placeholder="パスワードを入力">
-    <button onclick="checkPassword()">ログイン</button>
-    <p id="error-msg">パスワードが間違っています</p>
+  <div class="auth-container" id="login-screen">
+    <div class="auth-box">
+      <h2>Higo-Pella</h2>
+      <p>Portal System</p>
+      <input type="password" id="password" placeholder="Password">
+      <button id="loginBtn" onclick="checkPassword()">ログイン</button>
+      <div id="msg-area" class="msg-area"></div>
+    </div>
   </div>
 
-  <div class="container menu" id="menu-screen">
-    <h2>ポータルメニュー</h2>
-    <p style="font-size: 13px; color: #666;">利用するシステムを選択してください</p>
-    <a href="./booking/" class="menu-btn">バンド練習 予約システム</a>
-    <a href="./searchYT/" class="menu-btn yt">ライブ映像 (YouTube) 検索</a>
+  <div id="portal-screen">
+    <div class="header">
+      <button class="menu-toggle" onclick="toggleDrawer()">☰</button>
+      <div class="header-title">Portal</div>
+    </div>
+
+    <div class="drawer-overlay" id="drawer-overlay" onclick="toggleDrawer()"></div>
+    <div class="drawer" id="drawer">
+      <button class="drawer-close" onclick="toggleDrawer()">×</button>
+      <a href="./booking/" class="drawer-item">予約</a>
+      <a href="./searchYT/" class="drawer-item">映像</a>
+      <a href="./forms/" class="drawer-item">要望</a>
+      <a href="./admin/" class="drawer-item" style="margin-top: 30px; color: var(--primary-dark);">Admin</a>
+    </div>
+
+    <div class="content">
+      <div class="card">
+        <h3 class="card-title">Notice</h3>
+        <p class="text-main">次回部会: <strong id="next-meeting"></strong></p>
+        <p class="text-sub" id="admin-notice">読込中...</p>
+      </div>
+
+      <div class="card">
+        <h3 class="card-title">Schedule</h3>
+        <iframe class="mini-cal" id="miniCalendar" scrolling="no"></iframe>
+      </div>
+
+      <div class="grid">
+        <a href="./booking/" class="grid-btn">予約</a>
+        <a href="./searchYT/" class="grid-btn">映像</a>
+        <a href="./forms/" class="grid-btn">要望</a>
+      </div>
+    </div>
   </div>
 
   <script>
-    // 画面が開かれたときに、すでにログイン済みかチェックする
+    const GAS_API_URL = "YOUR_GAS_API_URL_HERE";
+
     window.onload = function() {
-      if (localStorage.getItem("isLoggedIn") === "true") { // ★ここを変更
-        document.getElementById("login-screen").style.display = "none";
-        document.getElementById("menu-screen").style.display = "block";
-      }
+      if (localStorage.getItem("isLoggedIn") === "true") showPortal();
     };
 
-    function checkPassword() {
-      const input = document.getElementById("password").value;
-      const secret = "higo0314"; 
+    function showPortal() {
+      document.getElementById("login-screen").style.display = "none";
+      document.getElementById("portal-screen").style.display = "block";
+      calcMeeting();
+      loadCal();
+      fetchNotice();
+    }
 
-      if(input === secret) {
-        // パスワードが合っていれば、より強力な記憶領域に保存する
-        localStorage.setItem("isLoggedIn", "true"); // ★ここを変更
-        
-        document.getElementById("login-screen").style.display = "none";
-        document.getElementById("menu-screen").style.display = "block";
-      } else {
-        document.getElementById("error-msg").style.display = "block";
+    function toggleDrawer() {
+      document.getElementById('drawer').classList.toggle('open');
+      document.getElementById('drawer-overlay').classList.toggle('open');
+    }
+
+    async function checkPassword() {
+      const pwd = document.getElementById("password").value;
+      const btn = document.getElementById("loginBtn");
+      const msg = document.getElementById("msg-area");
+      if (!pwd) return;
+      
+      btn.disabled = true; btn.innerText = "通信中..."; msg.style.display = "none";
+      try {
+        const res = await fetch(GAS_API_URL, { method: "POST", headers: { "Content-Type": "text/plain" }, body: JSON.stringify({ action: "verifyPassword", data: { password: pwd } }) });
+        const data = await res.json();
+        if (data.success) { localStorage.setItem("isLoggedIn", "true"); showPortal(); } 
+        else { msg.innerText = data.error; msg.style.display = "block"; }
+      } catch (e) { msg.innerText = "通信エラー"; msg.style.display = "block"; }
+      btn.disabled = false; btn.innerText = "ログイン";
+    }
+
+    function calcMeeting() {
+      const today = new Date();
+      let y = today.getFullYear(), m = today.getMonth();
+      let d = getSecTue(y, m);
+      if (today.getDate() > d.getDate()) {
+        m++; if (m > 11) { m = 0; y++; }
+        d = getSecTue(y, m);
       }
+      document.getElementById('next-meeting').innerText = `${d.getMonth() + 1}/${d.getDate()}`;
+    }
+
+    function getSecTue(y, m) {
+      let d = new Date(y, m, 1);
+      d.setDate(1 + ((2 - d.getDay() + 7) % 7) + 7);
+      return d;
+    }
+
+    function loadCal() {
+      const src = `src=pellapella.calendar@gmail.com&color=%23D50000&src=a18eeaccc3fb519de5b4b3492df6b26232f7967ab4582a2cd4d314600aa03186@group.calendar.google.com&color=%23039BE5&src=aade55a25aef3abb1ab00c832c44b660df1336a113dc29c6fff776f046df3dd3@group.calendar.google.com&color=%23F6BF26&src=fdb34873e469d812b70c3e1f79978398d9a3c0a793287551c3a77ae84f7ed079@group.calendar.google.com&color=%2333B679`;
+      document.getElementById('miniCalendar').src = `https://calendar.google.com/calendar/embed?${src}&ctz=Asia%2FTokyo&mode=AGENDA&showTitle=0&showPrint=0&showTabs=0&showNav=0&showDate=0&showCalendars=0`;
+    }
+
+    async function fetchNotice() {
+      try {
+        const res = await fetch(GAS_API_URL, { method: "POST", headers: { "Content-Type": "text/plain" }, body: JSON.stringify({ action: "getNotice" }) });
+        const data = await res.json();
+        if(data.success) document.getElementById('admin-notice').innerText = data.text;
+      } catch (e) {}
     }
   </script>
-
 </body>
 </html>
