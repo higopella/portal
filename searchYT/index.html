@@ -10,41 +10,41 @@
   <style>
     * { box-sizing: border-box; }
     :root { --primary: #4fc3f7; --primary-dark: #0288d1; --bg: #f7fbff; --card: #fff; --border: #e1e8ed; --text: #333; }
-    body { font-family: Arial, sans-serif; background: var(--bg); color: var(--text); margin: 0; }
+    body { font-family: Arial, sans-serif; font-size: 15px; background: var(--bg); color: var(--text); margin: 0; }
     
     .header { background: var(--card); padding: 10px 20px; display: flex; align-items: center; justify-content: flex-start; border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 100; }
-    .menu-toggle { font-size: 24px; color: var(--primary-dark); cursor: pointer; background: none; border: none; padding: 0; margin-right: 15px; }
-    .header-logo { height: 28px; cursor: pointer; }
+    .menu-toggle { font-size: 26px; color: var(--primary-dark); cursor: pointer; background: none; border: none; padding: 0; margin-right: 15px; }
+    .header-logo { height: 30px; cursor: pointer; }
     
     .drawer { position: fixed; top: 0; left: -260px; width: 250px; height: 100vh; background: var(--card); border-right: 1px solid var(--border); z-index: 200; transition: left 0.3s; padding-top: 60px; display: flex; flex-direction: column; }
     .drawer.open { left: 0; }
     .drawer-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.3); z-index: 150; display: none; opacity: 0; transition: opacity 0.3s; }
     .drawer-overlay.open { display: block; opacity: 1; }
-    .drawer-item { display: block; padding: 16px 20px; color: var(--text); text-decoration: none; font-size: 14px; font-weight: bold; border-bottom: 1px solid #f0f4f8; }
-    .drawer-close { position: absolute; top: 15px; right: 20px; font-size: 24px; color: #999; cursor: pointer; background: none; border: none; }
+    .drawer-item { display: block; padding: 18px 20px; color: var(--text); text-decoration: none; font-size: 16px; font-weight: bold; border-bottom: 1px solid #f0f4f8; }
+    .drawer-close { position: absolute; top: 15px; right: 20px; font-size: 28px; color: #999; cursor: pointer; background: none; border: none; }
 
     .content { max-width: 800px; margin: 20px auto; padding: 0 15px; }
-    .card { background: var(--card); padding: 20px; border-radius: 8px; border: 1px solid var(--border); margin-bottom: 20px; }
+    .card { background: var(--card); padding: 25px; border-radius: 8px; border: 1px solid var(--border); margin-bottom: 20px; }
     
     .row { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 15px; }
-    select, input, button { height: 40px; border: 1px solid var(--border); border-radius: 4px; font-size: 14px; background: #fff; outline: none; }
+    select, input, button { height: 45px; border: 1px solid var(--border); border-radius: 4px; font-size: 15px; background: #fff; outline: none; }
     select { flex: 1; min-width: 200px; padding: 0 10px; }
-    .btn-update { width: 80px; flex: 0 0 80px; background: #f0f4f8; cursor: pointer; }
+    .btn-update { width: 80px; flex: 0 0 80px; background: #f0f4f8; cursor: pointer; font-weight: bold; }
     
     .tabs { display: flex; gap: 5px; margin-bottom: 15px; }
-    .tab-btn { flex: 1; background: var(--card); cursor: pointer; border: 1px solid var(--border); }
+    .tab-btn { flex: 1; padding: 10px; background: var(--card); cursor: pointer; border: 1px solid var(--border); font-weight: bold; }
     .tab-btn.active { background: #333; color: #fff; border-color: #333; }
-    input[type="text"] { width: 100%; padding: 0 10px; }
+    input[type="text"] { width: 100%; padding: 0 15px; }
     
-    .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 15px; }
     .v-card { background: var(--card); border: 1px solid var(--border); border-radius: 6px; overflow: hidden; text-decoration: none; color: inherit; display: block; position: relative; }
     .v-thumb { width: 100%; aspect-ratio: 16/9; object-fit: cover; background: #eee; }
-    .v-info { padding: 10px; }
-    .v-title { font-size: 12px; font-weight: 600; margin: 0 0 5px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
-    .v-date { font-size: 10px; color: #777; margin: 0; }
-    .badge { position: absolute; top: 5px; right: 5px; background: #000; color: #fff; font-size: 9px; padding: 2px 4px; border-radius: 2px; }
+    .v-info { padding: 12px; }
+    .v-title { font-size: 13px; font-weight: bold; margin: 0 0 5px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; line-height: 1.4; }
+    .v-date { font-size: 11px; color: #777; margin: 0; }
+    .badge { position: absolute; top: 5px; right: 5px; background: #000; color: #fff; font-size: 10px; padding: 3px 6px; border-radius: 3px; font-weight: bold; }
     
-    .scroll-top { position: fixed; bottom: 20px; right: 20px; background: var(--primary); color: #fff; border: none; border-radius: 50%; width: 45px; height: 45px; font-size: 20px; cursor: pointer; display: none; z-index: 99; box-shadow: 0 2px 10px rgba(0,0,0,0.2); }
+    .scroll-top { position: fixed; bottom: 20px; right: 20px; background: var(--primary); color: #fff; border: none; border-radius: 50%; width: 50px; height: 50px; font-size: 20px; cursor: pointer; display: none; z-index: 99; box-shadow: 0 2px 10px rgba(0,0,0,0.2); }
   </style>
 </head>
 <body>
@@ -54,16 +54,7 @@
     <a href="../" style="display: flex; align-items: center;"><img src="../src/home.png" alt="Home" class="header-logo"></a>
   </div>
 
-  <div class="drawer-overlay" id="drawer-overlay" onclick="toggleDrawer()"></div>
-  <div class="drawer" id="drawer">
-    <button class="drawer-close" onclick="toggleDrawer()">×</button>
-    <div>
-      <a href="../booking/" class="drawer-item">予約</a>
-      <a href="../searchYT/" class="drawer-item">映像</a>
-      <a href="../forms/" class="drawer-item">Forms</a>
-    </div>
-    <a href="../admin/" class="drawer-item" style="margin-top: auto; color: var(--primary-dark); border-top: 1px solid var(--border);">管理者</a>
-  </div>
+  <div id="global-menu-container"></div>
 
   <div class="content">
     <div class="card">
@@ -78,25 +69,25 @@
       </div>
       <input type="text" id="search" placeholder="Search..." oninput="filter()">
     </div>
-    <div id="grid" class="grid"><p style="font-size:12px; color:#888;">読込中...</p></div>
+    <div id="grid" class="grid"><p style="font-size:14px; color:#888;">読込中...</p></div>
   </div>
 
   <button class="scroll-top" onclick="window.scrollTo({top:0, behavior:'smooth'})" id="scrollTopBtn">↑</button>
 
+  <script src="../src/menu.js"></script>
   <script>
     if (localStorage.getItem("isLoggedIn") !== "true") window.location.href = "../";
     const GAS_API_URL = "https://script.google.com/macros/s/AKfycbySwjY5zm_XL2qQ84KcRin8nb1RW_74qD_yo_-i55iOzUdItzfNjodZ5gSFozDjpcToNA/exec";
     let vids = [], cur = 'all';
 
     window.onload = async () => {
+      injectMenu('../');
       const c = localStorage.getItem("yt_pl");
       if (c) { setupPl(JSON.parse(c)); load(false); } else force();
     };
     window.onscroll = function() {
       document.getElementById("scrollTopBtn").style.display = (document.body.scrollTop > 100 || document.documentElement.scrollTop > 100) ? "block" : "none";
     };
-
-    function toggleDrawer() { document.getElementById('drawer').classList.toggle('open'); document.getElementById('drawer-overlay').classList.toggle('open'); }
 
     function setupPl(pls) {
       const s = document.getElementById('pl'); s.innerHTML = '<option value="ALL">ALL</option>';
@@ -137,7 +128,7 @@
       const k = document.getElementById('search').value.toLowerCase();
       const f = vids.filter(v => v.title.toLowerCase().includes(k) && (cur==='all' || (cur==='normal' && !v.isShort) || (cur==='shorts' && v.isShort)));
       let htmlStr = "";
-      if(f.length === 0) { htmlStr = `<p style="font-size:12px; color:#888;">該当なし</p>`; }
+      if(f.length === 0) { htmlStr = `<p style="font-size:14px; color:#888;">該当なし</p>`; }
       else {
         f.forEach(v => {
           const d = new Date(v.publishedAt);
