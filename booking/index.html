@@ -10,27 +10,27 @@
   <style>
     * { box-sizing: border-box; }
     :root { --primary: #4fc3f7; --primary-dark: #0288d1; --bg: #f7fbff; --card: #fff; --border: #e1e8ed; --text: #333; }
-    body { font-family: Arial, sans-serif; background: var(--bg); color: var(--text); margin: 0; }
+    body { font-family: Arial, sans-serif; font-size: 15px; background: var(--bg); color: var(--text); margin: 0; }
     
     .header { background: var(--card); padding: 10px 20px; display: flex; align-items: center; justify-content: flex-start; border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 100; }
-    .menu-toggle { font-size: 24px; color: var(--primary-dark); cursor: pointer; background: none; border: none; padding: 0; margin-right: 15px; }
-    .header-logo { height: 28px; cursor: pointer; }
+    .menu-toggle { font-size: 26px; color: var(--primary-dark); cursor: pointer; background: none; border: none; padding: 0; margin-right: 15px; }
+    .header-logo { height: 30px; cursor: pointer; }
     
     .drawer { position: fixed; top: 0; left: -260px; width: 250px; height: 100vh; background: var(--card); border-right: 1px solid var(--border); z-index: 200; transition: left 0.3s; padding-top: 60px; display: flex; flex-direction: column; }
     .drawer.open { left: 0; }
     .drawer-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.3); z-index: 150; display: none; opacity: 0; transition: opacity 0.3s; }
     .drawer-overlay.open { display: block; opacity: 1; }
-    .drawer-item { display: block; padding: 16px 20px; color: var(--text); text-decoration: none; font-size: 14px; font-weight: bold; border-bottom: 1px solid #f0f4f8; }
-    .drawer-close { position: absolute; top: 15px; right: 20px; font-size: 24px; color: #999; cursor: pointer; background: none; border: none; }
+    .drawer-item { display: block; padding: 18px 20px; color: var(--text); text-decoration: none; font-size: 16px; font-weight: bold; border-bottom: 1px solid #f0f4f8; }
+    .drawer-close { position: absolute; top: 15px; right: 20px; font-size: 28px; color: #999; cursor: pointer; background: none; border: none; }
 
     .content { max-width: 800px; margin: 20px auto; padding: 0 15px; }
-    .card { background: var(--card); padding: 20px; border-radius: 8px; border: 1px solid var(--border); margin-bottom: 20px; }
-    h3 { font-size: 15px; margin: 0 0 15px 0; padding-bottom: 10px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: baseline; }
+    .card { background: var(--card); padding: 25px; border-radius: 8px; border: 1px solid var(--border); margin-bottom: 20px; }
+    h3 { font-size: 16px; margin: 0 0 20px 0; padding-bottom: 12px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: baseline; }
     
     .tabs { display: flex; gap: 5px; margin-bottom: 15px; }
-    .tab-btn { flex: 1; padding: 8px; background: var(--card); border: 1px solid var(--border); border-radius: 4px; font-size: 13px; cursor: pointer; color: var(--text); }
+    .tab-btn { flex: 1; padding: 10px; background: var(--card); border: 1px solid var(--border); border-radius: 4px; font-size: 14px; cursor: pointer; color: var(--text); font-weight: bold; }
     .tab-btn.active { background: #333; color: #fff; border-color: #333; }
-    .btn-update-small { flex: 0 0 60px; padding: 8px; font-size: 12px; background: #f0f4f8; border: 1px solid var(--border); border-radius: 4px; cursor: pointer; }
+    .btn-update-small { flex: 0 0 60px; padding: 10px; font-size: 13px; background: #f0f4f8; border: 1px solid var(--border); border-radius: 4px; cursor: pointer; }
     
     .cal-container { height: 500px; border: 1px solid var(--border); position: relative; }
     @media (max-width: 767px) {
@@ -42,24 +42,24 @@
       .cal-container iframe { width: 100%; height: 100%; border: 0; }
     }
     
-    .form-group { margin-bottom: 15px; }
-    label { display: block; font-size: 12px; margin-bottom: 5px; color: #666; }
-    input, select { width: 100%; height: 40px; padding: 10px; border: 1px solid var(--border); border-radius: 4px; font-size: 14px; background: #fff; outline: none; }
+    .form-group { margin-bottom: 18px; }
+    label { display: block; font-size: 13px; margin-bottom: 6px; color: #666; font-weight: bold; }
+    input, select { width: 100%; height: 45px; padding: 10px; border: 1px solid var(--border); border-radius: 4px; font-size: 15px; background: #fff; outline: none; }
     input[type="date"], input[type="time"], input[type="number"] { -webkit-appearance: none; appearance: none; }
     
     .presets { display: flex; gap: 5px; margin-top: 5px; }
-    .preset-btn { flex: 1; padding: 8px; background: #f0f4f8; border: 1px solid var(--border); border-radius: 4px; font-size: 12px; cursor: pointer; }
+    .preset-btn { flex: 1; padding: 10px; background: #f0f4f8; border: 1px solid var(--border); border-radius: 4px; font-size: 14px; cursor: pointer; font-weight: bold; }
     
-    .btn { width: 100%; padding: 14px; border: none; border-radius: 6px; font-size: 14px; font-weight: bold; color: #fff; cursor: pointer; margin-top: 10px; }
+    .btn { width: 100%; padding: 16px; border: none; border-radius: 6px; font-size: 16px; font-weight: bold; color: #fff; cursor: pointer; margin-top: 10px; }
     .btn-blue { background: var(--primary); }
     .btn-red { background: var(--primary-dark); }
     .btn:disabled { background: #ccc; }
-    .link-text { font-size: 16px; font-weight: bold; color: var(--primary-dark); cursor: pointer; text-decoration: underline; }
+    .link-text { font-size: 15px; font-weight: bold; color: var(--primary-dark); cursor: pointer; text-decoration: underline; }
     
-    .del-item { display: flex; justify-content: space-between; align-items: center; padding: 10px; border: 1px solid var(--border); margin-bottom: 8px; border-radius: 4px; font-size: 13px; }
-    .del-btn { flex-shrink: 0; min-width: 60px; padding: 8px; background: #fff; color: #d93025; border: 1px solid #d93025; border-radius: 4px; font-size: 12px; cursor: pointer; margin-left: 10px; }
+    .del-item { display: flex; justify-content: space-between; align-items: center; padding: 12px; border: 1px solid var(--border); margin-bottom: 10px; border-radius: 4px; font-size: 14px; }
+    .del-btn { flex-shrink: 0; min-width: 60px; padding: 10px; background: #fff; color: #d93025; border: 1px solid #d93025; border-radius: 4px; font-size: 13px; cursor: pointer; margin-left: 10px; font-weight: bold; }
     
-    .scroll-top { position: fixed; bottom: 20px; right: 20px; background: var(--primary); color: #fff; border: none; border-radius: 50%; width: 45px; height: 45px; font-size: 20px; cursor: pointer; display: none; z-index: 99; box-shadow: 0 2px 10px rgba(0,0,0,0.2); }
+    .scroll-top { position: fixed; bottom: 20px; right: 20px; background: var(--primary); color: #fff; border: none; border-radius: 50%; width: 50px; height: 50px; font-size: 20px; cursor: pointer; display: none; z-index: 99; box-shadow: 0 2px 10px rgba(0,0,0,0.2); }
   </style>
 </head>
 <body>
@@ -69,16 +69,7 @@
     <a href="../" style="display: flex; align-items: center;"><img src="../src/home.png" alt="Home" class="header-logo"></a>
   </div>
 
-  <div class="drawer-overlay" id="drawer-overlay" onclick="toggleDrawer()"></div>
-  <div class="drawer" id="drawer">
-    <button class="drawer-close" onclick="toggleDrawer()">×</button>
-    <div>
-      <a href="../booking/" class="drawer-item">予約</a>
-      <a href="../searchYT/" class="drawer-item">映像</a>
-      <a href="../forms/" class="drawer-item">Forms</a>
-    </div>
-    <a href="../admin/" class="drawer-item" style="margin-top: auto; color: var(--primary-dark); border-top: 1px solid var(--border);">管理者</a>
-  </div>
+  <div id="global-menu-container"></div>
 
   <div class="content">
     <div class="card">
@@ -128,17 +119,17 @@
 
   <button class="scroll-top" onclick="window.scrollTo({top:0, behavior:'smooth'})" id="scrollTopBtn">↑</button>
 
+  <script src="../src/menu.js"></script>
   <script>
     if (localStorage.getItem("isLoggedIn") !== "true") window.location.href = "../";
     const GAS_API_URL = "https://script.google.com/macros/s/AKfycbySwjY5zm_XL2qQ84KcRin8nb1RW_74qD_yo_-i55iOzUdItzfNjodZ5gSFozDjpcToNA/exec";
     let curMode = 'week';
 
-    window.onload = refresh;
+    window.onload = function() { injectMenu('../'); refresh(); };
     window.onscroll = function() {
       document.getElementById("scrollTopBtn").style.display = (document.body.scrollTop > 100 || document.documentElement.scrollTop > 100) ? "block" : "none";
     };
 
-    function toggleDrawer() { document.getElementById('drawer').classList.toggle('open'); document.getElementById('drawer-overlay').classList.toggle('open'); }
     function mode(m) { curMode = m; document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active')); document.getElementById('btn-'+m).classList.add('active'); refresh(); }
 
     function refresh() {
@@ -156,7 +147,11 @@
       try {
         const res = await fetch(GAS_API_URL, { method:"POST", body: JSON.stringify({action:"addEventToCalendar", data:d}) });
         const json = await res.json();
-        if(json.success) { alert("完了"); refresh(); } else { alert(json.error); }
+        if(json.success) { 
+          alert("完了"); 
+          ['date', 'startTime', 'bandName', 'room', 'repName', 'transferStatus', 'duration'].forEach(id => document.getElementById(id).value = '');
+          refresh(); 
+        } else { alert(json.error); }
       } catch(e) { alert("エラー"); }
       document.getElementById('submitBtn').disabled = false;
     }
@@ -173,7 +168,7 @@
           let h = '';
           json.events.forEach(ev => { h += `<div class="del-item"><div>${ev.startStr}<br><b>${ev.title}</b> [${ev.duration}分]</div><button class="del-btn" onclick="execDel('${ev.id}')">削除</button></div>`; });
           div.innerHTML = h;
-        } else { div.innerHTML = `<p style="font-size:12px;">${json.error}</p>`; }
+        } else { div.innerHTML = `<p style="font-size:13px;">${json.error}</p>`; }
       } catch(e) { alert("エラー"); }
       document.getElementById('searchBtn').disabled = false;
     }
