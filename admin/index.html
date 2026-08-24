@@ -4,14 +4,17 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Admin | Higo-Pella</title>
+  <link rel="icon" href="../src/icon.png" type="image/png">
+  <link rel="apple-touch-icon" href="../src/icon.png">
+  <link rel="manifest" href="../manifest.json">
   <style>
     * { box-sizing: border-box; }
     :root { --primary-dark: #0288d1; --bg: #f7fbff; --card: #fff; --border: #e1e8ed; --text: #333; }
     body { font-family: Arial, sans-serif; background: var(--bg); color: var(--text); margin: 0; }
     
-    .header { background: var(--primary-dark); padding: 10px 20px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 100; }
-    .menu-toggle { font-size: 24px; color: #fff; cursor: pointer; background: none; border: none; padding: 0; }
-    .header-logo { height: 28px; cursor: pointer; }
+    .header { background: var(--primary-dark); padding: 10px 20px; display: flex; align-items: center; justify-content: flex-start; position: sticky; top: 0; z-index: 100; }
+    .menu-toggle { font-size: 24px; color: #fff; cursor: pointer; background: none; border: none; padding: 0; margin-right: 15px; }
+    .header-logo { height: 28px; cursor: pointer; filter: brightness(0) invert(1); }
     
     .drawer { position: fixed; top: 0; left: -260px; width: 250px; height: 100vh; background: var(--card); border-right: 1px solid var(--border); z-index: 200; transition: left 0.3s; padding-top: 60px; display: flex; flex-direction: column; }
     .drawer.open { left: 0; }
@@ -41,9 +44,8 @@
 <body>
 
   <div class="header">
-    <button class="menu-toggle" onclick="toggleDrawer()" style="color:#fff;">☰</button>
-    <a href="../"><img src="../src/home.png" alt="Home" class="header-logo" style="filter: brightness(0) invert(1);"></a>
-    <div style="width: 24px;"></div>
+    <button class="menu-toggle" onclick="toggleDrawer()">☰</button>
+    <a href="../" style="display: flex; align-items: center;"><img src="../src/home.png" alt="Home" class="header-logo"></a>
   </div>
 
   <div class="drawer-overlay" id="drawer-overlay" onclick="toggleDrawer()"></div>
@@ -52,8 +54,9 @@
     <div>
       <a href="../booking/" class="drawer-item">予約</a>
       <a href="../searchYT/" class="drawer-item">映像</a>
+      <a href="../forms/" class="drawer-item">Forms</a>
     </div>
-    <a href="../admin/" class="drawer-item" style="margin-top: auto; color: var(--primary-dark); border-top: 1px solid var(--border);">Admin</a>
+    <a href="../admin/" class="drawer-item" style="margin-top: auto; color: var(--primary-dark); border-top: 1px solid var(--border);">管理者</a>
   </div>
 
   <div class="content">
@@ -127,7 +130,7 @@
       if(!t) return;
       try {
         const res = await fetch(GAS_API_URL, { method:"POST", body: JSON.stringify({action:"updateNotice", data:{text:t, isPinned:p}}) });
-        if((await res.json()).success) { alert("完了"); document.getElementById('notice').value = ""; }
+        if((await res.json()).success) { alert("完了"); document.getElementById('notice').value = ""; document.getElementById('isPinned').checked = false; }
       } catch(e){}
     }
   </script>
