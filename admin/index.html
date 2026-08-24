@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Dashboard | Higo-Pella</title>
+  
+  <link rel="icon" href="../src/icon.png" type="image/png">
+  <link rel="apple-touch-icon" href="../src/icon.png">
+  <link rel="manifest" href="../manifest.json">
+  
+  <style>
+    * { box-sizing: border-box; }
+    body { font-family: 'Helvetica Neue', Arial, sans-serif; background: #f5f5f7; margin: 0; color: #333; }
+    
+    .header { background: #d93025; color: white; padding: 16px 20px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; }
+    .header-title { font-size: 16px; font-weight: 600; }
+    .nav-link { color: white; text-decoration: none; font-size: 13px; font-weight: 500; }
+    
+    .app-container { max-width: 800px; margin: 20px auto; padding: 0 15px; }
+    .card { background: #fff; padding: 25px; border-radius: 12px; box-shadow: 0 2px 12px rgba(0,0,0,0.03); margin-bottom: 20px; border: 1px solid #f0f0f0; }
+    
+    h3 { margin-top: 0; border-bottom: 1px solid #eee; padding-bottom: 12px; font-size: 16px; font-weight: 600; color: #d93025; }
+    
+    /* ログイン画面用 */
+    #login-box { max-width: 400px; margin: 50px auto; text-align: center; }
+    input[type="text"], input[type="password"] { width: 100%; padding: 14px; margin-bottom: 15px; border: 1px solid #d1d1d6; border-radius: 6px; font-size: 15px; outline: none; transition: border 0.3s; }
+    input:focus { border-color: #888; }
+    
+    .btn { display: block; width: 100%; padding: 14px; border: none; border-radius: 6px; font-size: 15px; font-weight: 600; color: white; cursor: pointer; transition: background 0.3s; }
+    .btn-red { background: #d93025; }
+    .btn-red:hover { background: #b3261d; }
+    .btn-red:disabled { background: #ccc; cursor: not-allowed; }
+    
+    /* ダッシュボード用 */
+    #dashboard { display: none; }
+    textarea { width: 100%; padding: 12px; border: 1px solid #d1d1d6; border-radius: 6px; font-size: 14px; min-height: 100px; margin-bottom: 10px; resize: vertical; outline: none; }
+    textarea:focus { border-color: #888; }
+    
+    /* ログのテーブル表示 */
+    .log-container { overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; min-width: 600px; font-size: 13px; }
+    th, td { text-align: left; padding: 10px; border-bottom: 1px solid #eee; }
+    th { background: #f9f9f9; color: #555; }
+    .status-msg { font-size: 13px; font-weight: bold; margin-top: 10px; display: block; }
+  </style>
+</head>
+<body>
+
+  <div class="header">
+    <div class="header-title">Admin Console</div>
+    <a href="../" class="nav-link">Homeへ戻る</a>
+  </div>
+
+  <div class="app-container">
+    <!-- 管理者ログイン -->
+    <div class="card" id="login-box">
+      <h3 style="border:none; text-align:center; margin-bottom: 20px;">管理者ログイン</h3>
+      
+      <!-- ★追加：ユーザー名入力欄 -->
+      <input type="text" id="adminUsername" placeholder="User Name (例: kanbu)">
+      <input type="password" id="adminPassword" placeholder="Password">
+      
+      <button class="btn btn-red" id="loginBtn" onclick="checkAdminLogin()">ログイン</button>
+      <span id="login-msg" class="status-msg" style="color: #d93025; display: none;"></span>
+    </div>
+
+    <!-- 幹部用ダッシュボード（targetPageが "dashboard" の場合表示） -->
+    <div id="dashboard">
+      <div class="card">
+        <h3>📢 全体お知らせの更新</h3>
+        <p style="font-size: 12px; color: #666; margin-top:-5px;">※ここで保存した内容が、ホーム画面の「お知らせ」に全員に表示されます。</p>
+        <textarea id="noticeInput" placeholder="新しいお知らせを入力してください..."></textarea>
+        <button class="btn btn-red" style="width: auto; padding: 10px 30px;" onclick="updateNotice()" id="updateBtn">更新を反映する</button>
+        <span id="update-msg" class="status-msg" style="display: inline-block; margin-left: 15px;"></span>
+      </div>
+
+      <div class="card">
+        <h3>📝 最近の予約システム利用ログ (最新50件)</h3>
+        <div class="log-container">
+          <table>
+            <thead>
+              <tr>
+                <th>操作日時</th><th>操作</th><th>練習日</th><th>時間</th><th>内容</th>
+              </tr>
+            </thead>
+            <tbody id="logTableBody">
+              <tr><td colspan="5" style="text-align:center; padding: 20px;">読み込み中...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // ★★★ GASのURLを貼り付けてください ★★★
+    const GAS_API_URL = "YOUR_GAS_API_URL_HERE";
+
+    window.onload = function() {
+      // 便宜上、一般ユーザーとしてのログインも必須とする
+      if (localStorage.getItem("isLoggedIn") !== "true") {
+        window.location.href = "../"; 
+      }
+      // すでに管理者としてログイン済みの場合
+      if (localStorage.getItem("isAdminLoggedIn") === "true") {
+        routeUser(localStorage.getItem("adminTargetPage"));
+      }
+    };
+
+    async function checkAdminLogin() {
+      const usernameInput = document.getElementById("adminUsername").value;
+      const passwordInput = document.getElementById("adminPassword").value;
+      const btn = document.getElementById("loginBtn");
+      const msg = document.getElementById("login-msg");
+      
+      if (!usernameInput || !passwordInput) {
+        msg.innerText = "ユーザー名とパスワードを入力してください";
+        msg.style.display = "block";
+        return;
+      }
+
+      btn.disabled = true; btn.textContent = "認証中..."; msg.style.display = "none";
+
+      try {
+        // ★ ユーザー名とパスワードの両方を送信
+        const payload = { action: "verifyAdminLogin", data: { username: usernameInput, password: passwordInput } };
+        const response = await fetch(GAS_API_URL, { method: "POST", headers: { "Content-Type": "text/plain" }, body: JSON.stringify(payload) });
+        const result = await response.json();
+
+        if (result.success) {
+          // ログイン情報を記憶
+          localStorage.setItem("isAdminLoggedIn", "true");
+          localStorage.setItem("adminRole", result.role);
+          localStorage.setItem("adminTargetPage", result.targetPage);
+          
+          // GASから指定されたページ（表示）に振り分け
+          routeUser(result.targetPage);
+        } else {
+          msg.innerText = result.error; msg.style.display = "block";
+        }
+      } catch (e) {
+        msg.innerText = "通信エラーが発生しました"; msg.style.display = "block";
+      }
+      btn.disabled = false; btn.textContent = "ログイン";
+    }
+
+    // ★ 将来の拡張用ルーティング関数
+    function routeUser(targetPage) {
+      if (targetPage === "dashboard") {
+        // 幹部用ダッシュボードを表示
+        document.getElementById('login-box').style.display = 'none';
+        document.getElementById('dashboard').style.display = 'block';
+        fetchAdminData();
+      } else {
+        // 将来新しいページを作った時は、ここにリダイレクト処理を書けます
+        // 例: window.location.href = targetPage;
+        alert("指定されたページへ遷移します: " + targetPage + "\n（※将来拡張用）");
+      }
+    }
+
+    async function fetchAdminData() {
+      try {
+        const noticeRes = await fetch(GAS_API_URL, { method: "POST", headers: { "Content-Type": "text/plain" }, body: JSON.stringify({ action: "getNotice" }) });
+        const noticeData = await noticeRes.json();
+        if(noticeData.success) document.getElementById("noticeInput").value = noticeData.text;
+
+        const logRes = await fetch(GAS_API_URL, { method: "POST", headers: { "Content-Type": "text/plain" }, body: JSON.stringify({ action: "getLogs" }) });
+        const logData = await logRes.json();
+        
+        const tbody = document.getElementById("logTableBody");
+        tbody.innerHTML = "";
+        if (logData.success && logData.logs.length > 0) {
+          logData.logs.forEach(row => {
+            const tr = document.createElement("tr");
+            tr.innerHTML = `
+              <td><span style="color:#777;">${row[0].split(" ")[0].substring(5)}</span> <br>${row[0].split(" ")[1].substring(0,5)}</td>
+              <td><span style="color:${row[1]==='予約'?'#0066cc':'#d93025'}; font-weight:600; font-size:11px; padding:3px 6px; border:1px solid ${row[1]==='予約'?'#0066cc':'#d93025'}; border-radius:4px;">${row[1]}</span></td>
+              <td>${row[2].substring(5)}</td>
+              <td>${row[3]}</td>
+              <td>${row[4]}<br><span style="color:#777; font-size:11px;">[${row[5]}]</span></td>
+            `;
+            tbody.appendChild(tr);
+          });
+        } else {
+          tbody.innerHTML = `<tr><td colspan="5" style="text-align:center;">ログがありません</td></tr>`;
+        }
+      } catch (e) {}
+    }
+
+    async function updateNotice() {
+      const text = document.getElementById("noticeInput").value;
+      const btn = document.getElementById("updateBtn");
+      const msg = document.getElementById("update-msg");
+      
+      btn.disabled = true; msg.style.color = "#333"; msg.innerText = "更新中...";
+      
+      try {
+        const payload = { action: "updateNotice", data: { text: text } };
+        const response = await fetch(GAS_API_URL, { method: "POST", headers: { "Content-Type": "text/plain" }, body: JSON.stringify(payload) });
+        const result = await response.json();
+        
+        if (result.success) {
+          msg.style.color = "green"; msg.innerText = "お知らせを更新しました";
+        } else {
+          msg.style.color = "#d93025"; msg.innerText = "エラー: " + result.error;
+        }
+      } catch (e) {
+        msg.style.color = "#d93025"; msg.innerText = "通信エラーが発生しました";
+      }
+      
+      btn.disabled = false;
+      setTimeout(() => { msg.innerText = ""; }, 3000);
+    }
+  </script>
+</body>
+</html>
