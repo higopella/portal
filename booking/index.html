@@ -12,9 +12,9 @@
     :root { --primary: #4fc3f7; --primary-dark: #0288d1; --bg: #f7fbff; --card: #fff; --border: #e1e8ed; --text: #333; }
     body { font-family: Arial, sans-serif; font-size: 15px; background: var(--bg); color: var(--text); margin: 0; }
     
-    .header { background: var(--card); padding: 10px 20px; display: flex; align-items: center; justify-content: flex-start; border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 100; }
-    .menu-toggle { font-size: 26px; color: var(--primary-dark); cursor: pointer; background: none; border: none; padding: 0; margin-right: 15px; }
-    .header-logo { height: 30px; cursor: pointer; }
+    .header { background: var(--card); padding: 10px 20px; display: flex; align-items: center; justify-content: flex-start !important; border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 100; }
+    .menu-toggle { font-size: 26px; color: var(--primary-dark); cursor: pointer; background: none; border: none; padding: 0; margin-right: 15px; width: auto !important; }
+    .header-logo { height: 30px; cursor: pointer; display: block; }
     
     .drawer { position: fixed; top: 0; left: -260px; width: 250px; height: 100vh; background: var(--card); border-right: 1px solid var(--border); z-index: 200; transition: left 0.3s; padding-top: 60px; display: flex; flex-direction: column; }
     .drawer.open { left: 0; }
@@ -53,11 +53,12 @@
     .btn { width: 100%; padding: 16px; border: none; border-radius: 6px; font-size: 16px; font-weight: bold; color: #fff; cursor: pointer; margin-top: 10px; }
     .btn-blue { background: var(--primary); }
     .btn-red { background: var(--primary-dark); }
-    .btn:disabled { background: #ccc; }
+    .btn:disabled { background: #999; cursor: not-allowed; }
     .link-text { font-size: 15px; font-weight: bold; color: var(--primary-dark); cursor: pointer; text-decoration: underline; }
     
     .del-item { display: flex; justify-content: space-between; align-items: center; padding: 12px; border: 1px solid var(--border); margin-bottom: 10px; border-radius: 4px; font-size: 14px; }
     .del-btn { flex-shrink: 0; min-width: 60px; padding: 10px; background: #fff; color: #d93025; border: 1px solid #d93025; border-radius: 4px; font-size: 13px; cursor: pointer; margin-left: 10px; font-weight: bold; }
+    .del-btn:disabled { border-color: #999; color: #fff; background: #999; }
     
     .scroll-top { position: fixed; bottom: 20px; right: 20px; background: var(--primary); color: #fff; border: none; border-radius: 50%; width: 50px; height: 50px; font-size: 20px; cursor: pointer; display: none; z-index: 99; box-shadow: 0 2px 10px rgba(0,0,0,0.2); }
   </style>
@@ -66,7 +67,7 @@
 
   <div class="header">
     <button class="menu-toggle" onclick="toggleDrawer()">☰</button>
-    <a href="../" style="display: flex; align-items: center;"><img src="../src/home.png" alt="Home" class="header-logo"></a>
+    <a href="../" style="display: flex; align-items: center; text-decoration: none;"><img src="../src/home.png" alt="Home" class="header-logo"></a>
   </div>
 
   <div id="global-menu-container"></div>
@@ -125,7 +126,11 @@
     const GAS_API_URL = "https://script.google.com/macros/s/AKfycbySwjY5zm_XL2qQ84KcRin8nb1RW_74qD_yo_-i55iOzUdItzfNjodZ5gSFozDjpcToNA/exec";
     let curMode = 'week';
 
-    window.onload = function() { injectMenu('../'); refresh(); };
+    window.onload = function() { 
+      injectMenu('../'); 
+      trackAccess(GAS_API_URL);
+      refresh(); 
+    };
     window.onscroll = function() {
       document.getElementById("scrollTopBtn").style.display = (document.body.scrollTop > 100 || document.documentElement.scrollTop > 100) ? "block" : "none";
     };
@@ -143,7 +148,10 @@
     async function submitBooking() {
       const d = { date: document.getElementById('date').value, startTime: document.getElementById('startTime').value, bandName: document.getElementById('bandName').value, room: document.getElementById('room').value, repName: document.getElementById('repName').value, transferStatus: document.getElementById('transferStatus').value, duration: document.getElementById('duration').value };
       if(!d.date || !d.startTime || !d.bandName || !d.room || !d.repName || !d.duration) { alert("入力不足"); return; }
-      document.getElementById('submitBtn').disabled = true;
+      
+      const btn = document.getElementById('submitBtn');
+      btn.disabled = true; btn.innerText = "予約中...";
+      
       try {
         const res = await fetch(GAS_API_URL, { method:"POST", body: JSON.stringify({action:"addEventToCalendar", data:d}) });
         const json = await res.json();
@@ -153,33 +161,50 @@
           refresh(); 
         } else { alert(json.error); }
       } catch(e) { alert("エラー"); }
-      document.getElementById('submitBtn').disabled = false;
+      
+      btn.disabled = false; btn.innerText = "予約";
     }
 
     async function search() {
       const d = { date: document.getElementById('delDate').value, startTime: document.getElementById('delTime').value, bandName: document.getElementById('delBand').value };
       if(!d.date && !d.startTime && !d.bandName) { alert("条件不足"); return; }
-      document.getElementById('searchBtn').disabled = true;
+      
+      const btn = document.getElementById('searchBtn');
+      btn.disabled = true; btn.innerText = "検索中...";
+      
       try {
         const res = await fetch(GAS_API_URL, { method:"POST", body: JSON.stringify({action:"findEvents", data:d}) });
         const json = await res.json();
         const div = document.getElementById('delList'); div.innerHTML = "";
         if(json.success) {
           let h = '';
-          json.events.forEach(ev => { h += `<div class="del-item"><div>${ev.startStr}<br><b>${ev.title}</b> [${ev.duration}分]</div><button class="del-btn" onclick="execDel('${ev.id}')">削除</button></div>`; });
+          json.events.forEach(ev => { h += `<div class="del-item"><div>${ev.startStr}<br><b>${ev.title}</b> [${ev.duration}分]</div><button class="del-btn" onclick="execDel('${ev.id}', this)">削除</button></div>`; });
           div.innerHTML = h;
         } else { div.innerHTML = `<p style="font-size:13px;">${json.error}</p>`; }
       } catch(e) { alert("エラー"); }
-      document.getElementById('searchBtn').disabled = false;
+      
+      btn.disabled = false; btn.innerText = "検索";
     }
 
-    async function execDel(id) {
+    async function execDel(id, btnElement) {
       if(!confirm("削除しますか？")) return;
+      
+      const originalText = btnElement.innerText;
+      btnElement.disabled = true;
+      btnElement.innerText = "削除中...";
+      
       try {
         const res = await fetch(GAS_API_URL, { method:"POST", body: JSON.stringify({action:"deleteEventById", data:{eventId: id}}) });
         const json = await res.json();
-        if(json.success) { alert("削除完了"); search(); refresh(); } else { alert(json.error); }
-      } catch(e) { alert("エラー"); }
+        if(json.success) { 
+          alert("削除完了"); 
+          document.getElementById('delDate').value = "";
+          document.getElementById('delTime').value = "";
+          document.getElementById('delBand').value = "";
+          document.getElementById('delList').innerHTML = "";
+          refresh(); 
+        } else { alert(json.error); btnElement.disabled = false; btnElement.innerText = originalText; }
+      } catch(e) { alert("エラー"); btnElement.disabled = false; btnElement.innerText = originalText; }
     }
   </script>
 </body>
