@@ -12,7 +12,6 @@
     :root { --primary-dark: #0288d1; --bg: #f7fbff; --card: #fff; --border: #e1e8ed; --text: #333; }
     body { font-family: Arial, sans-serif; font-size: 15px; background: var(--bg); color: var(--text); margin: 0; }
     
-    /* ★修正：ヘッダーの左寄せを強制 */
     .header { background: var(--primary-dark); padding: 10px 20px; display: flex; align-items: center; justify-content: flex-start !important; position: sticky; top: 0; z-index: 100; border-bottom: 1px solid var(--border); }
     .menu-toggle { font-size: 26px; color: #fff; cursor: pointer; background: none; border: none; padding: 0; margin: 0 15px 0 0 !important; width: auto !important; }
     .header-logo { height: 30px; cursor: pointer; filter: brightness(0) invert(1); display: block; }
@@ -26,25 +25,31 @@
 
     .content { max-width: 800px; margin: 20px auto; padding: 0 15px; }
     .card { background: var(--card); padding: 25px; border-radius: 8px; border: 1px solid var(--border); margin-bottom: 20px; }
-    h3 { margin: 0 0 15px; font-size: 16px; color: var(--primary-dark); border-bottom: 1px solid var(--border); padding-bottom: 10px; }
+    h3 { margin: 0 0 15px; font-size: 16px; color: var(--primary-dark); border-bottom: 1px solid var(--border); padding-bottom: 10px; display: flex; justify-content: space-between; align-items: center; }
     
     input[type="text"], input[type="password"] { width: 100%; padding: 14px; margin-bottom: 15px; border: 1px solid var(--border); border-radius: 4px; font-size: 15px; outline: none; }
-    /* ログインボタンなどの基本ボタン */
     .btn-main { width: 100%; padding: 15px; background: var(--primary-dark); color: #fff; border: none; border-radius: 6px; font-size: 15px; font-weight: bold; cursor: pointer; }
+    .btn-main:disabled { background: #999; cursor: not-allowed; }
     
     textarea { width: 100%; height: 80px; padding: 12px; border: 1px solid var(--border); border-radius: 4px; font-size: 15px; margin-bottom: 5px; outline: none; }
     .checkbox-label { font-size: 14px; font-weight: bold; color: var(--text); display: flex; align-items: center; gap: 5px; margin-bottom: 15px; }
     
-    /* ★修正：お知らせリストのUI（削除ボタンの暴走を防止） */
-    .admin-notice-item { display: flex; justify-content: space-between; align-items: stretch; padding: 12px; border: 1px solid var(--border); margin-bottom: 10px; border-radius: 4px; background: #fafcfd; }
+    .scrollable-list { max-height: 350px; overflow-y: auto; padding-right: 5px; }
+    .admin-notice-item { display: flex; justify-content: space-between; align-items: stretch; padding: 15px; border: 1px solid var(--border); margin-bottom: 10px; border-radius: 4px; background: #fafcfd; }
     .admin-notice-content { flex-grow: 1; padding-right: 15px; font-size: 14px; line-height: 1.6; word-break: break-word; }
-    .tag-pinned { color: var(--primary-dark); font-weight: bold; font-size: 11px; border: 1px solid var(--primary-dark); padding: 2px 4px; border-radius: 3px; display: inline-block; margin-bottom: 5px; }
-    /* 削除ボタンは小さく、右側に固定 */
-    .btn-delete { width: auto !important; flex-shrink: 0; align-self: center; padding: 8px 12px; background: #fff; color: #d93025; border: 1px solid #d93025; border-radius: 4px; font-size: 12px; font-weight: bold; cursor: pointer; }
+    .tag-pinned { color: var(--primary-dark); font-weight: bold; font-size: 12px; border: 1px solid var(--primary-dark); padding: 2px 6px; border-radius: 3px; display: inline-block; margin-bottom: 5px; }
     
+    /* 固定/解除ボタンのベーススタイル */
+    .btn-toggle { width: auto !important; flex-shrink: 0; align-self: center; padding: 10px 15px; border-radius: 4px; font-size: 13px; font-weight: bold; cursor: pointer; margin-right: 8px; transition: 0.2s; }
+    .btn-toggle:disabled { color: #fff !important; border-color: #999 !important; background: #999 !important; cursor: not-allowed; }
+    
+    .btn-delete { width: auto !important; flex-shrink: 0; align-self: center; padding: 10px 15px; background: #fff; color: #d93025; border: 1px solid #d93025; border-radius: 4px; font-size: 13px; font-weight: bold; cursor: pointer; }
+    .btn-delete:disabled { color: #fff; border-color: #999; background: #999; cursor: not-allowed; }
+    
+    .table-container { max-height: 400px; overflow-y: auto; display: block; border-bottom: 1px solid var(--border); }
     table { width: 100%; border-collapse: collapse; font-size: 13px; min-width: 600px; }
     th, td { padding: 12px; border-bottom: 1px solid var(--border); text-align: left; }
-    th { background: #f9f9f9; }
+    th { background: #f9f9f9; position: sticky; top: 0; z-index: 10; border-bottom: 2px solid var(--border); }
     .col-op { white-space: nowrap; font-weight: bold; }
     
     .scroll-top { position: fixed; bottom: 20px; right: 20px; background: var(--primary-dark); color: #fff; border: none; border-radius: 50%; width: 50px; height: 50px; font-size: 20px; cursor: pointer; display: none; z-index: 99; box-shadow: 0 2px 10px rgba(0,0,0,0.2); }
@@ -68,24 +73,39 @@
     </div>
 
     <div id="dash" style="display:none;">
+      
+      <div class="card" style="padding: 15px 25px; background: #e1f5fe; border-color: #81d4fa;">
+        <div style="font-size: 14px; font-weight: bold; color: var(--primary-dark); display: flex; justify-content: space-between;">
+          <span>累計アクセス数</span>
+          <span id="access-count" style="font-size: 18px;">---</span>
+        </div>
+      </div>
+
       <div class="card">
         <h3>お知らせ更新</h3>
+        <div style="margin-bottom: 8px; display: flex; align-items: center; flex-wrap: wrap; gap: 10px;">
+          <button type="button" style="width: auto; padding: 6px 12px; font-size: 13px; background: #f0f4f8; color: var(--text); border: 1px solid var(--border); border-radius: 4px; cursor: pointer; font-weight: bold;" onclick="insertHighlight()">強調(水色)</button>
+          <span style="font-size: 12px; color: #888;">※文字を選択して押すと色がつきます</span>
+        </div>
+        
         <textarea id="notice"></textarea>
         <label class="checkbox-label"><input type="checkbox" id="isPinned"> [固定] 優先表示</label>
-        <button class="btn-main" style="width: auto; padding: 10px 25px;" onclick="upd()">追加</button>
+        <button id="updBtn" class="btn-main" style="width: auto; padding: 10px 25px;" onclick="upd()">追加</button>
         
         <h4 style="font-size: 15px; margin-top: 30px; border-bottom: 1px solid var(--border); padding-bottom: 8px;">現在のお知らせ</h4>
-        <div id="admin-notice-list">
+        <div id="admin-notice-list" class="scrollable-list">
           <p style="font-size:14px; color:#888;">読込中...</p>
         </div>
       </div>
       
-      <div class="card" style="overflow-x: auto;">
-        <h3>予約ログ (最新50件)</h3>
-        <table>
-          <thead><tr><th>日時</th><th class="col-op">操作</th><th>日付</th><th>時間</th><th>内容</th></tr></thead>
-          <tbody id="logs"><tr><td colspan="5">読込中...</td></tr></tbody>
-        </table>
+      <div class="card" style="padding: 25px 0;">
+        <h3 style="padding: 0 25px;">予約ログ (最新50件)</h3>
+        <div class="table-container">
+          <table>
+            <thead><tr><th>日時</th><th class="col-op">操作</th><th>日付</th><th>時間</th><th>内容</th></tr></thead>
+            <tbody id="logs"><tr><td colspan="5" style="padding: 20px;">読込中...</td></tr></tbody>
+          </table>
+        </div>
       </div>
     </div>
   </div>
@@ -95,25 +115,45 @@
   <script src="../src/menu.js"></script>
   <script>
     if (localStorage.getItem("isLoggedIn") !== "true") window.location.href = "../";
-    // ★GASのURLを貼り付けてください
     const GAS_API_URL = "https://script.google.com/macros/s/AKfycbySwjY5zm_XL2qQ84KcRin8nb1RW_74qD_yo_-i55iOzUdItzfNjodZ5gSFozDjpcToNA/exec";
 
     window.onload = () => { 
       injectMenu('../'); 
+      trackAccess(GAS_API_URL);
       if(localStorage.getItem("isAdmin")==="true") show(); 
     };
     window.onscroll = function() {
       document.getElementById("scrollTopBtn").style.display = (document.body.scrollTop > 100 || document.documentElement.scrollTop > 100) ? "block" : "none";
     };
 
+    function toggleDrawer() { document.getElementById('drawer').classList.toggle('open'); document.getElementById('drawer-overlay').classList.toggle('open'); }
+
+    function insertHighlight() {
+      const textarea = document.getElementById('notice');
+      const start = textarea.selectionStart;
+      const end = textarea.selectionEnd;
+      const text = textarea.value;
+      const selectedText = text.substring(start, end);
+      const replacement = `[[${selectedText}]]`;
+      textarea.value = text.substring(0, start) + replacement + text.substring(end);
+      textarea.focus();
+      textarea.setSelectionRange(start + 2, start + 2 + selectedText.length);
+    }
+
     async function auth() {
       const u = document.getElementById('user').value, p = document.getElementById('pass').value;
       if(!u || !p) return;
+      
+      const btn = document.getElementById('btn');
+      btn.disabled = true; btn.innerText = "通信中...";
+      
       try {
         const res = await fetch(GAS_API_URL, { method:"POST", body: JSON.stringify({action:"verifyAdminLogin", data:{username:u, password:p}}) });
         const json = await res.json();
         if(json.success) { localStorage.setItem("isAdmin", "true"); show(); } else alert("エラー");
       } catch(e){}
+      
+      btn.disabled = false; btn.innerText = "ログイン";
     }
 
     function show() {
@@ -124,6 +164,10 @@
 
     async function fetchData() {
       try {
+        const ar = await fetch(GAS_API_URL, { method:"POST", body: JSON.stringify({action:"getAccessCount"}) });
+        const aj = await ar.json();
+        if(aj.success) document.getElementById('access-count').innerText = aj.count + " 回";
+
         const nr = await fetch(GAS_API_URL, { method:"POST", body: JSON.stringify({action:"getNotice"}) });
         const nj = await nr.json();
         const nl = document.getElementById('admin-notice-list');
@@ -132,12 +176,23 @@
           nj.notices.forEach(n => {
             let tag = n.isPinned ? `<span class="tag-pinned">[固定]</span>` : '';
             let date = n.time.split(" ")[0].substring(5);
+            let formattedText = n.text.replace(/\n/g, '<br>').replace(/\[\[(.*?)\]\]/g, '<span style="color: var(--primary-dark); font-weight: bold;">$1</span>');
+            
+            // ★変更：三項演算子で「固定」と「解除」のテキストとデザインを切り替え
+            let toggleText = n.isPinned ? '解除' : '固定';
+            let toggleStyle = n.isPinned 
+                ? 'background: #f0f4f8; color: #666; border: 1px solid #ccc;' // 解除ボタンは控えめなグレー
+                : 'background: #fff; color: var(--primary-dark); border: 1px solid var(--primary-dark);'; // 固定ボタンは水色
+            
             nl.innerHTML += `
               <div class="admin-notice-item">
                 <div class="admin-notice-content">
-                  ${tag}<span style="color:#888; font-size:12px; margin-bottom: 4px; display: block;">${date}</span>${n.text.replace(/\n/g, '<br>')}
+                  ${tag}<span style="color:#888; font-size:12px; margin-bottom: 4px; display: block;">${date}</span>${formattedText}
                 </div>
-                <button class="btn-delete" onclick="delNotice('${n.time}')">削除</button>
+                <div style="display:flex; flex-shrink:0;">
+                  <button class="btn-toggle" style="${toggleStyle}" onclick="togglePin('${n.time}', this)">${toggleText}</button>
+                  <button class="btn-delete" onclick="delNotice('${n.time}', this)">削除</button>
+                </div>
               </div>`;
           });
         } else { nl.innerHTML = `<p style="font-size:14px;">なし</p>`; }
@@ -147,7 +202,7 @@
         const tb = document.getElementById('logs'); tb.innerHTML = "";
         if(lj.success && lj.logs.length>0) {
           lj.logs.forEach(r => tb.innerHTML += `<tr><td>${r[0].substring(5,16)}</td><td class="col-op" style="color:${r[1]==='予約'?'#0288d1':'#d93025'};">${r[1]}</td><td>${r[2].substring(5)}</td><td>${r[3]}</td><td>${r[4]}</td></tr>`);
-        } else tb.innerHTML = `<tr><td colspan="5">なし</td></tr>`;
+        } else tb.innerHTML = `<tr><td colspan="5" style="padding: 20px;">なし</td></tr>`;
       } catch(e){}
     }
 
@@ -155,23 +210,47 @@
       const t = document.getElementById('notice').value;
       const p = document.getElementById('isPinned').checked;
       if(!t) return;
+      
+      const btn = document.getElementById('updBtn');
+      btn.disabled = true; btn.innerText = "追加中...";
+      
       try {
         const res = await fetch(GAS_API_URL, { method:"POST", body: JSON.stringify({action:"updateNotice", data:{text:t, isPinned:p}}) });
         if((await res.json()).success) { 
-          alert("追加完了"); 
           document.getElementById('notice').value = ""; 
-          document.getElementById('isPinned').checked = false;
+          document.getElementById('isPinned').checked = false; 
           fetchData(); 
         }
       } catch(e){}
+      
+      btn.disabled = false; btn.innerText = "追加";
     }
 
-    async function delNotice(timeStr) {
+    // ★変更：ボタンの無効化（切替中...）処理
+    async function togglePin(timeStr, btnElement) {
+      const originalText = btnElement.innerText;
+      btnElement.disabled = true;
+      btnElement.innerText = "切替中...";
+      
+      try {
+        const res = await fetch(GAS_API_URL, { method:"POST", body: JSON.stringify({action:"toggleNoticePin", data:{time: timeStr}}) });
+        if((await res.json()).success) { fetchData(); } 
+        else { alert("エラー"); btnElement.disabled = false; btnElement.innerText = originalText; }
+      } catch(e) { alert("エラー"); btnElement.disabled = false; btnElement.innerText = originalText; }
+    }
+
+    async function delNotice(timeStr, btnElement) {
       if(!confirm("削除しますか？")) return;
+      
+      const originalText = btnElement.innerText;
+      btnElement.disabled = true;
+      btnElement.innerText = "削除中...";
+      
       try {
         const res = await fetch(GAS_API_URL, { method:"POST", body: JSON.stringify({action:"deleteNotice", data:{time: timeStr}}) });
-        if((await res.json()).success) { alert("削除完了"); fetchData(); } else { alert("エラー"); }
-      } catch(e) {}
+        if((await res.json()).success) { fetchData(); } 
+        else { alert("エラー"); btnElement.disabled = false; btnElement.innerText = originalText; }
+      } catch(e) { alert("エラー"); btnElement.disabled = false; btnElement.innerText = originalText; }
     }
   </script>
 </body>
