@@ -12,9 +12,9 @@
     :root { --primary: #4fc3f7; --primary-dark: #0288d1; --bg: #f7fbff; --card: #fff; --border: #e1e8ed; --text: #333; }
     body { font-family: Arial, sans-serif; font-size: 15px; background: var(--bg); color: var(--text); margin: 0; }
     
-    .header { background: var(--card); padding: 10px 20px; display: flex; align-items: center; justify-content: flex-start; border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 100; }
-    .menu-toggle { font-size: 26px; color: var(--primary-dark); cursor: pointer; background: none; border: none; padding: 0; margin-right: 15px; }
-    .header-logo { height: 30px; cursor: pointer; }
+    .header { background: var(--card); padding: 10px 20px; display: flex; align-items: center; justify-content: flex-start !important; border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 100; }
+    .menu-toggle { font-size: 26px; color: var(--primary-dark); cursor: pointer; background: none; border: none; padding: 0; margin-right: 15px; width: auto !important; }
+    .header-logo { height: 30px; cursor: pointer; display: block; }
     
     .drawer { position: fixed; top: 0; left: -260px; width: 250px; height: 100vh; background: var(--card); border-right: 1px solid var(--border); z-index: 200; transition: left 0.3s; padding-top: 60px; display: flex; flex-direction: column; }
     .drawer.open { left: 0; }
@@ -51,7 +51,7 @@
 
   <div class="header">
     <button class="menu-toggle" onclick="toggleDrawer()">☰</button>
-    <a href="../" style="display: flex; align-items: center;"><img src="../src/home.png" alt="Home" class="header-logo"></a>
+    <a href="../" style="display: flex; align-items: center; text-decoration: none;"><img src="../src/home.png" alt="Home" class="header-logo"></a>
   </div>
 
   <div id="global-menu-container"></div>
@@ -82,6 +82,7 @@
 
     window.onload = async () => {
       injectMenu('../');
+      trackAccess(GAS_API_URL);
       const c = localStorage.getItem("yt_pl");
       if (c) { setupPl(JSON.parse(c)); load(false); } else force();
     };
