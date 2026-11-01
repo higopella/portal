@@ -76,8 +76,8 @@
   max-width: 100%;
   padding: 1px 6px;
   border-radius: 6px;
-  background: var(--primary-light);
-  color: var(--primary-dark);
+  background: #ffe9e9;
+  color: #b91c1c;
   font-size: 0.72rem;
   font-weight: 600;
   white-space: nowrap;

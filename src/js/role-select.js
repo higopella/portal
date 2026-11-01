@@ -5,9 +5,9 @@
 const ROLE_PAGE_STORAGE_KEY = 'higopella_role_page';
 
 const ROLE_SELECT_PAGES = [
-	{ role: 'kanbu', label: '幹部', description: '予約管理・予約ログ・ユーザー管理など', href: 'kanbu/' },
-	{ role: 'higopelive', label: 'Higopelive!', description: 'Higopelive!,その他Live担当ページ', href: 'higopelive/' },
-	{ role: 'admin', label: '管理者', description: '', href: 'admin/' }
+	{ role: 'kanbu', label: '幹部', href: 'kanbu/' },
+	{ role: 'higopelive', label: 'Higopelive!!', href: 'higopelive/' },
+	{ role: 'admin', label: '管理者', href: 'admin/' }
 ];
 
 initCommonLayout('role');

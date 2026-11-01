@@ -5,7 +5,7 @@ initCommonLayout(`role-${ROLE_PAGE_KEY}`);
 
 const ROLE_SWITCH_PAGES = [
 	{ role: 'kanbu', label: '幹部', href: '../kanbu/' },
-	{ role: 'higopelive', label: 'Higopelive!', href: '../higopelive/' },
+	{ role: 'higopelive', label: 'Higopelive!!', href: '../higopelive/' },
 	{ role: 'admin', label: '管理者', href: '../admin/' }
 ];
 

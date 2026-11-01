@@ -43,7 +43,7 @@ const TOUR_STEPS = {
 		{ target: '#role-switcher', title: '権限切替', text: '複数の権限を持つ場合はここでページを切り替えられます', optional: true }
 	],
 	'role-higopelive': [
-		{ target: '.admin-tabs', title: 'Higopelive!メニュー', text: 'ライブの作成と申請の確認をタブで切り替えます' },
+		{ target: '.admin-tabs', title: 'Higopelive!!メニュー', text: 'ライブの作成と申請の確認をタブで切り替えます' },
 		{ target: '#role-switcher', title: '権限切替', text: '複数の権限を持つ場合はここでページを切り替えられます', optional: true }
 	],
 	signup: [
