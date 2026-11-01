@@ -131,7 +131,7 @@ function initGoogleIdentity(callback) {
     gisInitialized = true;
     google.accounts.id.initialize({
       client_id: GOOGLE_OAUTH_CLIENT_ID,
-      auto_select: true,
+      auto_select: !shouldSkipAutoAuth(),
       callback: (response) => {
         if (gisCredentialHandler) gisCredentialHandler(response);
       }
@@ -181,7 +181,12 @@ function requestSilentIdToken(timeoutMs = 6000) {
   });
 }
 
+function shouldSkipAutoAuth() {
+  return document.body && document.body.dataset.skipAutoAuth === 'true';
+}
+
 async function trySilentReauth() {
+  if (shouldSkipAutoAuth()) return false;
   if (!hasValidLoginHistory()) return false;
   if (!await waitForGisReady()) return false;
   const token = await requestSilentIdToken();
