@@ -26,9 +26,9 @@ const TOUR_STEPS = {
 		{ target: '#google-form-iframe', title: '報告フォーム', text: 'このフォームに内容を入力して送信します' }
 	],
 	live: [
-		{ target: '#live-select', title: '基本情報（必須）', text: '必要な情報を入力してください' },
-		{ target: '#pa-member-list', title: 'PA表', text: '演者の順番・パート・要望やマイクの持ち込み情報を入力します' },
-		{ target: '#light-song-detail-list', title: '照明表', text: 'イメージカラー・要望情報を入力します' }
+		{ target: '#live-basic-section', title: '基本情報（必須）', text: '必要な情報を入力してください' },
+		{ target: '#live-pa-section', title: 'PA表', text: '演者の順番・パート・要望やマイクの持ち込み情報を入力します' },
+		{ target: '#light-section', title: '照明表', text: 'イメージカラー・要望情報を入力します', optional: true }
 	],
 	role: [
 		{ target: '#role-select-buttons', title: '権限ページ選択', text: '持っている権限のページへここから移動します。ログイン中は次回から自動で移動します' }

@@ -22,9 +22,6 @@ document.addEventListener('DOMContentLoaded', async () => {
 function bindLiveFormEvents() {
 	document.getElementById('btn-add-mic-bring').addEventListener('click', () => addMicBringRow());
 	document.getElementById('btn-add-song').addEventListener('click', () => addSongTitleRow());
-	document.getElementById('light-enabled').addEventListener('change', (e) => {
-		document.getElementById('light-section-body').classList.toggle('is-hidden', !e.target.checked);
-	});
 	document.getElementById('form-live-application').addEventListener('submit', handleSubmitLiveApplication);
 }
 
@@ -47,6 +44,12 @@ async function loadLiveOptions() {
 			option.textContent = `${live.title}（${live.date}）`;
 			select.appendChild(option);
 		});
+		const lightSection = document.getElementById('light-section');
+		select.addEventListener('change', () => {
+			const selected = res.lives.find((live) => live.liveId === select.value);
+			if (lightSection) lightSection.classList.toggle('is-hidden', !(selected && selected.lightingEnabled !== false));
+		});
+		select.dispatchEvent(new Event('change'));
 	} catch (e) {
 		select.textContent = '';
 		const option = document.createElement('option');
@@ -314,7 +317,7 @@ async function handleSubmitLiveApplication(e) {
 		paSongNotes.push({ title: songTitles[index], notes: textarea.value.trim() });
 	});
 	const songDetails = [];
-	const lightEnabled = document.getElementById('light-enabled').checked;
+	const lightEnabled = document.getElementById('light-section') && !document.getElementById('light-section').classList.contains('is-hidden');
 	let songError = '';
 	if (lightEnabled) {
 		Array.from(document.querySelectorAll('#light-song-detail-list .live-song-detail')).forEach((detail, index) => {

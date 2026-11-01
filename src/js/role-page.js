@@ -626,13 +626,14 @@ let currentHigopeliveApp = null;
 async function handleCreateLive() {
 	const title = document.getElementById('live-new-title').value.trim();
 	const date = document.getElementById('live-new-date').value;
+	const lightingEnabled = document.getElementById('live-new-lighting').checked;
 	if (!title || !date) {
 		showToast('タイトルと開催日を入力してください', 'error');
 		return;
 	}
 	const btn = document.getElementById('btn-create-live');
 	await withButtonLoading(btn, async () => {
-		const res = await callGasApi('createLive', { title, date });
+		const res = await callGasApi('createLive', { title, date, lightingEnabled });
 		if (res.success) {
 			showToast(`ライブを作成しました（${res.liveId}）`);
 			document.getElementById('live-new-title').value = '';

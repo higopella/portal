@@ -12,7 +12,7 @@
   <main class="container">
     <form id="form-live-application">
       <!-- 基本情報 -->
-      <section class="card">
+      <section class="card" id="live-basic-section">
         <div class="card-title">Higopelive!! 申請（基本情報）</div>
         <div class="live-form-group">
           <label class="live-label" for="live-select">対象ライブ</label>
@@ -34,7 +34,7 @@
       </section>
 
       <!-- PA表 -->
-      <section class="card">
+      <section class="card" id="live-pa-section">
         <div class="card-title">PA表</div>
         <p class="live-note">演者は左から下手→上手の順に詰めて記入してください。使わない列は空欄のままで構いません。</p>
         <div id="pa-member-list"></div>
@@ -51,13 +51,8 @@
       </section>
 
       <!-- 照明表 -->
-      <section class="card">
-        <div class="card-title">
-          <span>照明表</span>
-          <label class="pin-label">
-            <input type="checkbox" id="light-enabled" checked> 照明表を申請する
-          </label>
-        </div>
+      <section class="card" id="light-section">
+        <div class="card-title">照明表</div>
         <div id="light-section-body">
           <p class="live-note">曲の情報を入力してください。</p>
 
