@@ -26,10 +26,9 @@ const TOUR_STEPS = {
 		{ target: '#google-form-iframe', title: '報告フォーム', text: 'このフォームに内容を入力して送信します' }
 	],
 	live: [
-		{ target: '#live-select', title: '対象ライブ', text: '申請するライブを選びます' },
-		{ target: '#pa-member-list', title: 'PA表', text: '演者を左から下手→上手の順に入力します' },
-		{ target: '#light-song-detail-list', title: '照明表', text: '曲ごとのテンポ・カラー・MCを選びます' },
-		{ target: '#btn-submit-live-application', title: '申請', text: '内容を確認して送信します' }
+		{ target: '#live-select', title: '基本情報（必須）', text: '必要な情報を入力してください' },
+		{ target: '#pa-member-list', title: 'PA表', text: '演者の順番・パート・要望やマイクの持ち込み情報を入力します' },
+		{ target: '#light-song-detail-list', title: '照明表', text: 'イメージカラー・要望情報を入力します' }
 	],
 	role: [
 		{ target: '#role-select-buttons', title: '権限ページ選択', text: '持っている権限のページへここから移動します。ログイン中は次回から自動で移動します' }
