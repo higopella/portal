@@ -1,6 +1,7 @@
 initCommonLayout('booking');
 
 document.addEventListener('DOMContentLoaded', async () => {
+	initPageTour('booking');
 	let resolveAuthentication;
 	const authenticationReady = new Promise((resolve) => {
 		resolveAuthentication = resolve;

@@ -13,6 +13,7 @@ const ROLE_SELECT_PAGES = [
 initCommonLayout('role');
 
 document.addEventListener('DOMContentLoaded', async () => {
+	initPageTour('role');
 	const checkingSection = document.getElementById('role-select-checking');
 	const deniedSection = document.getElementById('role-select-denied');
 	const mainSection = document.getElementById('role-select-section');

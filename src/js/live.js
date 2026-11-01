@@ -11,6 +11,7 @@ const MAX_PA_MEMBERS = 7;
 const MAX_SONGS = 10;
 
 document.addEventListener('DOMContentLoaded', async () => {
+	initPageTour('live');
 	if (!await requirePageAuthentication()) return;
 	for (let i = 0; i < MAX_PA_MEMBERS; i++) addPaMemberRow();
 	addSongTitleRow();

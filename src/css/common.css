@@ -93,6 +93,18 @@ body {
   display: none;
 }
 
+/* ---------- ページガイドツアー ---------- */
+.tour { position: fixed; inset: 0; z-index: 1100; pointer-events: auto; }
+.tour-spot { position: fixed; border-radius: 8px; box-shadow: 0 0 0 9999px rgba(15, 23, 42, 0.62); outline: 2px solid var(--primary); transition: all 0.22s ease; pointer-events: none; }
+.tour-bub { position: fixed; width: min(340px, calc(100vw - 24px)); background: var(--card); color: var(--text); border: 1px solid var(--border); border-radius: 10px; padding: 14px 16px 12px; box-shadow: 0 12px 40px rgba(0, 0, 0, 0.25); transition: top 0.22s ease, left 0.22s ease; }
+.tour-step { font-size: 0.72rem; color: var(--text-sub); }
+.tour-title { margin: 4px 0 6px; font-size: 0.95rem; }
+.tour-text { margin: 0 0 12px; font-size: 0.85rem; line-height: 1.7; color: var(--text-sub); }
+.tour-nav { display: flex; gap: 6px; align-items: center; }
+.tour-sp { flex: 1; }
+.site-tour-button { background: none; border: none; font-size: 1rem; color: var(--text-sub); cursor: pointer; padding: 4px 8px; border-radius: var(--radius); }
+.site-tour-button:hover { background: var(--primary-light); color: var(--primary-dark); }
+
 .card {
   background-color: var(--card);
   border-radius: var(--radius);

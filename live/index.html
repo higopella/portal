@@ -9,12 +9,11 @@
   <script src="https://accounts.google.com/gsi/client" async defer></script>
 </head>
 <body>
-
   <main class="container">
     <form id="form-live-application">
       <!-- 基本情報 -->
       <section class="card">
-        <div class="card-title">Higopelive! 申請（基本情報）</div>
+        <div class="card-title">Higopelive!! 申請（基本情報）</div>
         <div class="live-form-group">
           <label class="live-label" for="live-select">対象ライブ</label>
           <select id="live-select" class="live-input" required></select>
@@ -37,7 +36,7 @@
       <!-- PA表 -->
       <section class="card">
         <div class="card-title">PA表</div>
-        <p class="live-note">演者は左から下手→上手の順に表示されています。使わない列は空欄のままで構いません。マイクは曲間で変更しないでください（1曲目で使ったマイクと同じものを使用します）。</p>
+        <p class="live-note">演者は左から下手→上手の順に詰めて記入してください。使わない列は空欄のままで構いません。</p>
         <div id="pa-member-list"></div>
         <div class="live-form-group live-field-gap">
           <label class="live-label" for="pa-mic-bring">マイク持ち込み（ある場合は"パート/マイク名"を記入）</label>
@@ -53,7 +52,9 @@
       <!-- 照明表 -->
       <section class="card">
         <div class="card-title">照明表</div>
-        <p class="live-note">曲ごとのテンポ・イメージカラー・ジャンル・演奏前のMC・要望を入力してください（曲名は基本情報の演奏曲と連動します）。</p>
+        <!--p class="live-note">曲のテンポ・イメージカラー・ジャンル・演奏前のMC・要望を入力してください（曲名は基本情報の演奏曲と連動します）。</p>-->
+        <p class="live-note">曲の情報を入力してください。</p>
+
         <!--div class="live-form-group">
           <label class="live-label" for="light-mc-se">MC中SE</label>
           <select id="light-mc-se" class="live-input">
@@ -77,6 +78,7 @@
   <script src="../src/js/api.js"></script>
   <script src="../src/js/auth.js"></script>
   <script src="../src/js/menu.js"></script>
+  <script src="../src/js/tour.js"></script>
   <script src="../src/js/live.js"></script>
 </body>
 </html>

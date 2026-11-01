@@ -25,6 +25,7 @@ function renderHomeView() {
 }
 
 document.addEventListener('DOMContentLoaded', async () => {
+	initPageTour('home');
 	let hasAuthenticatedSession = false;
 	if (getCurrentIdToken() || hasValidLoginHistory()) {
 		setLoginStatus('ログイン状態を確認しています...', 'loading');

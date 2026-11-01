@@ -10,6 +10,7 @@ const ROLE_SWITCH_PAGES = [
 ];
 
 document.addEventListener('DOMContentLoaded', async () => {
+	initPageTour(`role-${ROLE_PAGE_KEY}`);
 	showChecking();
 	bindRolePageEvents();
 	if (!await requirePageAuthentication()) return;

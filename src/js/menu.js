@@ -22,6 +22,7 @@ function initCommonLayout(activeKey = "") {
       <a href="${basePath}" class="site-logo">
         <span>Higo-Pella Portal</span>
       </a>
+      <button type="button" class="site-tour-button" id="btn-tour" aria-label="使い方の案内">？</button>
       <button type="button" class="site-refresh-button" id="btn-site-refresh" aria-label="ページを更新">更新</button>
     </header>
 

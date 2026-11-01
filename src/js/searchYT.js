@@ -7,6 +7,7 @@ let visibleCount = 50;
 const VIDEOS_PER_PAGE = 50;
 
 document.addEventListener('DOMContentLoaded', async () => {
+	initPageTour('searchYT');
 	if (!await requirePageAuthentication()) return;
 	const selectPlaylist = document.getElementById('select-playlist');
 	if (selectPlaylist) {
