@@ -22,6 +22,13 @@
 			border-radius: var(--radius);
 			font-size: 0.95rem;
 			outline: none;
+			box-sizing: border-box;
+		}
+		.input-text[type="date"], .input-text[type="time"] {
+			min-width: 0;
+			max-width: 100%;
+			appearance: none;
+			-webkit-appearance: none;
 		}
 		.input-text:focus, .textarea:focus { border-color: var(--primary); }
 		.log-table {
@@ -29,12 +36,18 @@
 			border-collapse: collapse;
 			font-size: 0.85rem;
 			min-width: 600px;
+			table-layout: fixed;
 		}
 		.log-table th, .log-table td {
 			padding: 10px;
 			border: 1px solid var(--border);
 			text-align: left;
+			word-break: break-word;
 		}
+		.log-table th:nth-child(1), .log-table td:nth-child(1) { width: 96px; }
+		.log-table th:nth-child(4), .log-table td:nth-child(4) { width: 56px; }
+		.log-table th:nth-child(5), .log-table td:nth-child(5) { width: 220px; }
+		.log-table th:nth-child(8), .log-table td:nth-child(8) { width: 72px; }
 		.log-table th {
 			background-color: var(--primary-light);
 			color: var(--primary-dark);

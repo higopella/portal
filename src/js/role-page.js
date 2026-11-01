@@ -658,7 +658,7 @@ async function fetchHigopeliveLives() {
 			container.appendChild(empty);
 			return;
 		}
-		higopeliveLives.forEach((live) => {
+			higopeliveLives.forEach((live) => {
 			const item = document.createElement('div');
 			item.className = 'admin-notice-item';
 			const text = document.createElement('div');
@@ -671,7 +671,13 @@ async function fetchHigopeliveLives() {
 			openBtn.className = 'btn btn-primary small-action-button';
 			openBtn.textContent = '開く';
 			openBtn.addEventListener('click', () => selectHigopeliveLive(live));
+			const deleteBtn = document.createElement('button');
+			deleteBtn.type = 'button';
+			deleteBtn.className = 'btn btn-danger small-action-button';
+			deleteBtn.textContent = '削除';
+			deleteBtn.addEventListener('click', () => handleDeleteLive(live, deleteBtn));
 			actions.appendChild(openBtn);
+			actions.appendChild(deleteBtn);
 			item.appendChild(text);
 			item.appendChild(actions);
 			container.appendChild(item);
@@ -692,6 +698,26 @@ function selectHigopeliveLive(live) {
 	document.getElementById('higopelive-current-live').textContent = `（${live.title}）`;
 	switchAdminTab('apps');
 	fetchHigopeliveApplications();
+}
+
+async function handleDeleteLive(live, btn) {
+	if (!confirm(`「${live.title}」を削除しますか？\nこのライブの申請データは残りますが、一覧からは消えます。`)) return;
+	await withButtonLoading(btn, async () => {
+		const res = await callGasApi('deleteLive', { liveId: live.liveId });
+		if (res.success) {
+			showToast('削除しました');
+			if (currentHigopeliveLive && currentHigopeliveLive.liveId === live.liveId) {
+				currentHigopeliveLive = null;
+				currentHigopeliveApp = null;
+				document.getElementById('higopelive-current-live').textContent = '';
+				document.getElementById('higopelive-app-list').textContent = 'ライブ管理タブからライブを選択してください';
+				document.getElementById('higopelive-detail-card').classList.add('is-hidden');
+			}
+			fetchHigopeliveLives();
+		} else {
+			showToast(res.error || '削除に失敗しました', 'error');
+		}
+	}, '削除中');
 }
 
 function hasLightingContent(app) {
