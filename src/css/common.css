@@ -102,6 +102,11 @@ body {
 .tour-text { margin: 0 0 12px; font-size: 0.85rem; line-height: 1.7; color: var(--text-sub); }
 .tour-nav { display: flex; gap: 6px; align-items: center; }
 .tour-sp { flex: 1; }
+@media (max-width: 640px) {
+  .tour-bub { width: min(260px, calc(100vw - 16px)); padding: 10px 12px 10px; }
+  .tour-title { font-size: 0.85rem; }
+  .tour-text { font-size: 0.78rem; margin-bottom: 8px; }
+}
 .site-tour-button { background: none; border: none; font-size: 1rem; color: var(--text-sub); cursor: pointer; padding: 4px 8px; border-radius: var(--radius); }
 .site-tour-button:hover { background: var(--primary-light); color: var(--primary-dark); }
 

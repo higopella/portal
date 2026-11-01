@@ -61,7 +61,10 @@ function getTourSteps(pageKey) {
 	const steps = TOUR_STEPS[pageKey] || [];
 	return steps.filter((step) => {
 		const el = step.target ? document.querySelector(step.target) : null;
-		return el || !step.optional;
+		if (!el) return !step.optional;
+		// 非表示（親含む）の要素はスキップする
+		if (el.hidden || el.offsetParent === null) return false;
+		return true;
 	}).map((step) => ({ ...step, el: document.querySelector(step.target) }));
 }
 
