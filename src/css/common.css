@@ -104,8 +104,9 @@ body {
 .tour-sp { flex: 1; }
 @media (max-width: 640px) {
   .tour-bub { width: min(260px, calc(100vw - 16px)); padding: 10px 12px 10px; }
-  .tour-title { font-size: 0.85rem; }
-  .tour-text { font-size: 0.78rem; margin-bottom: 8px; }
+  .tour-title { font-size: 0.82rem; }
+  .tour-text { font-size: 0.74rem; margin-bottom: 6px; line-height: 1.5; }
+  .tour-nav button { padding: 3px 8px; font-size: 0.74rem; min-height: 26px; }
 }
 .site-tour-button { position: absolute; top: 11px; right: 76px; z-index: 1; background: none; border: none; font-size: 1rem; color: var(--text-sub); cursor: pointer; padding: 4px 8px; border-radius: var(--radius); }
 .site-tour-button:hover { background: var(--primary-light); color: var(--primary-dark); }

@@ -11,10 +11,10 @@ const TOUR_STEPS = {
 		{ target: '#btn-site-refresh', title: '更新', text: '情報を最新の状態にします' }
 	],
 	booking: [
-		{ target: '#book-date', title: '日付', text: '練習日を選ぶと、この下に空き場所と時間が表示されます' },
-		{ target: '#book-room', title: '練習場所', text: '空き場所の表示を見て場所を選んでください' },
-		{ target: '#btn-submit-booking', title: '予約', text: '内容を入力して確定します' },
-		{ target: '#panel-search', title: '検索・削除', text: '自分の予約を検索して取り消せます' }
+		{ target: '[data-schedule-calendar]', title: 'カレンダー', text: '予定や部室の空き枠を確認できます' },
+		{ target: '.schedule-booking-link', title: 'カレンダーの＋ボタン', text: '練習場所の予約へ進みます' },
+		{ target: '#tab-btn-create', title: '新規予約', text: '新規予約ができます' },
+		{ target: '#tab-btn-search', title: '予約削除', text: '予約の削除ができます' }
 	],
 	searchYT: [
 		{ target: '#select-playlist', title: 'カテゴリ', text: '動画の種類で絞り込めます' },
@@ -170,5 +170,9 @@ function tourEndStep() {
 
 function initPageTour(pageKey) {
 	const btn = document.getElementById('btn-tour');
-	if (btn) btn.addEventListener('click', () => tourStartPage(pageKey));
+	if (!btn) return;
+	const canUse = typeof checkUserLogin === 'function' ? checkUserLogin() : false;
+	btn.style.display = canUse ? '' : 'none';
+	if (!canUse) return;
+	btn.addEventListener('click', () => tourStartPage(pageKey));
 }

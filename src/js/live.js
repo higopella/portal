@@ -22,6 +22,9 @@ document.addEventListener('DOMContentLoaded', async () => {
 function bindLiveFormEvents() {
 	document.getElementById('btn-add-mic-bring').addEventListener('click', () => addMicBringRow());
 	document.getElementById('btn-add-song').addEventListener('click', () => addSongTitleRow());
+	document.getElementById('light-enabled').addEventListener('change', (e) => {
+		document.getElementById('light-section-body').classList.toggle('is-hidden', !e.target.checked);
+	});
 	document.getElementById('form-live-application').addEventListener('submit', handleSubmitLiveApplication);
 }
 
@@ -311,21 +314,24 @@ async function handleSubmitLiveApplication(e) {
 		paSongNotes.push({ title: songTitles[index], notes: textarea.value.trim() });
 	});
 	const songDetails = [];
+	const lightEnabled = document.getElementById('light-enabled').checked;
 	let songError = '';
-	Array.from(document.querySelectorAll('#light-song-detail-list .live-song-detail')).forEach((detail, index) => {
-		const tempo = detail.querySelector('.live-song-tempo').value;
-		const color = detail.querySelector('.live-song-color').value;
-		const preMc = detail.querySelector('.live-song-pre-mc').value;
-		if (!tempo || !color || preMc === '') songError = `${index + 1}曲目（${songTitles[index]}）のテンポ・カラー・演奏前のMCを選択してください`;
-		songDetails.push({
-			title: songTitles[index],
-			tempo: tempo,
-			color: color,
-			genre: detail.querySelector('.live-song-genre').value.trim(),
-			preMc: preMc === 'true',
-			notes: detail.querySelector('.live-song-notes').value.trim()
+	if (lightEnabled) {
+		Array.from(document.querySelectorAll('#light-song-detail-list .live-song-detail')).forEach((detail, index) => {
+			const tempo = detail.querySelector('.live-song-tempo').value;
+			const color = detail.querySelector('.live-song-color').value;
+			const preMc = detail.querySelector('.live-song-pre-mc').value;
+			if (!tempo || !color || preMc === '') songError = `${index + 1}曲目（${songTitles[index]}）のテンポ・カラー・演奏前のMCを選択してください`;
+			songDetails.push({
+				title: songTitles[index],
+				tempo: tempo,
+				color: color,
+				genre: detail.querySelector('.live-song-genre').value.trim(),
+				preMc: preMc === 'true',
+				notes: detail.querySelector('.live-song-notes').value.trim()
+			});
 		});
-	});
+	}
 
 	if (!liveId) { showToast('対象ライブを選択してください', 'error'); return; }
 	if (!groupName || !representative) { showToast('グループ名と代表者を入力してください', 'error'); return; }
@@ -333,8 +339,7 @@ async function handleSubmitLiveApplication(e) {
 	if (members.length === 0) { showToast('演者を1人以上入力してください', 'error'); return; }
 	if (songTitles.length === 0) { showToast('演奏曲を1曲以上入力してください', 'error'); return; }
 	if (songError) { showToast(songError, 'error'); return; }
-	const mcSeValue = document.getElementById('light-mc-se').value;
-	if (mcSeValue === '') { showToast('MC中SEを選択してください', 'error'); return; }
+	const lightingNotes = document.getElementById('light-notes').value.trim();
 
 	const payload = {
 		liveId: liveId,
@@ -346,10 +351,12 @@ async function handleSubmitLiveApplication(e) {
 			notes: document.getElementById('pa-notes').value.trim(),
 			songNotes: paSongNotes
 		},
-		lighting: {
-			mcSe: mcSeValue === 'true',
-			notes: document.getElementById('light-notes').value.trim(),
+		lighting: lightEnabled ? {
+			notes: lightingNotes,
 			songDetails: songDetails
+		} : {
+			notes: '',
+			songDetails: []
 		}
 	};
 

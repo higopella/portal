@@ -52,23 +52,21 @@
 
       <!-- 照明表 -->
       <section class="card">
-        <div class="card-title">照明表</div>
-        <!--p class="live-note">曲のテンポ・イメージカラー・ジャンル・演奏前のMC・要望を入力してください（曲名は基本情報の演奏曲と連動します）。</p>-->
-        <p class="live-note">曲の情報を入力してください。</p>
-
-        <!--div class="live-form-group">
-          <label class="live-label" for="light-mc-se">MC中SE</label>
-          <select id="light-mc-se" class="live-input">
-            <option value="" selected disabled>MC中SEを選択</option>
-            <option value="true">あり</option>
-            <option value="false">なし</option>
-          </select>
-        </div-->
-        <div class="live-form-group">
-          <label class="live-label" for="light-notes">照明 要望・特記欄</label>
-          <textarea id="light-notes" class="live-textarea" rows="3" maxlength="2000"></textarea>
+        <div class="card-title">
+          <span>照明表</span>
+          <label class="pin-label">
+            <input type="checkbox" id="light-enabled" checked> 照明表を申請する
+          </label>
         </div>
-        <div id="light-song-detail-list"></div>
+        <div id="light-section-body">
+          <p class="live-note">曲の情報を入力してください。</p>
+
+          <div class="live-form-group">
+            <label class="live-label" for="light-notes">照明 要望・特記欄</label>
+            <textarea id="light-notes" class="live-textarea" rows="3" maxlength="2000"></textarea>
+          </div>
+          <div id="light-song-detail-list"></div>
+        </div>
       </section>
 
       <button type="submit" id="btn-submit-live-application" class="btn btn-primary full-width">申請する</button>

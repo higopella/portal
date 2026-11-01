@@ -693,6 +693,14 @@ function selectHigopeliveLive(live) {
 	fetchHigopeliveApplications();
 }
 
+function hasLightingContent(app) {
+	const lighting = app && app.lighting;
+	if (!lighting) return false;
+	if (Array.isArray(lighting.songDetails) && lighting.songDetails.length > 0) return true;
+	if (typeof lighting.notes === 'string' && lighting.notes.trim()) return true;
+	return false;
+}
+
 async function fetchHigopeliveApplications() {
 	const container = document.getElementById('higopelive-app-list');
 	if (!container || !currentHigopeliveLive) return;
@@ -700,6 +708,8 @@ async function fetchHigopeliveApplications() {
 	try {
 		const res = await callGasApi('getApplications', { liveId: currentHigopeliveLive.liveId });
 		container.textContent = '';
+		const batchLightBtn = document.getElementById('btn-batch-light');
+		if (batchLightBtn) batchLightBtn.classList.toggle('is-hidden', !(res.success && res.applications && res.applications.some(hasLightingContent)));
 		if (!res.success || !res.applications || res.applications.length === 0) {
 			const empty = document.createElement('div');
 			empty.className = 'table-message';
@@ -849,6 +859,8 @@ function showHigopeliveDetail(app) {
 	const card = document.getElementById('higopelive-detail-card');
 	card.classList.remove('is-hidden');
 	document.getElementById('higopelive-detail-title').textContent = `${app.groupName}（代表: ${app.representative}）`;
+	const lightBtn = document.getElementById('btn-print-light');
+	if (lightBtn) lightBtn.classList.toggle('is-hidden', !hasLightingContent(app));
 	const container = document.getElementById('higopelive-detail');
 	container.textContent = '';
 	container.appendChild(buildPaSection(app));
