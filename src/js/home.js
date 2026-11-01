@@ -12,6 +12,7 @@ function renderHomeView() {
 	if (checkUserLogin()) {
 		loginSec.style.display = 'none';
 		mainSec.style.display = 'flex';
+		initPageTour('home');
 		if (!homeDataLoaded) {
 			homeDataLoaded = true;
 			calcNextMeeting();
@@ -25,7 +26,6 @@ function renderHomeView() {
 }
 
 document.addEventListener('DOMContentLoaded', async () => {
-	initPageTour('home');
 	let hasAuthenticatedSession = false;
 	if (getCurrentIdToken() || hasValidLoginHistory()) {
 		setLoginStatus('ログイン状態を確認しています...', 'loading');
