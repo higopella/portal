@@ -54,6 +54,36 @@
   background: var(--card);
   font-size: 0.85rem;
   color: var(--text-sub);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.schedule-day-title-date {
+  flex-shrink: 0;
+}
+
+.schedule-allday-chips {
+  display: flex;
+  gap: 4px;
+  flex-wrap: wrap;
+  min-width: 0;
+}
+
+.schedule-allday-chip {
+  display: inline-block;
+  max-width: 100%;
+  padding: 1px 6px;
+  border-radius: 6px;
+  background: var(--primary-light);
+  color: var(--primary-dark);
+  font-size: 0.72rem;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  cursor: pointer;
 }
 
 .schedule-day.is-today .schedule-day-title {
@@ -270,17 +300,16 @@
 
 .schedule-time-axis-timeline {
   position: relative;
-  height: 1680px;
 }
 
 .schedule-time-axis-hour-line {
-  height: 120px;
   padding-top: 4px;
   border-top: 1px solid #dbe3ea;
   color: var(--text-sub);
   font-size: 0.82rem;
   line-height: 1;
   text-align: center;
+  box-sizing: border-box;
 }
 
 .schedule-time-axis-hour-line:first-child {
@@ -289,7 +318,6 @@
 
 .schedule-time-axis-hour-line.schedule-time-axis-end-hour {
   position: absolute;
-  top: 1680px;
   right: 0;
   left: 0;
   height: 0;

@@ -11,8 +11,8 @@ const TOUR_STEPS = {
 		{ target: '#btn-site-refresh', title: '更新', text: '情報を最新の状態にします' }
 	],
 	booking: [
-		{ target: '#book-date', title: '日付', text: '練習日を選ぶと空き場所が表示されます' },
-		{ target: '#available-time-slots', title: '空き場所', text: 'その日に空いている場所と時間が表示されます' },
+		{ target: '#book-date', title: '日付', text: '練習日を選ぶと、この下に空き場所と時間が表示されます' },
+		{ target: '#book-room', title: '練習場所', text: '空き場所の表示を見て場所を選んでください' },
 		{ target: '#btn-submit-booking', title: '予約', text: '内容を入力して確定します' },
 		{ target: '#panel-search', title: '検索・削除', text: '自分の予約を検索して取り消せます' }
 	],
@@ -168,9 +168,7 @@ function tourEndStep() {
 	tourActiveSteps = [];
 }
 
-function initPageTour(pageKey, delayMs = 800) {
+function initPageTour(pageKey) {
 	const btn = document.getElementById('btn-tour');
 	if (btn) btn.addEventListener('click', () => tourStartPage(pageKey));
-	if (isTourDone(pageKey)) return;
-	setTimeout(() => tourStartPage(pageKey), delayMs);
 }

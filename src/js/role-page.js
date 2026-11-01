@@ -808,7 +808,12 @@ function buildPaSection(app) {
 	wrapper.appendChild(table);
 	section.appendChild(wrapper);
 
-	buildHigopeliveNote(section, 'マイク持ち込み', app.pa ? app.pa.micBring : '');
+	const micBrings = (app.pa && Array.isArray(app.pa.micBringList)) ? app.pa.micBringList : [];
+	if (micBrings.length > 0) {
+		buildHigopeliveTable(section, ['パート', 'マイク'], micBrings.map((item) => [item.part || '-', item.mic || '-']));
+	} else {
+		buildHigopeliveNote(section, 'マイク持ち込み', app.pa ? app.pa.micBring : '');
+	}
 	buildHigopeliveNote(section, '要望・特記', app.pa ? app.pa.notes : '');
 	const songNotes = (app.pa && Array.isArray(app.pa.songNotes)) ? app.pa.songNotes : [];
 	if (songNotes.length > 0) {

@@ -20,6 +20,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 });
 
 function bindLiveFormEvents() {
+	document.getElementById('btn-add-mic-bring').addEventListener('click', () => addMicBringRow());
 	document.getElementById('btn-add-song').addEventListener('click', () => addSongTitleRow());
 	document.getElementById('form-live-application').addEventListener('submit', handleSubmitLiveApplication);
 }
@@ -142,6 +143,36 @@ function getSongTitles() {
 		if (value) titles.push(value);
 	});
 	return titles;
+}
+
+function addMicBringRow() {
+	const list = document.getElementById('mic-bring-list');
+	const row = document.createElement('div');
+	row.className = 'live-song-row';
+	const partInput = document.createElement('input');
+	partInput.type = 'text';
+	partInput.className = 'live-input mic-bring-part';
+	partInput.placeholder = 'パート';
+	partInput.maxLength = 50;
+	const micInput = document.createElement('input');
+	micInput.type = 'text';
+	micInput.className = 'live-input mic-bring-mic';
+	micInput.placeholder = 'マイク名';
+	micInput.maxLength = 100;
+	const removeBtn = createRowButton('×', 'btn btn-danger small-action-button', 'この持ち込みを削除');
+	removeBtn.addEventListener('click', () => row.remove());
+	row.append(partInput, micInput, removeBtn);
+	list.appendChild(row);
+}
+
+function collectMicBrings() {
+	const items = [];
+	document.querySelectorAll('#mic-bring-list .live-song-row').forEach((row) => {
+		const part = row.querySelector('.mic-bring-part').value.trim();
+		const mic = row.querySelector('.mic-bring-mic').value.trim();
+		if (part || mic) items.push({ part, mic });
+	});
+	return items;
 }
 
 function syncSongSections() {
@@ -311,7 +342,7 @@ async function handleSubmitLiveApplication(e) {
 		representative: representative,
 		pa: {
 			members: members,
-			micBring: document.getElementById('pa-mic-bring').value.trim(),
+			micBringList: collectMicBrings(),
 			notes: document.getElementById('pa-notes').value.trim(),
 			songNotes: paSongNotes
 		},

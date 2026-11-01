@@ -326,15 +326,28 @@ function renderScheduleCalendar(container, events, dates, view, createEventEleme
     day.className = `${className}-day schedule-day${isScheduleToday(date) ? " is-today" : ""}`;
     const heading = document.createElement("div");
     heading.className = `${className}-day-title schedule-day-title`;
-    heading.textContent = formatScheduleDate(date);
-    day.appendChild(heading);
+    const dateLabel = document.createElement("span");
+    dateLabel.className = `${className}-day-title-date schedule-day-title-date`;
+    dateLabel.textContent = formatScheduleDate(date);
+    heading.appendChild(dateLabel);
     const dayEvents = eventsByDate[getScheduleDateString(date)] || [];
-    const allDay = document.createElement("div");
-    allDay.className = `${className}-all-day schedule-all-day`;
-    dayEvents.filter((event) => event.isAllDay).forEach((event) => {
-      allDay.appendChild(createEventElement(event, true));
-    });
-    day.appendChild(allDay);
+    const allDayEvents = dayEvents.filter((event) => event.isAllDay);
+    if (allDayEvents.length > 0) {
+      const chips = document.createElement("div");
+      chips.className = `${className}-allday-chips schedule-allday-chips`;
+      allDayEvents.forEach((event) => {
+        const chip = document.createElement("span");
+        chip.className = `${className}-allday-chip schedule-allday-chip`;
+        chip.textContent = event.title || "終日";
+        chip.addEventListener("click", (e) => {
+          e.stopPropagation();
+          showScheduleEventDetail(event);
+        });
+        chips.appendChild(chip);
+      });
+      heading.appendChild(chips);
+    }
+    day.appendChild(heading);
     const timeline = buildScheduleTimeline(`${className}-timeline schedule-timeline`, `${className}-hour-line schedule-hour-line`, date);
     layoutScheduleTimedEvents(dayEvents, timeline, createEventElement);
     if (dayEvents.length === 0) {

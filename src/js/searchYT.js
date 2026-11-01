@@ -17,10 +17,6 @@ document.addEventListener('DOMContentLoaded', async () => {
 	if (inputSearch) {
 		inputSearch.addEventListener('input', filterVideos);
 	}
-	const refreshBtn = document.getElementById('btn-refresh');
-	if (refreshBtn) {
-		refreshBtn.addEventListener('click', () => refreshVideoCatalog(true));
-	}
 	document.querySelectorAll('.tab-btn').forEach((button) => {
 		button.addEventListener('click', () => setVideoType(button.dataset.videoType || 'ALL'));
 	});
@@ -37,7 +33,6 @@ document.addEventListener('DOMContentLoaded', async () => {
 async function refreshVideoCatalog(forceRefresh) {
 	const requestId = ++latestRequestId;
 	const selectEl = document.getElementById('select-playlist');
-	const refreshBtn = document.getElementById('btn-refresh');
 
 	if (!forceRefresh) {
 		const cached = await readYouTubeCatalogCache();
