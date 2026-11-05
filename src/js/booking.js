@@ -2,6 +2,8 @@ initCommonLayout('booking');
 
 document.addEventListener('DOMContentLoaded', async () => {
 	initPageTour('booking');
+	await loadEnabledRooms();
+	applyEnabledRoomsToForm();
 	let resolveAuthentication;
 	const authenticationReady = new Promise((resolve) => {
 		resolveAuthentication = resolve;
@@ -31,6 +33,26 @@ document.addEventListener('DOMContentLoaded', async () => {
 	updateEndTimePreview();
 	await calendarReady;
 });
+
+const ALL_ROOMS = ['①', '②', '③'];
+
+async function loadEnabledRooms() {
+	try {
+		const res = await callGasApi('getEnabledRooms');
+		window.enabledRooms = (res.success && Array.isArray(res.rooms) && res.rooms.length > 0) ? res.rooms : ALL_ROOMS;
+	} catch (e) {
+		window.enabledRooms = ALL_ROOMS;
+	}
+}
+
+function applyEnabledRoomsToForm() {
+	const select = document.getElementById('book-room');
+	if (!select) return;
+	const enabled = Array.isArray(window.enabledRooms) ? window.enabledRooms : ALL_ROOMS;
+	Array.from(select.options).forEach((option) => {
+		if (option.value && enabled.indexOf(option.value) === -1) option.remove();
+	});
+}
 
 function getLocalDateString(date) {
 	const year = date.getFullYear();
@@ -204,8 +226,8 @@ async function loadAvailableTimeSlots() {
 		if (!result.success) throw new Error(result.error);
 		container.textContent = '';
 		const roomLabels = { '①': '部室', '②': '機材庫', '③': '教室' };
-		// 機材庫は一般利用停止中のため空き場所に表示しない。復活する場合は下行を ['①', '②', '③'] に戻す
-		['①', '③'].forEach((room) => {
+		const enabled = Array.isArray(window.enabledRooms) ? window.enabledRooms : ['①', '②', '③'];
+		enabled.forEach((room) => {
 			const row = document.createElement('div');
 			row.className = 'available-time-row';
 			const label = document.createElement('span');

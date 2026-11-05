@@ -42,6 +42,7 @@ function bindRolePageEvents() {
 		document.getElementById('main-event-time-row').classList.toggle('is-hidden', e.target.checked);
 	});
 	on('btn-admin-search-events', 'click', handleAdminSearchEvents);
+	on('btn-save-rooms', 'click', handleSaveRooms);
 	on('btn-create-live', 'click', handleCreateLive);
 	on('btn-print-pa', 'click', (e) => downloadHigopelivePdf('pa', e.currentTarget));
 	on('btn-print-light', 'click', (e) => downloadHigopelivePdf('light', e.currentTarget));
@@ -113,6 +114,7 @@ async function loadDashboardData() {
 	if (document.getElementById('admin-notice-list')) tasks.push(fetchAdminNotices());
 	if (document.getElementById('log-table-body')) tasks.push(fetchLogs());
 	if (document.getElementById('kanbu-user-list')) tasks.push(fetchUsers());
+	if (document.getElementById('kanbu-room-list')) tasks.push(fetchRooms());
 	if (document.getElementById('higopelive-live-list')) tasks.push(fetchHigopeliveLives());
 	if (refreshBtn) {
 		await withButtonLoading(refreshBtn, async () => {
@@ -623,6 +625,69 @@ let higopeliveLives = [];
 let currentHigopeliveLive = null;
 let currentHigopeliveApp = null;
 
+function isHigopeliveLiveStale(live) {
+	const date = new Date(String(live.date).replace(/-/g, '/'));
+	if (!Number.isFinite(date.getTime())) return false;
+	const cutoff = new Date();
+	cutoff.setMonth(cutoff.getMonth() - 3);
+	return date < cutoff;
+}
+
+/* ===== 練習場所の有効化（幹部） ===== */
+
+const ROOM_LABELS = { '①': '部室①', '②': '機材庫②', '③': '教室③' };
+
+async function fetchRooms() {
+	const container = document.getElementById('kanbu-room-list');
+	if (!container) return;
+	try {
+		const res = await callGasApi('getEnabledRooms');
+		const enabled = (res.success && Array.isArray(res.rooms)) ? res.rooms : Object.keys(ROOM_LABELS);
+		container.textContent = '';
+		Object.keys(ROOM_LABELS).forEach((room) => {
+			const item = document.createElement('label');
+			item.className = 'admin-notice-item room-item';
+			const checkbox = document.createElement('input');
+			checkbox.type = 'checkbox';
+			checkbox.checked = enabled.indexOf(room) !== -1;
+			checkbox.dataset.room = room;
+			const text = document.createElement('span');
+			text.textContent = ROOM_LABELS[room];
+			item.appendChild(checkbox);
+			item.appendChild(text);
+			container.appendChild(item);
+		});
+	} catch (e) {
+		container.textContent = '';
+		const error = document.createElement('div');
+		error.className = 'table-message table-message-error';
+		error.textContent = '取得失敗';
+		container.appendChild(error);
+	}
+}
+
+async function handleSaveRooms() {
+	const container = document.getElementById('kanbu-room-list');
+	const rooms = [];
+	container.querySelectorAll('input[type="checkbox"]').forEach((cb) => {
+		if (cb.checked) rooms.push(cb.dataset.room);
+	});
+	if (rooms.length === 0) {
+		showToast('有効にする練習場所を1つ以上選択してください', 'error');
+		return;
+	}
+	const btn = document.getElementById('btn-save-rooms');
+	await withButtonLoading(btn, async () => {
+		const res = await callGasApi('updateEnabledRooms', { rooms });
+		if (res.success) {
+			if (typeof clearScheduleDeviceCache === 'function') await clearScheduleDeviceCache();
+			showToast('練習場所を更新しました');
+		} else {
+			showToast(res.error || '更新に失敗しました', 'error');
+		}
+	}, '保存中');
+}
+
 async function handleCreateLive() {
 	const title = document.getElementById('live-new-title').value.trim();
 	const date = document.getElementById('live-new-date').value;
@@ -651,6 +716,14 @@ async function fetchHigopeliveLives() {
 		const res = await callGasApi('getLives');
 		container.textContent = '';
 		higopeliveLives = (res.success && Array.isArray(res.lives)) ? res.lives : [];
+		const stale = higopeliveLives.filter(isHigopeliveLiveStale);
+		if (stale.length > 0) {
+			const warn = document.createElement('div');
+			warn.className = 'table-message';
+			warn.style.color = 'var(--danger)';
+			warn.textContent = `開催から3ヶ月以上過ぎたライブが${stale.length}件あります。不要なら削除してください`;
+			container.appendChild(warn);
+		}
 		if (higopeliveLives.length === 0) {
 			const empty = document.createElement('div');
 			empty.className = 'table-message';
@@ -663,7 +736,7 @@ async function fetchHigopeliveLives() {
 			item.className = 'admin-notice-item';
 			const text = document.createElement('div');
 			text.className = 'admin-notice-text';
-			text.textContent = `📁 ${live.title}（${live.date}）`;
+			text.textContent = `📁 ${live.title}（${live.date}）${isHigopeliveLiveStale(live) ? ' ⚠️' : ''}`;
 			const actions = document.createElement('div');
 			actions.className = 'admin-notice-actions';
 			const openBtn = document.createElement('button');
@@ -671,12 +744,18 @@ async function fetchHigopeliveLives() {
 			openBtn.className = 'btn btn-primary small-action-button';
 			openBtn.textContent = '開く';
 			openBtn.addEventListener('click', () => selectHigopeliveLive(live));
+			const editBtn = document.createElement('button');
+			editBtn.type = 'button';
+			editBtn.className = 'btn btn-primary small-action-button';
+			editBtn.textContent = '編集';
+			editBtn.addEventListener('click', () => handleEditLive(live, editBtn));
 			const deleteBtn = document.createElement('button');
 			deleteBtn.type = 'button';
 			deleteBtn.className = 'btn btn-danger small-action-button';
 			deleteBtn.textContent = '削除';
 			deleteBtn.addEventListener('click', () => handleDeleteLive(live, deleteBtn));
 			actions.appendChild(openBtn);
+			actions.appendChild(editBtn);
 			actions.appendChild(deleteBtn);
 			item.appendChild(text);
 			item.appendChild(actions);
@@ -718,6 +797,26 @@ async function handleDeleteLive(live, btn) {
 			showToast(res.error || '削除に失敗しました', 'error');
 		}
 	}, '削除中');
+}
+
+async function handleEditLive(live, btn) {
+	const input = prompt('タイトルを編集してください', live.title);
+	if (input === null) return;
+	const title = input.trim();
+	if (!title || title === live.title) return;
+	await withButtonLoading(btn, async () => {
+		const res = await callGasApi('editLive', { liveId: live.liveId, title: title });
+		if (res.success) {
+			showToast('タイトルを更新しました');
+			if (currentHigopeliveLive && currentHigopeliveLive.liveId === live.liveId) {
+				currentHigopeliveLive.title = title;
+				document.getElementById('higopelive-current-live').textContent = `（${title}）`;
+			}
+			fetchHigopeliveLives();
+		} else {
+			showToast(res.error || '更新に失敗しました', 'error');
+		}
+	}, '更新中');
 }
 
 function hasLightingContent(app) {

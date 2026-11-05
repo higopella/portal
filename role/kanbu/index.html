@@ -34,6 +34,7 @@
     <nav class="admin-tabs" aria-label="管理メニュー">
       <button type="button" class="admin-tab active" data-tab="notice">お知らせ追加</button>
       <button type="button" class="admin-tab" data-tab="booking">予約</button>
+      <button type="button" class="admin-tab" data-tab="rooms">練習場所</button>
       <button type="button" class="admin-tab" data-tab="logs">予約ログ</button>
       <button type="button" class="admin-tab" data-tab="users">ユーザー管理</button>
       <button type="button" class="admin-tab" data-tab="access">閲覧数</button>
@@ -119,6 +120,20 @@
         </div>
       </div>
       <div id="admin-event-list" class="table-message">日付を選択して検索してください</div>
+    </section>
+    </div>
+
+    <div class="admin-tab-panel is-hidden" id="tab-rooms">
+
+    <!-- 練習場所の有効化 -->
+    <section class="card">
+      <div class="card-title">練習場所の有効化</div>
+      <p class="admin-login-description">予約フォームで選択できる練習場所を設定します。無効にした場所は予約できなくなります。</p>
+      <div id="kanbu-room-list">読み込み中...</div>
+      <div class="notice-form-row">
+        <span></span>
+        <button type="button" id="btn-save-rooms" class="btn btn-primary">保存</button>
+      </div>
     </section>
     </div>
 

@@ -95,8 +95,8 @@ body {
 
 /* ---------- ページガイドツアー ---------- */
 .tour { position: fixed; inset: 0; z-index: 1100; pointer-events: auto; }
-.tour-spot { position: fixed; border-radius: 8px; box-shadow: 0 0 0 9999px rgba(15, 23, 42, 0.62); outline: 2px solid var(--primary); transition: all 0.22s ease; pointer-events: none; }
-.tour-bub { position: fixed; width: min(300px, calc(100vw - 24px)); background: var(--card); color: var(--text); border: 1px solid var(--border); border-radius: 10px; padding: 12px 14px 10px; box-shadow: 0 12px 40px rgba(0, 0, 0, 0.25); transition: top 0.22s ease, left 0.22s ease; }
+.tour-spot { position: fixed; z-index: 1101; border-radius: 8px; box-shadow: 0 0 0 9999px rgba(15, 23, 42, 0.62); outline: 2px solid var(--primary); transition: all 0.22s ease; pointer-events: none; }
+.tour-bub { position: fixed; z-index: 1102; width: min(300px, calc(100vw - 24px)); background: var(--card); color: var(--text); border: 1px solid var(--border); border-radius: 10px; padding: 12px 14px 10px; box-shadow: 0 12px 40px rgba(0, 0, 0, 0.25); transition: top 0.22s ease, left 0.22s ease; }
 .tour-step { font-size: 0.7rem; color: var(--text-sub); }
 .tour-title { margin: 4px 0 6px; font-size: 0.88rem; }
 .tour-text { margin: 0 0 10px; font-size: 0.8rem; line-height: 1.6; color: var(--text-sub); }
