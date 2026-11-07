@@ -928,6 +928,7 @@ function buildPaMemberTable(parent, members) {
 	wrapper.className = 'table-responsive';
 	const table = document.createElement('table');
 	table.className = 'log-table higopelive-member-table';
+	table.style.tableLayout = 'fixed';
 	const tbody = document.createElement('tbody');
 	[
 		['パート', ...members.map((m) => m.part)],
@@ -937,7 +938,12 @@ function buildPaMemberTable(parent, members) {
 		cells.forEach((cellText, cellIndex) => {
 			const cell = document.createElement(cellIndex === 0 ? 'th' : 'td');
 			cell.textContent = cellText;
-			if (cellIndex > 0 && PA_PART_COLORS[cellText]) cell.style.backgroundColor = PA_PART_COLORS[cellText];
+			if (cellIndex === 0) {
+				cell.style.width = '64px';
+			} else {
+				cell.style.width = `calc((100% - 64px) / ${members.length})`;
+				if (PA_PART_COLORS[cellText]) cell.style.backgroundColor = PA_PART_COLORS[cellText];
+			}
 			row.appendChild(cell);
 		});
 		tbody.appendChild(row);
@@ -961,7 +967,29 @@ function buildPaSection(app) {
 		micHeading.className = 'higopelive-subheading';
 		micHeading.textContent = '持ち込みマイク';
 		section.appendChild(micHeading);
-		buildHigopeliveTable(section, ['パート', 'マイク'], micBrings.map((item) => [item.part || '-', item.mic || '-']));
+		const wrapper = document.createElement('div');
+		wrapper.className = 'table-responsive higopelive-mic-table';
+		const table = document.createElement('table');
+		table.className = 'log-table higopelive-member-table';
+		table.style.tableLayout = 'fixed';
+		table.style.width = 'auto';
+		const tbody = document.createElement('tbody');
+		[
+			['パート', ...micBrings.map((item) => item.part || '-')],
+			['マイク', ...micBrings.map((item) => item.mic || '-')]
+		].forEach((cells) => {
+			const row = document.createElement('tr');
+			cells.forEach((cellText, cellIndex) => {
+				const cell = document.createElement(cellIndex === 0 ? 'th' : 'td');
+				cell.textContent = cellText;
+				if (cellIndex === 0) cell.style.width = '64px';
+				row.appendChild(cell);
+			});
+			tbody.appendChild(row);
+		});
+		table.appendChild(tbody);
+		wrapper.appendChild(table);
+		section.appendChild(wrapper);
 	}
 
 	const songs = (app.pa && Array.isArray(app.pa.songs)) ? app.pa.songs : [];

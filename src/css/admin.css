@@ -83,6 +83,7 @@
 		.higopelive-note { font-size: 0.88rem; color: var(--text); margin-top: 8px; white-space: pre-wrap; }
 		.higopelive-subheading { font-size: 0.92rem; font-weight: bold; color: var(--primary-dark); margin: 14px 0 6px; }
 		.higopelive-member-table th, .higopelive-member-table td { white-space: nowrap; padding: 6px 8px; font-size: 0.82rem; }
+		.higopelive-mic-table { display: inline-block; }
 		.admin-notice-item {
 			display: flex;
 			justify-content: space-between;
