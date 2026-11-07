@@ -13,7 +13,6 @@ const MAX_SONGS = 10;
 document.addEventListener('DOMContentLoaded', async () => {
 	initPageTour('live');
 	if (!await requirePageAuthentication()) return;
-	for (let i = 0; i < MAX_PA_MEMBERS; i++) addPaMemberRow();
 	addSongTitleRow();
 	bindLiveFormEvents();
 	loadLiveOptions();
@@ -68,12 +67,7 @@ function createRowButton(text, className, title) {
 	return btn;
 }
 
-function addPaMemberRow() {
-	const list = document.getElementById('pa-member-list');
-	if (list.children.length >= MAX_PA_MEMBERS) {
-		showToast(`演者は${MAX_PA_MEMBERS}人までです`, 'error');
-		return;
-	}
+function createPaMemberColumn(container) {
 	const col = document.createElement('div');
 	col.className = 'live-member-col';
 
@@ -102,13 +96,12 @@ function addPaMemberRow() {
 	nameInput.maxLength = 100;
 
 	col.append(order, partSelect, nameInput);
-	list.appendChild(col);
-	renumberPaMembers();
+	container.appendChild(col);
 }
 
-function renumberPaMembers() {
-	document.querySelectorAll('#pa-member-list .live-member-col').forEach((col, index) => {
-		col.querySelector('.live-member-order').textContent = `${index + 1}`;
+function renumberPaMembers(container) {
+	container.querySelectorAll('.live-member-col').forEach((col, index) => {
+		col.querySelector('.live-member-order').textContent = String(index + 1);
 	});
 }
 
@@ -186,28 +179,56 @@ function syncSongSections() {
 		input.placeholder = `曲名（${i + 1}曲目）`;
 	});
 	const titles = getSongTitles();
-	syncPaSongNotes(titles);
+	syncPaSongBlocks(titles);
 	syncLightSongDetails(titles);
 }
 
-function syncPaSongNotes(titles) {
-	const container = document.getElementById('pa-song-notes');
-	const existing = Array.from(container.querySelectorAll('textarea')).map((t) => t.value);
+function syncPaSongBlocks(titles) {
+	const container = document.getElementById('pa-song-blocks');
+	if (!container) return;
+	const existing = Array.from(container.querySelectorAll('.pa-song-block')).map((block) => ({
+		members: Array.from(block.querySelectorAll('.live-member-col')).map((col) => ({
+			part: col.querySelector('.live-member-part').value,
+			name: col.querySelector('.live-member-name').value
+		})),
+		notes: block.querySelector('.pa-song-note').value
+	}));
 	container.textContent = '';
 	titles.forEach((title, index) => {
-		const group = document.createElement('div');
-		group.className = 'live-form-group';
-		const label = document.createElement('label');
-		label.className = 'live-label';
-		label.textContent = `${index + 1}曲目（${title}）のPA要望`;
-		const textarea = document.createElement('textarea');
-		textarea.className = 'live-textarea pa-song-note';
-		textarea.rows = 2;
-		textarea.maxLength = 1000;
-		textarea.value = existing[index] || '';
-		group.append(label, textarea);
-		container.appendChild(group);
+		container.appendChild(createPaSongBlock(index, title, existing[index]));
 	});
+}
+
+function createPaSongBlock(index, title, values) {
+	const group = document.createElement('div');
+	group.className = 'live-form-group pa-song-block';
+	const label = document.createElement('label');
+	label.className = 'live-label';
+	label.textContent = `${index + 1}曲目（${title}）`;
+
+	const memberList = document.createElement('div');
+	memberList.className = 'pa-member-list';
+	for (let i = 0; i < MAX_PA_MEMBERS; i++) createPaMemberColumn(memberList);
+	if (values && Array.isArray(values.members)) {
+		memberList.querySelectorAll('.live-member-col').forEach((col, i) => {
+			const member = values.members[i];
+			if (member) {
+				col.querySelector('.live-member-part').value = member.part;
+				col.querySelector('.live-member-name').value = member.name;
+			}
+		});
+	}
+	renumberPaMembers(memberList);
+
+	const notes = document.createElement('textarea');
+	notes.className = 'live-textarea pa-song-note';
+	notes.rows = 2;
+	notes.maxLength = 1000;
+	notes.placeholder = 'この曲のPA要望（任意）';
+	if (values && typeof values.notes === 'string') notes.value = values.notes;
+
+	group.append(label, memberList, notes);
+	return group;
 }
 
 function createLightSongDetail(index, title, values) {
@@ -301,21 +322,26 @@ async function handleSubmitLiveApplication(e) {
 	const groupName = document.getElementById('live-group-name').value.trim();
 	const representative = document.getElementById('live-representative').value.trim();
 
-	const members = [];
-	let memberError = '';
-	document.querySelectorAll('#pa-member-list .live-member-col').forEach((col) => {
-		const name = col.querySelector('.live-member-name').value.trim();
-		const part = col.querySelector('.live-member-part').value;
-		if (!name) return;
-		if (!part) memberError = `演者「${name}」のパートを選択してください`;
-		members.push({ name, part });
-	});
-
 	const songTitles = getSongTitles();
-	const paSongNotes = [];
-	Array.from(document.querySelectorAll('#pa-song-notes .pa-song-note')).forEach((textarea, index) => {
-		paSongNotes.push({ title: songTitles[index], notes: textarea.value.trim() });
+	const paSongs = [];
+	let memberError = '';
+	Array.from(document.querySelectorAll('#pa-song-blocks .pa-song-block')).forEach((block, index) => {
+		const members = [];
+		block.querySelectorAll('.live-member-col').forEach((col) => {
+			const name = col.querySelector('.live-member-name').value.trim();
+			const part = col.querySelector('.live-member-part').value;
+			if (!name) return;
+			if (!part) memberError = `${index + 1}曲目の演者「${name}」のパートを選択してください`;
+			members.push({ name, part });
+		});
+		paSongs.push({
+			title: songTitles[index],
+			members: members,
+			notes: block.querySelector('.pa-song-note').value.trim()
+		});
 	});
+	const hasAnyMember = paSongs.some((song) => song.members.length > 0);
+
 	const songDetails = [];
 	const lightEnabled = document.getElementById('light-section') && !document.getElementById('light-section').classList.contains('is-hidden');
 	let songError = '';
@@ -339,26 +365,21 @@ async function handleSubmitLiveApplication(e) {
 	if (!liveId) { showToast('対象ライブを選択してください', 'error'); return; }
 	if (!groupName || !representative) { showToast('グループ名と代表者を入力してください', 'error'); return; }
 	if (memberError) { showToast(memberError, 'error'); return; }
-	if (members.length === 0) { showToast('演者を1人以上入力してください', 'error'); return; }
+	if (!hasAnyMember) { showToast('演者を1人以上入力してください', 'error'); return; }
 	if (songTitles.length === 0) { showToast('演奏曲を1曲以上入力してください', 'error'); return; }
 	if (songError) { showToast(songError, 'error'); return; }
-	const lightingNotes = document.getElementById('light-notes').value.trim();
 
 	const payload = {
 		liveId: liveId,
 		groupName: groupName,
 		representative: representative,
 		pa: {
-			members: members,
 			micBringList: collectMicBrings(),
-			notes: document.getElementById('pa-notes').value.trim(),
-			songNotes: paSongNotes
+			songs: paSongs
 		},
 		lighting: lightEnabled ? {
-			notes: lightingNotes,
 			songDetails: songDetails
 		} : {
-			notes: '',
 			songDetails: []
 		}
 	};
@@ -369,9 +390,8 @@ async function handleSubmitLiveApplication(e) {
 		if (res.success) {
 			showToast('申請しました');
 			document.getElementById('form-live-application').reset();
-			document.getElementById('pa-member-list').textContent = '';
 			document.getElementById('song-title-list').textContent = '';
-			for (let i = 0; i < MAX_PA_MEMBERS; i++) addPaMemberRow();
+			document.getElementById('mic-bring-list').textContent = '';
 			addSongTitleRow();
 			loadLiveOptions();
 		} else {

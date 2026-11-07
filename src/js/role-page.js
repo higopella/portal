@@ -913,22 +913,23 @@ function buildHigopeliveNote(parent, label, value) {
 	parent.appendChild(note);
 }
 
-function buildPaSection(app) {
-	const section = document.createElement('div');
-	section.className = 'higopelive-section';
-	const heading = document.createElement('div');
-	heading.className = 'card-title notice-list-heading';
-	heading.textContent = 'PA表';
-	section.appendChild(heading);
-	const members = (app.pa && Array.isArray(app.pa.members)) ? app.pa.members : [];
+const PA_PART_COLORS = {
+	'1st': '#ffc6c6',
+	'2nd': '#ffea83',
+	'3rd': '#ffffff',
+	'4th': '#ffbd6c',
+	'lead': '#baf9bf',
+	'bass': '#bad3ff',
+	'perc.': '#d0a5fd'
+};
 
+function buildPaMemberTable(parent, members) {
 	const wrapper = document.createElement('div');
 	wrapper.className = 'table-responsive';
 	const table = document.createElement('table');
-	table.className = 'log-table';
+	table.className = 'log-table higopelive-member-table';
 	const tbody = document.createElement('tbody');
 	[
-		['順番', ...members.map((m, i) => String(i + 1))],
 		['パート', ...members.map((m) => m.part)],
 		['名前', ...members.map((m) => m.name)]
 	].forEach((cells) => {
@@ -936,25 +937,43 @@ function buildPaSection(app) {
 		cells.forEach((cellText, cellIndex) => {
 			const cell = document.createElement(cellIndex === 0 ? 'th' : 'td');
 			cell.textContent = cellText;
+			if (cellIndex > 0 && PA_PART_COLORS[cellText]) cell.style.backgroundColor = PA_PART_COLORS[cellText];
 			row.appendChild(cell);
 		});
 		tbody.appendChild(row);
 	});
 	table.appendChild(tbody);
 	wrapper.appendChild(table);
-	section.appendChild(wrapper);
+	parent.appendChild(wrapper);
+}
+
+function buildPaSection(app) {
+	const section = document.createElement('div');
+	section.className = 'higopelive-section';
+	const heading = document.createElement('div');
+	heading.className = 'card-title notice-list-heading';
+	heading.textContent = 'PA表';
+	section.appendChild(heading);
 
 	const micBrings = (app.pa && Array.isArray(app.pa.micBringList)) ? app.pa.micBringList : [];
 	if (micBrings.length > 0) {
+		const micHeading = document.createElement('div');
+		micHeading.className = 'higopelive-subheading';
+		micHeading.textContent = '持ち込みマイク';
+		section.appendChild(micHeading);
 		buildHigopeliveTable(section, ['パート', 'マイク'], micBrings.map((item) => [item.part || '-', item.mic || '-']));
-	} else {
-		buildHigopeliveNote(section, 'マイク持ち込み', app.pa ? app.pa.micBring : '');
 	}
-	buildHigopeliveNote(section, '要望・特記', app.pa ? app.pa.notes : '');
-	const songNotes = (app.pa && Array.isArray(app.pa.songNotes)) ? app.pa.songNotes : [];
-	if (songNotes.length > 0) {
-		buildHigopeliveTable(section, ['曲', '曲名', 'PA要望'], songNotes.map((sn, i) => [`${i + 1}曲目`, sn.title, sn.notes || '-']));
-	}
+
+	const songs = (app.pa && Array.isArray(app.pa.songs)) ? app.pa.songs : [];
+	songs.forEach((song, index) => {
+		const songHeading = document.createElement('div');
+		songHeading.className = 'higopelive-subheading';
+		songHeading.textContent = `演奏${index + 1}曲目（${song.title}）`;
+		section.appendChild(songHeading);
+		const members = Array.isArray(song.members) ? song.members : [];
+		if (members.length > 0) buildPaMemberTable(section, members);
+		if (song.notes) buildHigopeliveNote(section, '要望', song.notes);
+	});
 	return section;
 }
 
@@ -968,14 +987,6 @@ function buildLightSection(app) {
 	const details = (app.lighting && Array.isArray(app.lighting.songDetails)) ? app.lighting.songDetails : [];
 	if (details.length > 0) {
 		buildHigopeliveTable(section, ['曲', '曲名', 'テンポ', 'イメージカラー', 'ジャンル', '演奏前のMC', '要望'], details.map((s, i) => [`${i + 1}曲目`, s.title, s.tempo, s.color, s.genre || '-', s.preMc ? 'あり' : 'なし', s.notes || '-']));
-	}
-	const legacySongs = (app.lighting && Array.isArray(app.lighting.songs)) ? app.lighting.songs : [];
-	if (legacySongs.length > 0) {
-		buildHigopeliveTable(section, ['曲名', 'テンポ', 'イメージカラー', 'ジャンル'], legacySongs.map((s) => [s.title, s.tempo, s.color, s.genre || '-']));
-	}
-	if (app.lighting) {
-		buildHigopeliveNote(section, 'MC中SE', app.lighting.mcSe ? 'あり' : (app.lighting.mcSe === false ? 'なし' : ''));
-		buildHigopeliveNote(section, '要望・特記', app.lighting.notes);
 	}
 	return section;
 }

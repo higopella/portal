@@ -36,18 +36,12 @@
       <!-- PA表 -->
       <section class="card" id="live-pa-section">
         <div class="card-title">PA表</div>
-        <p class="live-note">演者は左から下手→上手の順に詰めて記入してください。使わない列は空欄のままで構いません。</p>
-        <div id="pa-member-list"></div>
         <div class="live-form-group live-field-gap">
           <label class="live-label">マイク持ち込み（パート／マイク名）</label>
           <div id="mic-bring-list"></div>
           <button type="button" id="btn-add-mic-bring" class="btn btn-primary small-action-button">持ち込みを追加</button>
         </div>
-        <div class="live-form-group">
-          <label class="live-label" for="pa-notes">PA 要望・特記欄</label>
-          <textarea id="pa-notes" class="live-textarea" rows="3" maxlength="2000"></textarea>
-        </div>
-        <div id="pa-song-notes"></div>
+        <div id="pa-song-blocks"></div>
       </section>
 
       <!-- 照明表 -->
@@ -55,11 +49,6 @@
         <div class="card-title">照明表</div>
         <div id="light-section-body">
           <p class="live-note">曲の情報を入力してください。</p>
-
-          <div class="live-form-group">
-            <label class="live-label" for="light-notes">照明 要望・特記欄</label>
-            <textarea id="light-notes" class="live-textarea" rows="3" maxlength="2000"></textarea>
-          </div>
           <div id="light-song-detail-list"></div>
         </div>
       </section>
