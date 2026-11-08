@@ -134,12 +134,13 @@ async function verifySignupOtp(event) {
   const schoolEmail = document.getElementById('signup-school-email').value.trim();
   const nickname = document.getElementById('signup-nickname').value.trim();
   const otp = document.getElementById('signup-otp').value.trim();
+  const inviteCode = isExternalMode ? document.getElementById('signup-invite-code').value.trim() : '';
   const idToken = getCurrentIdToken();
   if (!idToken) return;
 
   await withButtonLoading(button, async () => {
     try {
-      const result = await callGasApi('verifyOtp', { idToken, schoolEmail, nickname, otp });
+      const result = await callGasApi('verifyOtp', { idToken, schoolEmail, nickname, otp, inviteCode });
       if (!result.success) {
         if (result.code === 'USER_ALREADY_EXISTS' && await finalizeSignupAsLoggedIn()) return;
         showToast(result.error || '確認コードを確認できません', 'error');
