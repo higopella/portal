@@ -133,9 +133,24 @@ function tourShowStep(index) {
 	root.querySelector('.tour-text').textContent = step.text;
 	root.querySelector('.tour-prev').disabled = index === 0;
 	root.querySelector('.tour-next').textContent = index === tourActiveSteps.length - 1 ? 'はじめる' : '次へ';
-	if (step.el && step.el.scrollIntoView) step.el.scrollIntoView({ block: 'start', behavior: 'auto' });
+	tourScrollToStep(step);
 	requestAnimationFrame(() => tourPlaceBubble(step));
 	root.querySelector('.tour-next').focus();
+}
+
+function tourScrollToStep(step) {
+	if (!step || !step.el) return;
+	const headerHeight = document.querySelector('.site-header')?.offsetHeight || 0;
+	const offset = headerHeight + 12;
+	const rect = step.el.getBoundingClientRect();
+	const vw = window.innerWidth;
+	const vh = window.innerHeight;
+	// 既に十分見えている場合はスクロールしない
+	const visible = rect.top >= offset && rect.bottom <= vh - 8 && rect.left >= 0 && rect.right <= vw;
+	if (visible) return;
+	// 上端がヘッダーに隠れる場合はオフセット分だけ上にスクロール
+	const targetTop = window.scrollY + rect.top - offset;
+	window.scrollTo({ top: Math.max(0, targetTop), behavior: 'auto' });
 }
 
 function tourPlaceBubble(step) {
