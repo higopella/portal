@@ -145,10 +145,13 @@ function tourScrollToStep(step) {
 	const rect = step.el.getBoundingClientRect();
 	const vw = window.innerWidth;
 	const vh = window.innerHeight;
-	// 既に十分見えている場合はスクロールしない
+	// 枠が全て見えている場合は center で表示
 	const visible = rect.top >= offset && rect.bottom <= vh - 8 && rect.left >= 0 && rect.right <= vw;
-	if (visible) return;
-	// 上端がヘッダーに隠れる場合はオフセット分だけ上にスクロール
+	if (visible) {
+		step.el.scrollIntoView({ block: 'center', behavior: 'auto' });
+		return;
+	}
+	// 見切れている場合は最上部に表示（ヘッダーに隠れないようオフセット付き）
 	const targetTop = window.scrollY + rect.top - offset;
 	window.scrollTo({ top: Math.max(0, targetTop), behavior: 'auto' });
 }
@@ -159,6 +162,8 @@ function tourPlaceBubble(step) {
 	const bub = root.querySelector('.tour-bub');
 	const vw = window.innerWidth;
 	const vh = window.innerHeight;
+	const headerHeight = document.querySelector('.site-header')?.offsetHeight || 0;
+	const offset = headerHeight + 12;
 	const pad = 6;
 	const rect = step && step.el ? step.el.getBoundingClientRect() : { left: vw / 2, top: vh / 2, width: 0, height: 0, right: vw / 2, bottom: vh / 2 };
 	const x0 = Math.max(4, rect.left - pad);
@@ -169,7 +174,15 @@ function tourPlaceBubble(step) {
 	const bw = bub.offsetWidth;
 	const bh = bub.offsetHeight;
 	const gap = 12;
-	let top = y1 + gap <= vh - bh - 8 ? y1 + gap : y0 - gap - bh >= 8 ? y0 - gap - bh : Math.max(8, vh - bh - 8);
+	// 枠の下部が見切れる場合は上部に表示
+	let top;
+	if (rect.bottom + gap + bh <= vh - 8) {
+		top = rect.bottom + gap;
+	} else if (rect.top - gap - bh >= offset) {
+		top = rect.top - gap - bh;
+	} else {
+		top = Math.max(offset, vh - bh - 8);
+	}
 	let left = Math.min(Math.max(8, x0 + (x1 - x0) / 2 - bw / 2), vw - bw - 8);
 	Object.assign(bub.style, { top: top + 'px', left: left + 'px' });
 }
