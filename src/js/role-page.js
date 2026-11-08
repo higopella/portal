@@ -592,7 +592,6 @@ function buildUserMetaLines(user) {
 	if (identity) lines.push(identity);
 	const contact = [
 		user.studentId ? `学籍番号: ${user.studentId}` : '',
-		user.phone ? `電話: ${user.phone}` : '',
 		user.favoriteArtist ? `好きな: ${user.favoriteArtist}` : ''
 	].filter(Boolean).join(' / ');
 	if (contact) lines.push(contact);

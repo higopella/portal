@@ -26,9 +26,9 @@
       <form id="signup-profile-form" class="is-hidden">
         <p class="signup-description">必要事項を入力してください（一部は教務に提出する資料に使用します）</p>
         <label class="signup-label" for="signup-full-name">氏名</label>
-        <input type="text" id="signup-full-name" class="signup-input" autocomplete="name" maxlength="50" required>
+        <input type="text" id="signup-full-name" class="signup-input" autocomplete="name" maxlength="20" placeholder="例: 肥後太郎" required>
         <label class="signup-label" for="signup-furigana">ふりがな</label>
-        <input type="text" id="signup-furigana" class="signup-input" maxlength="50" placeholder="例: やまだたろう" required>
+        <input type="text" id="signup-furigana" class="signup-input" maxlength="20" placeholder="例: ひごたろう" required>
         <label class="signup-label" for="signup-nickname">ニックネーム</label>
         <input type="text" id="signup-nickname" class="signup-input" autocomplete="nickname" maxlength="10" required>
         <label class="signup-label" for="signup-school-email" id="signup-school-email-label">大学メールアドレス</label>
@@ -39,12 +39,10 @@
           <input type="text" id="signup-invite-code" class="signup-input" maxlength="20" placeholder="発行された招待コード">
           <p class="signup-hint">外部の方は学籍番号・学部・学科は任意です</p>
         </div>
-        <label class="signup-label" for="signup-phone">電話番号</label>
-        <input type="tel" id="signup-phone" class="signup-input" autocomplete="tel" inputmode="tel" maxlength="15" placeholder="例: 090-1234-5678" required>
         <label class="signup-label" for="signup-student-id">学籍番号</label>
-        <input type="text" id="signup-student-id" class="signup-input" maxlength="20" placeholder="例: 24AB123C" required>
+        <input type="text" id="signup-student-id" class="signup-input" maxlength="20" placeholder="例: 123T4567" required>
         <label class="signup-label" for="signup-generation">期（自分の所属期）</label>
-        <input type="number" id="signup-generation" class="signup-input" inputmode="numeric" min="1" max="99" step="1" placeholder="例: 25" required>
+        <input type="number" id="signup-generation" class="signup-input" inputmode="numeric" min="1" max="99" step="1" placeholder="例: 7" required>
         <label class="signup-label" for="signup-faculty">学部</label>
         <select id="signup-faculty" class="signup-input signup-select" required>
           <option value="" disabled selected>選択してください</option>
@@ -76,9 +74,9 @@
           </optgroup>
         </select>
         <label class="signup-label" for="signup-department">学科</label>
-        <input type="text" id="signup-department" class="signup-input" maxlength="50" required>
+        <input type="text" id="signup-department" class="signup-input" maxlength="10" required>
         <label class="signup-label" for="signup-favorite-artist">好きなアーティスト / ジャンル<span class="signup-optional">（任意）</span></label>
-        <input type="text" id="signup-favorite-artist" class="signup-input" maxlength="100" placeholder="例: 60〜70年代ロック、アカペラ">
+        <input type="text" id="signup-favorite-artist" class="signup-input" maxlength="20" placeholder="milet/J-POP">
         <button type="submit" id="btn-request-otp" class="btn btn-primary signup-submit">パスキーを送信</button>
       </form>
 

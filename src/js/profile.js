@@ -22,7 +22,6 @@ async function loadProfile() {
     document.getElementById('profile-full-name').value = profile.fullName || '';
     document.getElementById('profile-furigana').value = profile.furigana || '';
     document.getElementById('profile-nickname').value = profile.nickname || '';
-    document.getElementById('profile-phone').value = profile.phone || '';
     document.getElementById('profile-student-id').value = profile.studentId || '';
     document.getElementById('profile-generation').value = profile.generation || '';
     document.getElementById('profile-faculty').value = profile.faculty || '';
@@ -42,7 +41,6 @@ async function saveProfile(event) {
     fullName: document.getElementById('profile-full-name').value.trim(),
     furigana: document.getElementById('profile-furigana').value.trim(),
     nickname: document.getElementById('profile-nickname').value.trim(),
-    phone: document.getElementById('profile-phone').value.trim(),
     studentId: document.getElementById('profile-student-id').value.trim(),
     generation: Number(document.getElementById('profile-generation').value),
     faculty: document.getElementById('profile-faculty').value,
@@ -74,7 +72,6 @@ function validateProfile(profile) {
   if (!profile.fullName || profile.fullName.length > 50) return '氏名は1〜50文字で入力してください';
   if (!/^[ぁ-んァ-ヶー\s　]+$/.test(profile.furigana) || profile.furigana.length > 50) return 'ふりがなは1〜50文字のかなで入力してください';
   if (!profile.nickname || profile.nickname.length > 10) return 'ニックネームは1〜10文字で入力してください';
-  if (!/^[0-9-]{10,15}$/.test(profile.phone)) return '電話番号は10〜15文字の数字とハイフンで入力してください';
   if (!/^[A-Za-z0-9]{4,20}$/.test(profile.studentId)) return '学籍番号は4〜20文字の英数字で入力してください';
   if (!Number.isInteger(profile.generation) || profile.generation < 1 || profile.generation > 99) return '期は1〜99の整数で入力してください';
   if (!profile.faculty) return '学部を選択してください';

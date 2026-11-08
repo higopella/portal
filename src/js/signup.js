@@ -83,7 +83,6 @@ async function requestSignupOtp(event) {
     furigana: document.getElementById('signup-furigana').value.trim(),
     nickname: document.getElementById('signup-nickname').value.trim(),
     schoolEmail: document.getElementById('signup-school-email').value.trim(),
-    phone: document.getElementById('signup-phone').value.trim(),
     studentId: document.getElementById('signup-student-id').value.trim(),
     generation: Number(document.getElementById('signup-generation').value),
     faculty: document.getElementById('signup-faculty').value,
@@ -120,7 +119,6 @@ function validateSignupProfile(profile, isExternal) {
   if (!profile.nickname || profile.nickname.length > 10) return 'ニックネームは1〜10文字で入力してください';
   if (!profile.schoolEmail) return isExternal ? 'メールアドレスを入力してください' : '大学メールアドレスを入力してください';
   if (isExternal && !profile.inviteCode) return '招待コードを入力してください';
-  if (!/^[0-9-]{10,15}$/.test(profile.phone)) return '電話番号は10〜15文字の数字とハイフンで入力してください';
   if (profile.studentId && !/^[A-Za-z0-9]{4,20}$/.test(profile.studentId)) return '学籍番号は4〜20文字の英数字で入力してください';
   if (!isExternal && !profile.studentId) return '学籍番号を入力してください';
   if (!Number.isInteger(profile.generation) || profile.generation < 1 || profile.generation > 99) return '期は1〜99の整数で入力してください';
