@@ -55,8 +55,8 @@
 		}
 		.log-scroll { max-height: 480px; overflow-y: auto; }
 		.log-scroll thead th { position: sticky; top: 0; z-index: 1; }
-		.admin-tabs { display: flex; gap: 6px; }
-		.admin-tab { flex: 1; padding: 10px 4px; border: 1px solid var(--border); border-radius: var(--radius); background-color: var(--card); color: var(--text-sub); font-size: 0.8rem; font-weight: bold; cursor: pointer; white-space: nowrap; text-align: center; }
+		.admin-tabs { display: flex; flex-wrap: nowrap; gap: 6px; overflow-x: auto; max-width: 100%; min-width: 0; padding-right: 8px; -webkit-overflow-scrolling: touch; }
+		.admin-tab { flex: 0 0 auto; padding: 10px 4px; border: 1px solid var(--border); border-radius: var(--radius); background-color: var(--card); color: var(--text-sub); font-size: 0.8rem; font-weight: bold; cursor: pointer; white-space: nowrap; text-align: center; }
 		.admin-tab.active { background-color: var(--primary); color: #fff; border-color: var(--primary); }
 		@media (max-width: 360px) {
 			.admin-tab { font-size: 0.7rem; padding: 8px 2px; }

@@ -104,12 +104,14 @@ function closeModal() {
 }
 
 // カレンダー表示の共通規格（Home・予約ページで共有）
-// 1時間あたりの高さ（ズームで可変）
+// 1時間あたりの高さ（ズームで可変・初期値は初期化時に画面サイズから設定）
 let schedulePixelsPerMinute = 2;
-const SCHEDULE_MIN_PIXELS_PER_MINUTE = 36 / 60;
-const SCHEDULE_MAX_PIXELS_PER_MINUTE = 160 / 60;
 const SCHEDULE_DAY_START_MINUTES = 7 * 60;
 const SCHEDULE_DAY_END_MINUTES = 21 * 60;
+const SCHEDULE_TOTAL_HOURS = (SCHEDULE_DAY_END_MINUTES - SCHEDULE_DAY_START_MINUTES) / 60;
+const SCHEDULE_MOBILE_VISIBLE_HOURS = 9;
+let scheduleMinPixelsPerMinute = 36 / 60;
+const SCHEDULE_MAX_PIXELS_PER_MINUTE = 160 / 60;
 const SCHEDULE_LANE_LABEL_WIDTH = 34;
 const SCHEDULE_ROOM_ORDER = { "①": 0, "②": 1, "③": 2, "Main": 3 };
 const SCHEDULE_ROOM_NAMES = { "①": "部室", "②": "機材庫", "③": "教室", "Main": "メイン" };
@@ -121,6 +123,28 @@ function getScheduleMinutesFromTime(value) {
 
 function getScheduleRoomPriority(room) {
   return Object.prototype.hasOwnProperty.call(SCHEDULE_ROOM_ORDER, room) ? SCHEDULE_ROOM_ORDER[room] : 99;
+}
+
+/* 有効高さから初期値・下限を計算 */
+function computeScheduleHeightLimits(container) {
+  if (!container) return { defaultPixels: 2, minPixels: 36 / 60 };
+  const headerHeight = container.querySelector('.schedule-day-title')?.offsetHeight || 44;
+  const isMobile = window.matchMedia('(max-width: 760px)').matches;
+  const tabsHeight = isMobile ? (document.querySelector('.schedule-view-tabs')?.offsetHeight || 52) + 12 : 0;
+  const availableHeight = Math.max(container.clientHeight - headerHeight - tabsHeight, 100);
+  const defaultHourHeight = availableHeight / (isMobile ? SCHEDULE_MOBILE_VISIBLE_HOURS : SCHEDULE_TOTAL_HOURS);
+  const minHourHeight = availableHeight / SCHEDULE_TOTAL_HOURS;
+  return { defaultPixels: defaultHourHeight / 60, minPixels: minHourHeight / 60 };
+}
+
+function applyScheduleHeightLimits(container, setDefault) {
+  const limits = computeScheduleHeightLimits(container);
+  scheduleMinPixelsPerMinute = limits.minPixels;
+  if (setDefault) {
+    schedulePixelsPerMinute = limits.defaultPixels;
+  } else if (schedulePixelsPerMinute < scheduleMinPixelsPerMinute) {
+    schedulePixelsPerMinute = scheduleMinPixelsPerMinute;
+  }
 }
 
 // 時間帯ごとの重なりだけでレーンを決め、空いている時間帯は予約枠を広げる
@@ -254,7 +278,7 @@ function scheduleRelayoutZoom(container) {
 }
 
 function scheduleZoomAt(container, ratio, clientX, clientY) {
-  const next = Math.min(SCHEDULE_MAX_PIXELS_PER_MINUTE, Math.max(SCHEDULE_MIN_PIXELS_PER_MINUTE, schedulePixelsPerMinute * ratio));
+  const next = Math.min(SCHEDULE_MAX_PIXELS_PER_MINUTE, Math.max(scheduleMinPixelsPerMinute, schedulePixelsPerMinute * ratio));
   if (next === schedulePixelsPerMinute) return;
   // ズーム中心の時刻を記録
   const rect = container.getBoundingClientRect();
@@ -292,7 +316,7 @@ function initScheduleZoom(container) {
       const ratio = distance / pinchStartDistance;
       const midX = (a.clientX + b.clientX) / 2;
       const midY = (a.clientY + b.clientY) / 2;
-      const next = Math.min(SCHEDULE_MAX_PIXELS_PER_MINUTE, Math.max(SCHEDULE_MIN_PIXELS_PER_MINUTE, pinchStartPixels * ratio));
+      const next = Math.min(SCHEDULE_MAX_PIXELS_PER_MINUTE, Math.max(scheduleMinPixelsPerMinute, pinchStartPixels * ratio));
       if (next !== schedulePixelsPerMinute) {
         const rect = scrollContainer.getBoundingClientRect();
         const anchorY = midY - rect.top;
@@ -315,6 +339,12 @@ function initScheduleZoom(container) {
     const ratio = e.deltaY < 0 ? 1.08 : 1 / 1.08;
     scheduleZoomAt(scrollContainer, ratio, e.clientX, e.clientY);
   }, { passive: false });
+
+  // リサイズ時に下限を下回らないよう補正
+  window.addEventListener('resize', () => {
+    applyScheduleHeightLimits(scrollContainer, false);
+    scheduleRelayoutZoom(scrollContainer);
+  });
 }
 
 function getScheduleCalendarDates(view, anchorDate) {
@@ -453,6 +483,8 @@ function renderScheduleCalendar(container, events, dates, view, createEventEleme
   container.appendChild(scrollLayout);
   startScheduleCurrentTimeUpdates();
   initScheduleZoom(container);
+  applyScheduleHeightLimits(container, true);
+  scheduleRelayoutZoom(container);
   requestAnimationFrame(() => {
     scrollScheduleToToday(container, className);
     scrollScheduleToCurrentTime(container);
