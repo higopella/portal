@@ -114,17 +114,17 @@ async function requestSignupOtp(event) {
 }
 
 function validateSignupProfile(profile, isExternal) {
-  if (!profile.fullName || profile.fullName.length > 50) return '氏名は1〜50文字で入力してください';
-  if (!/^[ぁ-んァ-ヶー\s　]+$/.test(profile.furigana) || profile.furigana.length > 50) return 'ふりがなは1〜50文字のかなで入力してください';
+  if (!profile.fullName || profile.fullName.length > 20) return '氏名は1〜20文字で入力してください';
+  if (!/^[ぁ-んァ-ヶー\s　]+$/.test(profile.furigana) || profile.furigana.length > 20) return 'ふりがなは1〜20文字のかなで入力してください';
   if (!profile.nickname || profile.nickname.length > 10) return 'ニックネームは1〜10文字で入力してください';
   if (!profile.schoolEmail) return isExternal ? 'メールアドレスを入力してください' : '大学メールアドレスを入力してください';
   if (isExternal && !profile.inviteCode) return '招待コードを入力してください';
-  if (profile.studentId && !/^[A-Za-z0-9]{4,20}$/.test(profile.studentId)) return '学籍番号は4〜20文字の英数字で入力してください';
+  if (profile.studentId && !/^[A-Za-z0-9]{8,10}$/.test(profile.studentId)) return '学籍番号は8〜10文字の英数字で入力してください';
   if (!isExternal && !profile.studentId) return '学籍番号を入力してください';
   if (!Number.isInteger(profile.generation) || profile.generation < 1 || profile.generation > 99) return '期は1〜99の整数で入力してください';
   if (!isExternal && !profile.faculty) return '学部を選択してください';
-  if (profile.department.length > 50 || (!isExternal && !profile.department)) return '学科は1〜50文字で入力してください';
-  if (profile.favoriteArtist.length > 100) return '好きなアーティスト/ジャンルは100文字以内で入力してください';
+  if (profile.department.length > 10 || (!isExternal && !profile.department)) return '学科は1〜10文字で入力してください';
+  if (profile.favoriteArtist.length > 20) return '好きなアーティスト/ジャンルは１〜20文字以内で入力してください';
   return null;
 }
 
