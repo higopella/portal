@@ -270,11 +270,13 @@ function scheduleZoomAt(container, ratio, clientX, clientY) {
 function initScheduleZoom(container) {
   if (!container || container.dataset.scheduleZoomInit) return;
   container.dataset.scheduleZoomInit = '1';
+  // スクロールはカレンダー内部のコンテナに限定し、外枠は動かさない
+  const scrollContainer = container.querySelector('[data-schedule-container]') || container;
 
   let pinchStartDistance = 0;
   let pinchStartPixels = 0;
 
-  container.addEventListener('touchstart', (e) => {
+  scrollContainer.addEventListener('touchstart', (e) => {
     if (e.touches.length === 2) {
       const [a, b] = e.touches;
       pinchStartDistance = Math.hypot(a.clientX - b.clientX, a.clientY - b.clientY);
@@ -282,7 +284,7 @@ function initScheduleZoom(container) {
     }
   }, { passive: true });
 
-  container.addEventListener('touchmove', (e) => {
+  scrollContainer.addEventListener('touchmove', (e) => {
     if (e.touches.length === 2 && pinchStartDistance > 0) {
       e.preventDefault();
       const [a, b] = e.touches;
@@ -292,26 +294,26 @@ function initScheduleZoom(container) {
       const midY = (a.clientY + b.clientY) / 2;
       const next = Math.min(SCHEDULE_MAX_PIXELS_PER_MINUTE, Math.max(SCHEDULE_MIN_PIXELS_PER_MINUTE, pinchStartPixels * ratio));
       if (next !== schedulePixelsPerMinute) {
-        const rect = container.getBoundingClientRect();
+        const rect = scrollContainer.getBoundingClientRect();
         const anchorY = midY - rect.top;
-        const beforeMinutes = SCHEDULE_DAY_START_MINUTES + (container.scrollTop + anchorY) / schedulePixelsPerMinute;
+        const beforeMinutes = SCHEDULE_DAY_START_MINUTES + (scrollContainer.scrollTop + anchorY) / schedulePixelsPerMinute;
         schedulePixelsPerMinute = next;
-        scheduleRelayoutZoom(container);
+        scheduleRelayoutZoom(scrollContainer);
         const afterY = (beforeMinutes - SCHEDULE_DAY_START_MINUTES) * schedulePixelsPerMinute;
-        container.scrollTop = Math.max(0, afterY - anchorY);
+        scrollContainer.scrollTop = Math.max(0, afterY - anchorY);
       }
     }
   }, { passive: false });
 
-  container.addEventListener('touchend', (e) => {
+  scrollContainer.addEventListener('touchend', (e) => {
     if (e.touches.length < 2) pinchStartDistance = 0;
   }, { passive: true });
 
-  container.addEventListener('wheel', (e) => {
+  scrollContainer.addEventListener('wheel', (e) => {
     if (!e.ctrlKey) return;
     e.preventDefault();
     const ratio = e.deltaY < 0 ? 1.08 : 1 / 1.08;
-    scheduleZoomAt(container, ratio, e.clientX, e.clientY);
+    scheduleZoomAt(scrollContainer, ratio, e.clientX, e.clientY);
   }, { passive: false });
 }
 
