@@ -4,7 +4,7 @@
 
 initCommonLayout('live');
 
-const PA_PARTS = ['1st', '2nd', '3rd', '4th','lead', 'bass', 'perc.'];
+const PA_PARTS = ['1st', '2nd', '3rd', '4th','Lead', 'Bass', 'Perc.'];
 const LIGHT_TEMPOS = ['アップテンポ', 'ミドルテンポ', 'スローテンポ'];
 const LIGHT_COLORS = ['白', '赤', '青', '黄', '緑', '紫', 'ピンク', 'オレンジ'];
 const MAX_PA_MEMBERS = 7;
@@ -327,11 +327,12 @@ async function handleSubmitLiveApplication(e) {
 	let memberError = '';
 	Array.from(document.querySelectorAll('#pa-song-blocks .pa-song-block')).forEach((block, index) => {
 		const members = [];
-		block.querySelectorAll('.live-member-col').forEach((col) => {
+		block.querySelectorAll('.live-member-col').forEach((col, colIndex) => {
 			const name = col.querySelector('.live-member-name').value.trim();
 			const part = col.querySelector('.live-member-part').value;
-			if (!name) return;
-			if (!part) memberError = `${index + 1}曲目の演者「${name}」のパートを選択してください`;
+			if (!name && !part) return;
+			if (part && !name) memberError = `${index + 1}曲目の${colIndex + 1}列目の名前を入力してください`;
+			if (name && !part) memberError = `${index + 1}曲目の演者「${name}」のパートを選択してください`;
 			members.push({ name, part });
 		});
 		paSongs.push({

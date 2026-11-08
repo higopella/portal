@@ -918,9 +918,9 @@ const PA_PART_COLORS = {
 	'2nd': '#ffea83',
 	'3rd': '#ffffff',
 	'4th': '#ffbd6c',
-	'lead': '#baf9bf',
-	'bass': '#bad3ff',
-	'perc.': '#d0a5fd'
+	'Lead': '#baf9bf',
+	'Bass': '#bad3ff',
+	'Perc.': '#d0a5fd'
 };
 
 function buildPaMemberTable(parent, members) {

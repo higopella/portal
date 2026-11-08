@@ -141,12 +141,15 @@ body {
 }
 
 .site-logo {
-  font-size: 1.1rem;
-  font-weight: 700;
-  color: var(--primary-dark);
   text-decoration: none;
   display: flex;
   align-items: center;
+}
+
+.site-logo-image {
+  height: 32px;
+  width: auto;
+  display: block;
 }
 
 .site-refresh-button {

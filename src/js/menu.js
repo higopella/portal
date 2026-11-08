@@ -19,8 +19,8 @@ function initCommonLayout(activeKey = "") {
   const layoutHtml = `
     <header class="site-header">
       <button type="button" class="btn-menu" id="btn-open-drawer" aria-label="メニューを開く">☰</button>
-      <a href="${basePath}" class="site-logo">
-        <span>Higo-Pella Portal</span>
+      <a href="${basePath}" class="site-logo" aria-label="Higo-Pella Portal ホームへ">
+        <img src="${basePath}src/home.png" alt="Higo-Pella Portal" class="site-logo-image">
       </a>
       <button type="button" class="site-tour-button" id="btn-tour" aria-label="使い方の案内">？</button>
       <button type="button" class="site-refresh-button" id="btn-site-refresh" aria-label="ページを更新">更新</button>
