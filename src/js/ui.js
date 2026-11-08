@@ -104,7 +104,10 @@ function closeModal() {
 }
 
 // カレンダー表示の共通規格（Home・予約ページで共有）
-const SCHEDULE_PIXELS_PER_MINUTE = 2;
+// 1時間あたりの高さ（ズームで可変）
+let schedulePixelsPerMinute = 2;
+const SCHEDULE_MIN_PIXELS_PER_MINUTE = 36 / 60;
+const SCHEDULE_MAX_PIXELS_PER_MINUTE = 160 / 60;
 const SCHEDULE_DAY_START_MINUTES = 7 * 60;
 const SCHEDULE_DAY_END_MINUTES = 21 * 60;
 const SCHEDULE_LANE_LABEL_WIDTH = 34;
@@ -137,8 +140,10 @@ function layoutScheduleTimedEvents(events, timeline, createEventElement) {
     const laneIndex = overlappingRooms.indexOf(event.room);
     const laneCount = Math.max(overlappingRooms.length, 1);
     const element = createEventElement(event, false);
-    element.style.top = `${(start - SCHEDULE_DAY_START_MINUTES) * SCHEDULE_PIXELS_PER_MINUTE}px`;
-    element.style.height = `${Math.max((end - start) * SCHEDULE_PIXELS_PER_MINUTE, 20)}px`;
+    element.dataset.startTime = event.startTime;
+    element.dataset.endTime = event.endTime;
+    element.style.top = `${(start - SCHEDULE_DAY_START_MINUTES) * schedulePixelsPerMinute}px`;
+    element.style.height = `${Math.max((end - start) * schedulePixelsPerMinute, 20)}px`;
     element.style.left = `${(laneIndex / laneCount) * 100}%`;
     element.style.width = `calc(${100 / laneCount}% - 2px)`;
     timeline.appendChild(element);
@@ -148,11 +153,11 @@ function layoutScheduleTimedEvents(events, timeline, createEventElement) {
 function buildScheduleTimeline(className, hourLineClassName, date, showLabels = false) {
   const timeline = document.createElement("div");
   timeline.className = className;
-  timeline.style.height = `${(SCHEDULE_DAY_END_MINUTES - SCHEDULE_DAY_START_MINUTES) * SCHEDULE_PIXELS_PER_MINUTE}px`;
+  timeline.style.height = `${(SCHEDULE_DAY_END_MINUTES - SCHEDULE_DAY_START_MINUTES) * schedulePixelsPerMinute}px`;
   for (let minutes = SCHEDULE_DAY_START_MINUTES; minutes < SCHEDULE_DAY_END_MINUTES; minutes += 60) {
     const hourLine = document.createElement("div");
     hourLine.className = hourLineClassName;
-    hourLine.style.height = `${60 * SCHEDULE_PIXELS_PER_MINUTE}px`;
+    hourLine.style.height = `${60 * schedulePixelsPerMinute}px`;
     if (showLabels) hourLine.textContent = String(Math.floor(minutes / 60));
     timeline.appendChild(hourLine);
   }
@@ -198,7 +203,7 @@ function updateScheduleCurrentTimeIndicators() {
   const currentMinutes = now.getHours() * 60 + now.getMinutes();
   const isVisible = currentMinutes >= SCHEDULE_DAY_START_MINUTES && currentMinutes <= SCHEDULE_DAY_END_MINUTES;
   document.querySelectorAll(".schedule-current-time-line").forEach((indicator) => {
-    indicator.style.top = `${(currentMinutes - SCHEDULE_DAY_START_MINUTES) * SCHEDULE_PIXELS_PER_MINUTE}px`;
+    indicator.style.top = `${(currentMinutes - SCHEDULE_DAY_START_MINUTES) * schedulePixelsPerMinute}px`;
     indicator.hidden = !isVisible;
   });
 }
@@ -225,6 +230,89 @@ function startScheduleCurrentTimeUpdates() {
   updateScheduleCurrentTimeIndicators();
   if (window.scheduleCurrentTimeTimer) clearInterval(window.scheduleCurrentTimeTimer);
   window.scheduleCurrentTimeTimer = setInterval(updateScheduleCurrentTimeIndicators, 60 * 1000);
+}
+
+/* ---------- 縦軸ズーム（ピンチ・Ctrl+ホイール） ---------- */
+
+function scheduleRelayoutZoom(container) {
+  const timelines = container.querySelectorAll('.schedule-timeline, .schedule-time-axis-timeline');
+  timelines.forEach((timeline) => {
+    timeline.style.height = `${(SCHEDULE_DAY_END_MINUTES - SCHEDULE_DAY_START_MINUTES) * schedulePixelsPerMinute}px`;
+    timeline.querySelectorAll(':scope > div[class*="hour-line"]').forEach((line) => {
+      if (line.classList.contains('schedule-time-axis-end-hour')) return;
+      line.style.height = `${60 * schedulePixelsPerMinute}px`;
+    });
+    timeline.querySelectorAll('.schedule-event').forEach((eventEl) => {
+      const start = getScheduleMinutesFromTime(eventEl.dataset.startTime);
+      const end = getScheduleMinutesFromTime(eventEl.dataset.endTime);
+      if (!Number.isFinite(start) || !Number.isFinite(end)) return;
+      eventEl.style.top = `${(start - SCHEDULE_DAY_START_MINUTES) * schedulePixelsPerMinute}px`;
+      eventEl.style.height = `${Math.max((end - start) * schedulePixelsPerMinute, 20)}px`;
+    });
+  });
+  updateScheduleCurrentTimeIndicators();
+}
+
+function scheduleZoomAt(container, ratio, clientX, clientY) {
+  const next = Math.min(SCHEDULE_MAX_PIXELS_PER_MINUTE, Math.max(SCHEDULE_MIN_PIXELS_PER_MINUTE, schedulePixelsPerMinute * ratio));
+  if (next === schedulePixelsPerMinute) return;
+  // ズーム中心の時刻を記録
+  const rect = container.getBoundingClientRect();
+  const anchorY = clientY - rect.top;
+  const beforeMinutes = SCHEDULE_DAY_START_MINUTES + (container.scrollTop + anchorY) / schedulePixelsPerMinute;
+  schedulePixelsPerMinute = next;
+  scheduleRelayoutZoom(container);
+  // 同じ時刻が同じ画面位置に来るようスクロール補正
+  const afterY = (beforeMinutes - SCHEDULE_DAY_START_MINUTES) * schedulePixelsPerMinute;
+  container.scrollTop = Math.max(0, afterY - anchorY);
+}
+
+function initScheduleZoom(container) {
+  if (!container || container.dataset.scheduleZoomInit) return;
+  container.dataset.scheduleZoomInit = '1';
+
+  let pinchStartDistance = 0;
+  let pinchStartPixels = 0;
+
+  container.addEventListener('touchstart', (e) => {
+    if (e.touches.length === 2) {
+      const [a, b] = e.touches;
+      pinchStartDistance = Math.hypot(a.clientX - b.clientX, a.clientY - b.clientY);
+      pinchStartPixels = schedulePixelsPerMinute;
+    }
+  }, { passive: true });
+
+  container.addEventListener('touchmove', (e) => {
+    if (e.touches.length === 2 && pinchStartDistance > 0) {
+      e.preventDefault();
+      const [a, b] = e.touches;
+      const distance = Math.hypot(a.clientX - b.clientX, a.clientY - b.clientY);
+      const ratio = distance / pinchStartDistance;
+      const midX = (a.clientX + b.clientX) / 2;
+      const midY = (a.clientY + b.clientY) / 2;
+      const next = Math.min(SCHEDULE_MAX_PIXELS_PER_MINUTE, Math.max(SCHEDULE_MIN_PIXELS_PER_MINUTE, pinchStartPixels * ratio));
+      if (next !== schedulePixelsPerMinute) {
+        const rect = container.getBoundingClientRect();
+        const anchorY = midY - rect.top;
+        const beforeMinutes = SCHEDULE_DAY_START_MINUTES + (container.scrollTop + anchorY) / schedulePixelsPerMinute;
+        schedulePixelsPerMinute = next;
+        scheduleRelayoutZoom(container);
+        const afterY = (beforeMinutes - SCHEDULE_DAY_START_MINUTES) * schedulePixelsPerMinute;
+        container.scrollTop = Math.max(0, afterY - anchorY);
+      }
+    }
+  }, { passive: false });
+
+  container.addEventListener('touchend', (e) => {
+    if (e.touches.length < 2) pinchStartDistance = 0;
+  }, { passive: true });
+
+  container.addEventListener('wheel', (e) => {
+    if (!e.ctrlKey) return;
+    e.preventDefault();
+    const ratio = e.deltaY < 0 ? 1.08 : 1 / 1.08;
+    scheduleZoomAt(container, ratio, e.clientX, e.clientY);
+  }, { passive: false });
 }
 
 function getScheduleCalendarDates(view, anchorDate) {
@@ -362,6 +450,7 @@ function renderScheduleCalendar(container, events, dates, view, createEventEleme
   scrollLayout.appendChild(grid);
   container.appendChild(scrollLayout);
   startScheduleCurrentTimeUpdates();
+  initScheduleZoom(container);
   requestAnimationFrame(() => {
     scrollScheduleToToday(container, className);
     scrollScheduleToCurrentTime(container);
