@@ -133,7 +133,7 @@ function tourShowStep(index) {
 	root.querySelector('.tour-text').textContent = step.text;
 	root.querySelector('.tour-prev').disabled = index === 0;
 	root.querySelector('.tour-next').textContent = index === tourActiveSteps.length - 1 ? 'はじめる' : '次へ';
-	if (step.el && step.el.scrollIntoView) step.el.scrollIntoView({ block: 'center', behavior: 'auto' });
+	if (step.el && step.el.scrollIntoView) step.el.scrollIntoView({ block: 'start', behavior: 'auto' });
 	requestAnimationFrame(() => tourPlaceBubble(step));
 	root.querySelector('.tour-next').focus();
 }
