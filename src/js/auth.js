@@ -216,6 +216,8 @@ async function verifySessionWithGas() {
 function syncDrawerLogoutVisibility() {
   const logoutFooter = document.querySelector('.drawer-footer');
   if (logoutFooter) logoutFooter.hidden = !checkUserLogin();
+  const profileBtn = document.getElementById('btn-profile');
+  if (profileBtn) profileBtn.hidden = !checkUserLogin();
 }
 
 async function requirePageAuthentication() {

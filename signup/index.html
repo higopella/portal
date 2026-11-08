@@ -24,18 +24,66 @@
       </section>
 
       <form id="signup-profile-form" class="is-hidden">
-        <p class="signup-description">大学メールアドレスとニックネームを入力してください</p>
-        <label class="signup-label" for="signup-school-email">大学メールアドレス</label>
-        <input type="email" id="signup-school-email" class="signup-input" autocomplete="email" required>
+        <p class="signup-description">必要事項を入力してください（一部は教務に提出する資料に使用します）</p>
+        <label class="signup-label" for="signup-full-name">氏名</label>
+        <input type="text" id="signup-full-name" class="signup-input" autocomplete="name" maxlength="50" required>
+        <label class="signup-label" for="signup-furigana">ふりがな</label>
+        <input type="text" id="signup-furigana" class="signup-input" maxlength="50" placeholder="例: やまだたろう" required>
         <label class="signup-label" for="signup-nickname">ニックネーム</label>
-        <input type="text" id="signup-nickname" class="signup-input" autocomplete="nickname" maxlength="40" required>
+        <input type="text" id="signup-nickname" class="signup-input" autocomplete="nickname" maxlength="10" required>
+        <label class="signup-label" for="signup-school-email" id="signup-school-email-label">大学メールアドレス</label>
+        <input type="email" id="signup-school-email" class="signup-input" autocomplete="email" required>
+        <button type="button" id="signup-external-toggle" class="signup-external-toggle">熊本大学以外の方はこちら</button>
+        <div id="signup-invite-area" class="is-hidden">
+          <label class="signup-label" for="signup-invite-code">招待コード</label>
+          <input type="text" id="signup-invite-code" class="signup-input" maxlength="20" placeholder="発行された招待コード">
+          <p class="signup-hint">外部の方は学籍番号・学部・学科は任意です</p>
+        </div>
+        <label class="signup-label" for="signup-phone">電話番号</label>
+        <input type="tel" id="signup-phone" class="signup-input" autocomplete="tel" inputmode="tel" maxlength="15" placeholder="例: 090-1234-5678" required>
+        <label class="signup-label" for="signup-student-id">学籍番号</label>
+        <input type="text" id="signup-student-id" class="signup-input" maxlength="20" placeholder="例: 24AB123C" required>
         <label class="signup-label" for="signup-generation">期（自分の所属期）</label>
         <input type="number" id="signup-generation" class="signup-input" inputmode="numeric" min="1" max="99" step="1" placeholder="例: 25" required>
+        <label class="signup-label" for="signup-faculty">学部</label>
+        <select id="signup-faculty" class="signup-input signup-select" required>
+          <option value="" disabled selected>選択してください</option>
+          <optgroup label="学部">
+            <option value="文学部">文学部</option>
+            <option value="教育学部">教育学部</option>
+            <option value="法学部">法学部</option>
+            <option value="理学部">理学部</option>
+            <option value="医学部">医学部</option>
+            <option value="薬学部">薬学部</option>
+            <option value="工学部">工学部</option>
+            <option value="情報融合学環">情報融合学環</option>
+            <option value="共創学環">共創学環</option>
+            <option value="その他">その他(外部)</option>
+          </optgroup>
+          <optgroup label="大学院">
+            <option value="教育学研究科">教育学研究科</option>
+            <option value="人文社会科学研究部">人文社会科学研究部</option>
+            <option value="社会文化科学教育部">社会文化科学教育部</option>
+            <option value="先端科学研究部">先端科学研究部</option>
+            <option value="自然科学教育部">自然科学教育部</option>
+            <option value="生命科学研究部">生命科学研究部</option>
+            <option value="医学教育部">医学教育部</option>
+            <option value="保健学教育部">保健学教育部</option>
+            <option value="薬学教育部">薬学教育部</option>
+            <option value="法曹養成研究科">法曹養成研究科</option>
+            <option value="特別支援教育特別専攻科">特別支援教育特別専攻科</option>
+            <option value="養護教諭特別別科">養護教諭特別別科</option>
+          </optgroup>
+        </select>
+        <label class="signup-label" for="signup-department">学科</label>
+        <input type="text" id="signup-department" class="signup-input" maxlength="50" required>
+        <label class="signup-label" for="signup-favorite-artist">好きなアーティスト / ジャンル<span class="signup-optional">（任意）</span></label>
+        <input type="text" id="signup-favorite-artist" class="signup-input" maxlength="100" placeholder="例: 60〜70年代ロック、アカペラ">
         <button type="submit" id="btn-request-otp" class="btn btn-primary signup-submit">パスキーを送信</button>
       </form>
 
       <form id="signup-otp-form" class="is-hidden">
-        <p class="signup-description">大学メールに届いた6桁の確認コードを入力してください</p>
+        <p class="signup-description">メールに届いた6桁の確認コードを入力してください</p>
         <label class="signup-label" for="signup-otp">確認コード</label>
         <input type="text" id="signup-otp" class="signup-input" inputmode="numeric" autocomplete="one-time-code" pattern="[0-9]{6}" maxlength="6" required>
         <button type="submit" id="btn-verify-otp" class="btn btn-primary signup-submit">登録</button>

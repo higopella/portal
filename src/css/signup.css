@@ -64,6 +64,16 @@
   border-color: var(--primary);
 }
 
+.signup-select {
+  cursor: pointer;
+}
+
+.signup-optional {
+  font-weight: 400;
+  color: var(--text-sub);
+  font-size: 0.75rem;
+}
+
 .signup-submit {
   width: 100%;
 }
@@ -74,4 +84,22 @@
   text-align: center;
   color: var(--primary-dark);
   font-size: 0.9rem;
+}
+
+.signup-external-toggle {
+  display: block;
+  margin: -8px 0 16px;
+  padding: 0;
+  background: none;
+  border: none;
+  color: var(--primary-dark);
+  font-size: 0.82rem;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.signup-hint {
+  margin: -8px 0 16px;
+  color: var(--text-sub);
+  font-size: 0.78rem;
 }

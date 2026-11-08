@@ -23,6 +23,7 @@ function initCommonLayout(activeKey = "") {
         <img src="${basePath}src/home.png" alt="Higo-Pella Portal" class="site-logo-image">
       </a>
       <button type="button" class="site-tour-button" id="btn-tour" aria-label="使い方の案内">？</button>
+      <button type="button" class="site-profile-button" id="btn-profile" aria-label="ユーザー情報の変更" hidden>👤</button>
       <button type="button" class="site-refresh-button" id="btn-site-refresh" aria-label="ページを更新">更新</button>
     </header>
 
@@ -63,7 +64,13 @@ function initCommonLayout(activeKey = "") {
   const drawerOverlay = document.getElementById("drawer-overlay");
   const logoutBtn = document.getElementById("btn-drawer-logout");
   const siteRefreshBtn = document.getElementById("btn-site-refresh");
+  const profileBtn = document.getElementById("btn-profile");
 
+  if (profileBtn) {
+    profileBtn.addEventListener("click", () => {
+      window.location.href = `${basePath}profile/`;
+    });
+  }
   if (openDrawerBtn) {
     openDrawerBtn.addEventListener("click", () => toggleDrawerMenu(true));
   }

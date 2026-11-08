@@ -1,0 +1,22 @@
+.profile-section-title {
+  margin: 0 0 10px;
+  color: var(--primary-dark);
+  font-size: 1rem;
+}
+
+.profile-email-section {
+  margin-top: 28px;
+  padding-top: 18px;
+  border-top: 1px solid var(--border);
+}
+
+.profile-current-email {
+  margin-bottom: 14px;
+  color: var(--text-sub);
+  font-size: 0.85rem;
+  word-break: break-all;
+}
+
+.profile-email-otp-form {
+  margin-top: 12px;
+}

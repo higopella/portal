@@ -43,6 +43,7 @@ function bindRolePageEvents() {
 	});
 	on('btn-admin-search-events', 'click', handleAdminSearchEvents);
 	on('btn-save-rooms', 'click', handleSaveRooms);
+	on('btn-issue-invite', 'click', handleIssueInviteCode);
 	on('btn-create-live', 'click', handleCreateLive);
 	on('btn-print-pa', 'click', (e) => downloadHigopelivePdf('pa', e.currentTarget));
 	on('btn-print-light', 'click', (e) => downloadHigopelivePdf('light', e.currentTarget));
@@ -114,6 +115,7 @@ async function loadDashboardData() {
 	if (document.getElementById('admin-notice-list')) tasks.push(fetchAdminNotices());
 	if (document.getElementById('log-table-body')) tasks.push(fetchLogs());
 	if (document.getElementById('kanbu-user-list')) tasks.push(fetchUsers());
+	if (document.getElementById('invite-code-list')) tasks.push(fetchInviteCodes());
 	if (document.getElementById('kanbu-room-list')) tasks.push(fetchRooms());
 	if (document.getElementById('higopelive-live-list')) tasks.push(fetchHigopeliveLives());
 	if (refreshBtn) {
@@ -419,6 +421,21 @@ async function fetchLogs() {
 const USERS_PER_PAGE = 100;
 let allUsersCache = [];
 let userListPage = 0;
+let userGenerationFilter = '';
+
+function getUserFilteredUsers() {
+	if (!userGenerationFilter) return allUsersCache;
+	return allUsersCache.filter((user) => String(user.generation || '') === userGenerationFilter);
+}
+
+function getUserGenerations() {
+	const set = new Set();
+	allUsersCache.forEach((user) => {
+		const g = String(user.generation || '').trim();
+		if (g) set.add(g);
+	});
+	return Array.from(set).sort((a, b) => Number(b) - Number(a));
+}
 
 async function fetchUsers() {
 	const container = document.getElementById('kanbu-user-list');
@@ -426,6 +443,7 @@ async function fetchUsers() {
 	try {
 		const res = await callGasApi('listUsers');
 		allUsersCache = (res.success && Array.isArray(res.users)) ? res.users : [];
+		renderGenerationFilter();
 		renderUserListPage(container, 0);
 	} catch (e) {
 		container.textContent = '';
@@ -436,19 +454,42 @@ async function fetchUsers() {
 	}
 }
 
+function renderGenerationFilter() {
+	const select = document.getElementById('user-generation-filter');
+	if (!select) return;
+	const current = select.value;
+	select.textContent = '';
+	const all = document.createElement('option');
+	all.value = '';
+	all.textContent = '全ての期';
+	select.appendChild(all);
+	getUserGenerations().forEach((g) => {
+		const option = document.createElement('option');
+		option.value = g;
+		option.textContent = `${g}期`;
+		select.appendChild(option);
+	});
+	select.value = getUserGenerations().indexOf(current) !== -1 ? current : '';
+	select.onchange = () => {
+		userGenerationFilter = select.value;
+		renderUserListPage(document.getElementById('kanbu-user-list'), 0);
+	};
+}
+
 function renderUserListPage(container, page) {
 	container.textContent = '';
-	if (allUsersCache.length === 0) {
+	const filtered = getUserFilteredUsers();
+	if (filtered.length === 0) {
 		const empty = document.createElement('div');
 		empty.className = 'table-message';
-		empty.textContent = 'ユーザーがいません';
+		empty.textContent = userGenerationFilter ? '該当するユーザーがいません' : 'ユーザーがいません';
 		container.appendChild(empty);
 		return;
 	}
-	const totalPages = Math.ceil(allUsersCache.length / USERS_PER_PAGE);
+	const totalPages = Math.ceil(filtered.length / USERS_PER_PAGE);
 	userListPage = Math.max(0, Math.min(page, totalPages - 1));
 	const start = userListPage * USERS_PER_PAGE;
-	allUsersCache.slice(start, start + USERS_PER_PAGE).forEach((user) => container.appendChild(createUserRow(user)));
+	filtered.slice(start, start + USERS_PER_PAGE).forEach((user) => container.appendChild(createUserRow(user)));
 
 	if (totalPages > 1) {
 		const pager = document.createElement('div');
@@ -461,7 +502,7 @@ function renderUserListPage(container, page) {
 		prevBtn.addEventListener('click', () => renderUserListPage(container, userListPage - 1));
 		const info = document.createElement('span');
 		info.className = 'user-pager-info';
-		info.textContent = `${userListPage + 1} / ${totalPages} ページ（全${allUsersCache.length}人）`;
+		info.textContent = `${userListPage + 1} / ${totalPages} ページ（全${filtered.length}人）`;
 		const nextBtn = document.createElement('button');
 		nextBtn.type = 'button';
 		nextBtn.className = 'btn small-action-button';
@@ -475,10 +516,88 @@ function renderUserListPage(container, page) {
 	}
 }
 
+async function fetchInviteCodes() {
+	const container = document.getElementById('invite-code-list');
+	if (!container) return;
+	try {
+		const res = await callGasApi('listInviteCodes');
+		renderInviteCodeList(container, res.success && Array.isArray(res.codes) ? res.codes : []);
+	} catch (e) {
+		container.textContent = '';
+		const error = document.createElement('div');
+		error.className = 'table-message table-message-error';
+		error.textContent = '取得失敗';
+		container.appendChild(error);
+	}
+}
+
+function renderInviteCodeList(container, codes) {
+	container.textContent = '';
+	if (codes.length === 0) {
+		const empty = document.createElement('div');
+		empty.className = 'table-message';
+		empty.textContent = '発行済みのコードはありません';
+		container.appendChild(empty);
+		return;
+	}
+	codes.forEach((item) => {
+		const row = document.createElement('div');
+		row.className = 'invite-code-row';
+		const code = document.createElement('span');
+		code.className = 'invite-code-value';
+		code.textContent = item.code;
+		const meta = document.createElement('span');
+		meta.className = 'invite-code-meta';
+		meta.textContent = `${item.status} / ${item.usedCount}/${item.maxUses}回 / 期限 ${item.expiresAt} / 発行 ${item.issuerNickname}`;
+		row.appendChild(code);
+		row.appendChild(meta);
+		container.appendChild(row);
+	});
+}
+
+async function handleIssueInviteCode() {
+	const btn = document.getElementById('btn-issue-invite');
+	const resultArea = document.getElementById('invite-code-result');
+	await withButtonLoading(btn, async () => {
+		try {
+			const res = await callGasApi('issueInviteCode', {});
+			if (!res.success) {
+				showToast(res.error || '発行に失敗しました', 'error');
+				return;
+			}
+			if (resultArea) {
+				resultArea.classList.remove('is-hidden');
+				resultArea.textContent = `発行しました: ${res.code}（有効期限 ${res.expiresAt}・${res.maxUses}回まで）`;
+			}
+			showToast('招待コードを発行しました');
+			fetchInviteCodes();
+		} catch (e) {
+			showToast('発行に失敗しました', 'error');
+		}
+	}, '発行中');
+}
+
 const ROLE_SELECT_OPTIONS = ['user', 'higopelive', 'kanbu'];
 const ROLE_SORT_ORDER = { user: 0, higopelive: 1, kanbu: 2 };
 const ASSIGNABLE_ROLES = ['kanbu', 'higopelive'];
 const MAX_ROLE_SELECTS = ASSIGNABLE_ROLES.length;
+
+function buildUserMetaLines(user) {
+	const lines = [];
+	const identity = [
+		user.fullName ? (user.furigana ? `${user.fullName}（${user.furigana}）` : user.fullName) : '',
+		user.generation ? `${user.generation}期` : '',
+		[user.faculty, user.department].filter(Boolean).join(' ')
+	].filter(Boolean).join(' / ');
+	if (identity) lines.push(identity);
+	const contact = [
+		user.studentId ? `学籍番号: ${user.studentId}` : '',
+		user.phone ? `電話: ${user.phone}` : '',
+		user.favoriteArtist ? `好きな: ${user.favoriteArtist}` : ''
+	].filter(Boolean).join(' / ');
+	if (contact) lines.push(contact);
+	return lines;
+}
 
 function createUserRow(user) {
 	const item = document.createElement('div');
@@ -494,6 +613,12 @@ function createUserRow(user) {
 	email.textContent = user.schoolEmail;
 	info.appendChild(name);
 	info.appendChild(email);
+	buildUserMetaLines(user).forEach((text) => {
+		const meta = document.createElement('div');
+		meta.className = 'user-item-meta';
+		meta.textContent = text;
+		info.appendChild(meta);
+	});
 	item.appendChild(info);
 
 	const roleArea = document.createElement('div');

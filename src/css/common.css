@@ -111,6 +111,8 @@ body {
 }
 .site-tour-button { position: absolute; top: 11px; right: 76px; z-index: 1; background: none; border: none; font-size: 1rem; color: var(--text-sub); cursor: pointer; padding: 4px 8px; border-radius: var(--radius); }
 .site-tour-button:hover { background: var(--primary-light); color: var(--primary-dark); }
+.site-profile-button { position: absolute; top: 11px; right: 114px; z-index: 1; background: none; border: none; font-size: 1rem; cursor: pointer; padding: 4px 8px; border-radius: var(--radius); }
+.site-profile-button:hover { background: var(--primary-light); }
 
 .card {
   background-color: var(--card);

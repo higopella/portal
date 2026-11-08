@@ -166,9 +166,25 @@
 
     <div class="admin-tab-panel is-hidden" id="tab-users">
 
+    <!-- 招待コード -->
+    <section class="card">
+      <div class="card-title">招待コード（外部大学の方向け）</div>
+      <p class="admin-login-description">外部大学の方が登録する際に必要なコードを発行します（有効期限7日・1回使用）。</p>
+      <div class="notice-form-row">
+        <span></span>
+        <button type="button" id="btn-issue-invite" class="btn btn-primary">招待コードを発行</button>
+      </div>
+      <div id="invite-code-result" class="invite-code-result is-hidden"></div>
+      <div id="invite-code-list" class="invite-code-list">読み込み中...</div>
+    </section>
+
     <!-- ユーザー管理 -->
     <section class="card">
       <div class="card-title">ユーザー管理（ロール設定）</div>
+      <div class="admin-form-group">
+        <label class="admin-form-label" for="user-generation-filter">期で絞り込み</label>
+        <select id="user-generation-filter" class="input-text user-role-select"></select>
+      </div>
       <div id="kanbu-user-list">読み込み中...</div>
     </section>
     </div>

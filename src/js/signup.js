@@ -8,6 +8,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
   const otpForm = document.getElementById('signup-otp-form');
   if (otpForm) otpForm.addEventListener('submit', verifySignupOtp);
+
+  const externalToggle = document.getElementById('signup-external-toggle');
+  if (externalToggle) externalToggle.addEventListener('click', toggleExternalMode);
 });
 
 function initializeSignupGoogleLogin() {
@@ -55,18 +58,49 @@ async function handleSignupGoogleCredential(response) {
   }
 }
 
+let isExternalMode = false;
+
+function toggleExternalMode() {
+  isExternalMode = !isExternalMode;
+  document.getElementById('signup-invite-area').classList.toggle('is-hidden', !isExternalMode);
+  document.getElementById('signup-school-email-label').textContent = isExternalMode ? 'メールアドレス' : '大学メールアドレス';
+  document.getElementById('signup-external-toggle').textContent = isExternalMode ? '熊本大学の方はこちら' : '熊本大学以外の方はこちら';
+  ['signup-student-id', 'signup-faculty', 'signup-department'].forEach((id) => {
+    const el = document.getElementById(id);
+    if (el) el.required = !isExternalMode;
+  });
+  if (!isExternalMode) document.getElementById('signup-invite-code').value = '';
+}
+
 async function requestSignupOtp(event) {
   event.preventDefault();
   const button = document.getElementById('btn-request-otp');
-  const schoolEmail = document.getElementById('signup-school-email').value.trim();
-  const nickname = document.getElementById('signup-nickname').value.trim();
-  const generation = Number(document.getElementById('signup-generation').value);
   const idToken = getCurrentIdToken();
   if (!idToken) return;
 
+  const profile = {
+    fullName: document.getElementById('signup-full-name').value.trim(),
+    furigana: document.getElementById('signup-furigana').value.trim(),
+    nickname: document.getElementById('signup-nickname').value.trim(),
+    schoolEmail: document.getElementById('signup-school-email').value.trim(),
+    phone: document.getElementById('signup-phone').value.trim(),
+    studentId: document.getElementById('signup-student-id').value.trim(),
+    generation: Number(document.getElementById('signup-generation').value),
+    faculty: document.getElementById('signup-faculty').value,
+    department: document.getElementById('signup-department').value.trim(),
+    favoriteArtist: document.getElementById('signup-favorite-artist').value.trim(),
+    inviteCode: isExternalMode ? document.getElementById('signup-invite-code').value.trim() : ''
+  };
+
+  const validationError = validateSignupProfile(profile, isExternalMode);
+  if (validationError) {
+    showToast(validationError, 'error');
+    return;
+  }
+
   await withButtonLoading(button, async () => {
     try {
-      const result = await callGasApi('requestOtp', { idToken, schoolEmail, nickname, generation });
+      const result = await callGasApi('requestOtp', { idToken, ...profile });
       if (!result.success) {
         showToast(result.error || 'パスキーを送信できません', 'error');
         return;
@@ -78,6 +112,22 @@ async function requestSignupOtp(event) {
       showToast('パスキーの送信に失敗しました', 'error');
     }
   }, '送信中...');
+}
+
+function validateSignupProfile(profile, isExternal) {
+  if (!profile.fullName || profile.fullName.length > 50) return '氏名は1〜50文字で入力してください';
+  if (!/^[ぁ-んァ-ヶー\s　]+$/.test(profile.furigana) || profile.furigana.length > 50) return 'ふりがなは1〜50文字のかなで入力してください';
+  if (!profile.nickname || profile.nickname.length > 10) return 'ニックネームは1〜10文字で入力してください';
+  if (!profile.schoolEmail) return isExternal ? 'メールアドレスを入力してください' : '大学メールアドレスを入力してください';
+  if (isExternal && !profile.inviteCode) return '招待コードを入力してください';
+  if (!/^[0-9-]{10,15}$/.test(profile.phone)) return '電話番号は10〜15文字の数字とハイフンで入力してください';
+  if (profile.studentId && !/^[A-Za-z0-9]{4,20}$/.test(profile.studentId)) return '学籍番号は4〜20文字の英数字で入力してください';
+  if (!isExternal && !profile.studentId) return '学籍番号を入力してください';
+  if (!Number.isInteger(profile.generation) || profile.generation < 1 || profile.generation > 99) return '期は1〜99の整数で入力してください';
+  if (!isExternal && !profile.faculty) return '学部を選択してください';
+  if (profile.department.length > 50 || (!isExternal && !profile.department)) return '学科は1〜50文字で入力してください';
+  if (profile.favoriteArtist.length > 100) return '好きなアーティスト/ジャンルは100文字以内で入力してください';
+  return null;
 }
 
 async function verifySignupOtp(event) {
