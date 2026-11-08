@@ -456,6 +456,18 @@
     flex-wrap: nowrap;
   }
 
+  .schedule-calendar[data-schedule-view="day"] .schedule-scroll-layout {
+    grid-template-columns: 34px minmax(0, 1fr);
+    width: 100%;
+    min-width: 0;
+  }
+
+  .schedule-calendar[data-schedule-view="day"] .schedule-grid {
+    width: 100%;
+    min-width: 0;
+    grid-template-columns: minmax(0, 1fr);
+  }
+
   .schedule-toolbar > .schedule-today-btn {
     flex-shrink: 0;
   }
