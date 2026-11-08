@@ -173,7 +173,7 @@ function tourPlaceBubble(step) {
 	Object.assign(spot.style, { left: x0 + 'px', top: y0 + 'px', width: Math.max(0, x1 - x0) + 'px', height: Math.max(0, y1 - y0) + 'px' });
 	const bw = bub.offsetWidth;
 	const bh = bub.offsetHeight;
-	const gap = 12;
+	const gap = 50;
 	// 下部見切れまたは上部見切れの場合は上部に表示
 	let top;
 	if (rect.bottom + gap + bh <= vh - 8 && rect.top >= offset) {
