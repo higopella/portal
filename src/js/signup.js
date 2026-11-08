@@ -63,7 +63,10 @@ let isExternalMode = false;
 function toggleExternalMode() {
   isExternalMode = !isExternalMode;
   document.getElementById('signup-invite-area').classList.toggle('is-hidden', !isExternalMode);
-  document.getElementById('signup-school-email-label').textContent = isExternalMode ? 'メールアドレス' : '大学メールアドレス';
+  document.getElementById('signup-school-email-label').classList.toggle('is-hidden', isExternalMode);
+  const emailInput = document.getElementById('signup-school-email');
+  emailInput.classList.toggle('is-hidden', isExternalMode);
+  emailInput.required = !isExternalMode;
   document.getElementById('signup-external-toggle').textContent = isExternalMode ? '熊本大学の方はこちら' : '熊本大学以外の方はこちら';
   ['signup-student-id', 'signup-faculty', 'signup-department'].forEach((id) => {
     const el = document.getElementById(id);
@@ -82,7 +85,7 @@ async function requestSignupOtp(event) {
     fullName: document.getElementById('signup-full-name').value.trim(),
     furigana: document.getElementById('signup-furigana').value.trim(),
     nickname: document.getElementById('signup-nickname').value.trim(),
-    schoolEmail: document.getElementById('signup-school-email').value.trim(),
+    schoolEmail: isExternalMode ? '' : document.getElementById('signup-school-email').value.trim(),
     studentId: document.getElementById('signup-student-id').value.trim(),
     generation: Number(document.getElementById('signup-generation').value),
     faculty: document.getElementById('signup-faculty').value,
@@ -106,6 +109,11 @@ async function requestSignupOtp(event) {
       }
       document.getElementById('signup-profile-form').classList.add('is-hidden');
       document.getElementById('signup-otp-form').classList.remove('is-hidden');
+      if (isExternalMode) {
+        const googleEmail = getEmailFromIdToken(idToken);
+        const description = document.getElementById('signup-otp-description');
+        if (description && googleEmail) description.textContent = `Googleアカウント（${googleEmail}）に届いた6桁の確認コードを入力してください`;
+      }
       showToast('パスキーを送信しました');
     } catch (error) {
       showToast('パスキーの送信に失敗しました', 'error');
@@ -117,7 +125,7 @@ function validateSignupProfile(profile, isExternal) {
   if (!profile.fullName || profile.fullName.length > 20) return '氏名は1〜20文字で入力してください';
   if (!/^[ぁ-んァ-ヶー\s　]+$/.test(profile.furigana) || profile.furigana.length > 20) return 'ふりがなは1〜20文字のかなで入力してください';
   if (!profile.nickname || profile.nickname.length > 10) return 'ニックネームは1〜10文字で入力してください';
-  if (!profile.schoolEmail) return isExternal ? 'メールアドレスを入力してください' : '大学メールアドレスを入力してください';
+  if (!isExternal && !profile.schoolEmail) return '大学メールアドレスを入力してください';
   if (isExternal && !profile.inviteCode) return '招待コードを入力してください';
   if (profile.studentId && !/^[A-Za-z0-9]{8,10}$/.test(profile.studentId)) return '学籍番号は8〜10文字の英数字で入力してください';
   if (!isExternal && !profile.studentId) return '学籍番号を入力してください';
@@ -131,7 +139,7 @@ function validateSignupProfile(profile, isExternal) {
 async function verifySignupOtp(event) {
   event.preventDefault();
   const button = document.getElementById('btn-verify-otp');
-  const schoolEmail = document.getElementById('signup-school-email').value.trim();
+  const schoolEmail = isExternalMode ? '' : document.getElementById('signup-school-email').value.trim();
   const nickname = document.getElementById('signup-nickname').value.trim();
   const otp = document.getElementById('signup-otp').value.trim();
   const inviteCode = isExternalMode ? document.getElementById('signup-invite-code').value.trim() : '';
@@ -156,6 +164,15 @@ async function verifySignupOtp(event) {
       showToast('登録に失敗しました', 'error');
     }
   }, '登録中...');
+}
+
+function getEmailFromIdToken(idToken) {
+  try {
+    const payload = JSON.parse(atob(idToken.split('.')[1].replace(/-/g, '+').replace(/_/g, '/')));
+    return payload && payload.email ? String(payload.email) : '';
+  } catch (error) {
+    return '';
+  }
 }
 
 async function finalizeSignupAsLoggedIn() {

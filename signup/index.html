@@ -37,7 +37,7 @@
         <div id="signup-invite-area" class="is-hidden">
           <label class="signup-label" for="signup-invite-code">招待コード</label>
           <input type="text" id="signup-invite-code" class="signup-input" maxlength="20" placeholder="発行された招待コード">
-          <p class="signup-hint">外部の方は学籍番号・学部・学科は任意です</p>
+          <p class="signup-hint">確認コードはGoogleアカウントのメールアドレスに届きます。学籍番号・学部・学科は任意です</p>
         </div>
         <label class="signup-label" for="signup-student-id">学籍番号</label>
         <input type="text" id="signup-student-id" class="signup-input" maxlength="20" placeholder="例: 123T4567" required>
@@ -81,7 +81,7 @@
       </form>
 
       <form id="signup-otp-form" class="is-hidden">
-        <p class="signup-description">メールに届いた6桁の確認コードを入力してください</p>
+        <p class="signup-description" id="signup-otp-description">メールに届いた6桁の確認コードを入力してください</p>
         <label class="signup-label" for="signup-otp">確認コード</label>
         <input type="text" id="signup-otp" class="signup-input" inputmode="numeric" autocomplete="one-time-code" pattern="[0-9]{6}" maxlength="6" required>
         <button type="submit" id="btn-verify-otp" class="btn btn-primary signup-submit">登録</button>
