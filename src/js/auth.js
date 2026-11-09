@@ -3,7 +3,7 @@ const LOGIN_HISTORY_TTL_MS = 14 * 24 * 60 * 60 * 1000;
 const SESSION_VERIFIED_TTL_MS = 10 * 60 * 1000;
 
 const CONFIG = {
-  GAS_API_URL: "https://script.google.com/macros/s/AKfycbynzAVfuPKHqT9jkKX-JPh5l42JCbR6d6d0sb9PT_TAilMhtDSY2PW2hOMdEPEMXBgT/exec",
+  GAS_API_URL: (typeof GAS_API_URLS !== 'undefined' && GAS_API_URLS[SITE_ENV]) || "https://script.google.com/macros/s/AKfycbynzAVfuPKHqT9jkKX-JPh5l42JCbR6d6d0sb9PT_TAilMhtDSY2PW2hOMdEPEMXBgT/exec",
   STORAGE_KEYS: {
     IS_LOGGED_IN: "higopella_is_logged_in",
     IS_ADMIN: "higopella_is_admin",
@@ -103,7 +103,7 @@ function logoutUser() {
   setUserLogin(false);
   setAdminLogin(false);
   clearLoginHistory();
-  window.location.replace(window.location.pathname.includes('/portal_test/') ? '/portal_test/' : '/');
+  window.location.replace(typeof getSiteBasePath === 'function' ? getSiteBasePath() : '/');
 }
 
 function recordLoginHistory() {
@@ -221,7 +221,7 @@ function syncDrawerLogoutVisibility() {
 }
 
 async function requirePageAuthentication() {
-  const homePath = window.location.pathname.includes('/portal_test/') ? '/portal_test/' : '/';
+  const homePath = typeof getSiteBasePath === 'function' ? getSiteBasePath() : '/';
   if (!getCurrentIdToken()) {
     await trySilentReauth();
   }
